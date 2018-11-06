@@ -58,7 +58,7 @@
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-async</artifactId>
+            <artifactId>mongo-java-driver</artifactId>
             <version>3.8.2</version>
         </dependency>
         <dependency>

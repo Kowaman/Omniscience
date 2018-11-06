@@ -5,3 +5,9 @@ softdepend: [WorldEdit]
 authors: [501warhead]
 description: The Spigot solution to block logging and rollbacks for 1.13.2+
 website: https://lotc.co/
+
+commands:
+  omniscience:
+    aliases: o, omni
+    usage: /<command> help
+    permission: omniscience.mayuse

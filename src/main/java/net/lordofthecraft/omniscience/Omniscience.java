@@ -1,13 +1,20 @@
 package net.lordofthecraft.omniscience;
 
-import net.lordofthecraft.omniscience.domain.DataMapper;
+import com.google.common.collect.Lists;
+import net.lordofthecraft.omniscience.api.parameter.EventParameter;
+import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
+import net.lordofthecraft.omniscience.command.OmniscienceCommand;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
+
 public final class Omniscience extends JavaPlugin implements IOmniscience {
 
     private static Omniscience INSTANCE;
+
+    private List<ParameterHandler> parameterHandlerList = Lists.newArrayList();
 
     private MongoConnectionHandler connectionHandler;
 
@@ -23,7 +30,6 @@ public final class Omniscience extends JavaPlugin implements IOmniscience {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        connectionHandler.getClient().close();
     }
 
     @Override
@@ -32,6 +38,17 @@ public final class Omniscience extends JavaPlugin implements IOmniscience {
         INSTANCE = this;
         saveDefaultConfig();
         this.connectionHandler = MongoConnectionHandler.createHandler(getConfig());
-        DataMapper.INSTANCE.initInternal();
+
+        registerParameters();
+
+        registerCommands(this.connectionHandler);
+    }
+
+    private void registerCommands(MongoConnectionHandler connectionHandler) {
+        getCommand("omniscience").setExecutor(new OmniscienceCommand(connectionHandler));
+    }
+
+    private void registerParameters() {
+        parameterHandlerList.add(new EventParameter());
     }
 }
