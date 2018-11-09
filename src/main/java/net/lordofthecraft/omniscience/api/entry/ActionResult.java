@@ -1,6 +1,6 @@
 package net.lordofthecraft.omniscience.api.entry;
 
-import jdk.internal.jline.internal.Nullable;
+import com.mongodb.lang.Nullable;
 
 public class ActionResult {
 
@@ -14,6 +14,10 @@ public class ActionResult {
 
     public static ActionResult success() {
         return new ActionResult(null, Status.SUCCESS);
+    }
+
+    public static ActionResult failure(String reason) {
+        return new ActionResult(reason, Status.FAILURE);
     }
 
     public String getResult() {

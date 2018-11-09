@@ -2,36 +2,48 @@ package net.lordofthecraft.omniscience;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mongodb.client.MongoDatabase;
-import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MongoConnectionHandlerTest {
+public class OmniCoreTest {
+
+    @Mock
+    Omniscience omniscience;
+
+    @Mock
+    PluginCommand command;
 
     @Test
-    public void testCreation() {
-        MongoConnectionHandler connectionHandler = spy(makeMongoConnectionHandler(getDummyConfiguration()));
-        assertEquals("Omniscience", connectionHandler.getDatabase().getName());
-        MongoDatabase database = spy(connectionHandler.getDatabase());
-        assertNotNull(connectionHandler.getClient());
-        assertNotNull(connectionHandler.getDatabase());
-        verify(database, times(1)).getCollection("DataEntry");
+    public void onEnable() {
+        OmniCore core = new OmniCore();
+        doNothing().when(omniscience).saveDefaultConfig();
+        when(omniscience.getConfig()).thenReturn(getDummyConfiguration());
+        when(omniscience.getCommand("omniscience")).thenReturn(command);
+        core.onEnable(omniscience);
+        verify(omniscience, times(1)).saveDefaultConfig();
     }
 
-    private MongoConnectionHandler makeMongoConnectionHandler(FileConfiguration configuration) {
-        return MongoConnectionHandler.createHandler(configuration);
+    @Test
+    public void onLoad() {
+        OmniCore core = new OmniCore();
+        core.onLoad(omniscience);
+    }
+
+    @Test
+    public void onDisable() {
+        OmniCore core = new OmniCore();
+        core.onDisable(omniscience);
     }
 
     private FileConfiguration getDummyConfiguration() {
