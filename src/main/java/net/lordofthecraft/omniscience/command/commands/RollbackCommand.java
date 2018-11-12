@@ -8,23 +8,21 @@ import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
 
-public class SearchCommand implements OmniSubCommand {
+public class RollbackCommand implements OmniSubCommand {
 
-
-    //                   /omniscience search <stuff>
     @Override
     public UseResult canRun(CommandSender sender) {
-        return hasPermission(sender, "omniscience.commands.search");
+        return hasPermission(sender, "omniscience.commands.rollback");
     }
 
     @Override
     public String getCommand() {
-        return "search";
+        return "rollback";
     }
 
     @Override
     public ImmutableList<String> getAliases() {
-        return ImmutableList.of("s", "sc", "lookup", "l");
+        return ImmutableList.of("rb", "roll", "restore");
     }
 
     @Override
@@ -34,11 +32,12 @@ public class SearchCommand implements OmniSubCommand {
 
     @Override
     public String getDescription() {
-        return "Search Data Records based on the parameters provided.";
+        return "Rollback a set of changes based on the Parameters Provided";
     }
 
     @Override
     public CommandResult run(CommandSender sender, ArrayList<String> args) {
+        //TODO rollback
         if (args.isEmpty()) {
             return CommandResult.failure(RED + "Error: " + GRAY + "Please specify search arguments.");
         }

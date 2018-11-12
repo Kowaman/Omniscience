@@ -24,7 +24,7 @@ final class OmniCore implements IOmniscience {
 
         registerParameters();
 
-        registerCommands(this.connectionHandler, omniscience);
+        registerCommands(omniscience);
     }
 
     void onLoad(Omniscience omniscience) {
@@ -35,8 +35,8 @@ final class OmniCore implements IOmniscience {
 
     }
 
-    private void registerCommands(MongoConnectionHandler connectionHandler, Omniscience omniscience) {
-        omniscience.getCommand("omniscience").setExecutor(new OmniscienceCommand(connectionHandler));
+    private void registerCommands(Omniscience omniscience) {
+        omniscience.getCommand("omniscience").setExecutor(new OmniscienceCommand());
     }
 
     private void registerParameters() {
