@@ -17,6 +17,12 @@ import java.util.Map;
 
 public final class MongoConnectionHandler {
 
+    private static MongoConnectionHandler instance;
+
+    public static MongoConnectionHandler getInstance() {
+        return instance;
+    }
+
     private final MongoClient client;
     private final MongoDatabase database;
     private MongoCollection<Document> dataEntryCollection = null;
@@ -27,6 +33,9 @@ public final class MongoConnectionHandler {
     }
 
     public static MongoConnectionHandler createHandler(FileConfiguration configuration) {
+        if (instance != null) {
+            return instance;
+        }
         Map<?, ?> serverList = configuration.getMapList("mongodb.servers").get(0);
         Map<ServerAddress, MongoCredential> addressMongoCredentialMap = Maps.newHashMap();
         for (Map.Entry<?, ?> server : serverList.entrySet()) {
@@ -49,7 +58,9 @@ public final class MongoConnectionHandler {
                 .build();
         MongoClient client = MongoClients.create(settings);
         MongoDatabase database = client.getDatabase("Omniscience");
-        return new MongoConnectionHandler(client, database);
+        MongoConnectionHandler handler = new MongoConnectionHandler(client, database);
+        instance = handler;
+        return handler;
     }
 
     public MongoClient getClient() {
