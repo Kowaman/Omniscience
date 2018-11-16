@@ -1,7 +1,8 @@
 package net.lordofthecraft.omniscience.api.parameter;
 
 import com.google.common.collect.ImmutableList;
-import net.lordofthecraft.omniscience.api.query.QueryParameter;
+import net.lordofthecraft.omniscience.api.query.Query;
+import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.command.CommandSender;
 
 public interface ParameterHandler {
@@ -14,5 +15,5 @@ public interface ParameterHandler {
 
     ImmutableList<String> getAliases();
 
-    QueryParameter buildForQuery();
+    void buildForQuery(QuerySession session, String parameter, String value, Query query);
 }

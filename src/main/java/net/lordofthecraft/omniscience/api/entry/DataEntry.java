@@ -1,5 +1,7 @@
 package net.lordofthecraft.omniscience.api.entry;
 
+import org.bson.Document;
+
 import java.util.UUID;
 
 public abstract class DataEntry {
@@ -10,6 +12,10 @@ public abstract class DataEntry {
 
 
     public void save() {
+
+    }
+
+    void loadFromDocument(Document document) {
 
     }
 }

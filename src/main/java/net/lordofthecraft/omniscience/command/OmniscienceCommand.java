@@ -6,6 +6,7 @@ import net.lordofthecraft.omniscience.command.commands.RollbackCommand;
 import net.lordofthecraft.omniscience.command.commands.SearchCommand;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
+import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -28,7 +29,10 @@ public class OmniscienceCommand implements CommandExecutor {
         );
     }
 
-    public OmniscienceCommand() {
+    private final IOmniscience omniscience;
+
+    public OmniscienceCommand(IOmniscience omniscience) {
+        this.omniscience = omniscience;
     }
 
     @Override
@@ -45,7 +49,7 @@ public class OmniscienceCommand implements CommandExecutor {
             argsList.addAll(Arrays.asList(args).subList(1, args.length));
             UseResult result = subCommand.canRun(commandSender);
             if (result == UseResult.SUCCESS) {
-                CommandResult cmdResult = subCommand.run(commandSender, argsList);
+                CommandResult cmdResult = subCommand.run(commandSender, omniscience, argsList);
                 if (!cmdResult.wasSuccessful()) {
                     commandSender.sendMessage(cmdResult.getReason());
                 }

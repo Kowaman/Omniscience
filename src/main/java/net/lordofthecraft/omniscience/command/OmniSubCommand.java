@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience.command;
 import com.google.common.collect.ImmutableList;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
+import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -41,7 +42,7 @@ public interface OmniSubCommand {
 
     String getDescription();
 
-    CommandResult run(CommandSender sender, ArrayList<String> args);
+    CommandResult run(CommandSender sender, IOmniscience core, ArrayList<String> args);
 
     default boolean isCommand(String command) {
         return command.equalsIgnoreCase(getCommand()) || getAliases().contains(command);

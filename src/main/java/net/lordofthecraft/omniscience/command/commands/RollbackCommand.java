@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import net.lordofthecraft.omniscience.command.OmniSubCommand;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
+import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import org.bukkit.command.CommandSender;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class RollbackCommand implements OmniSubCommand {
     }
 
     @Override
-    public CommandResult run(CommandSender sender, ArrayList<String> args) {
+    public CommandResult run(CommandSender sender, IOmniscience core, ArrayList<String> args) {
         //TODO rollback
         if (args.isEmpty()) {
             return CommandResult.failure(RED + "Error: " + GRAY + "Please specify search arguments.");

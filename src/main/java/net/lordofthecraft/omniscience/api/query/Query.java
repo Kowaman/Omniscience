@@ -13,6 +13,10 @@ public class Query {
         this.searchCriteria = Lists.newArrayList();
     }
 
+    public void addCondition() {
+
+    }
+
     public void addParameter(QueryParameter parameter) {
         for (QueryParameter param : searchCriteria) {
             if (parameter.getClass().isInstance(param)) {
