@@ -8,7 +8,7 @@ import java.util.List;
 
 import static net.lordofthecraft.omniscience.api.query.DataKeys.*;
 
-public class SearchConditionGroup {
+public class SearchConditionGroup implements SearchCondition {
     private final List<SearchCondition> conditions = new ArrayList<>();
     private final Operator operator;
 
