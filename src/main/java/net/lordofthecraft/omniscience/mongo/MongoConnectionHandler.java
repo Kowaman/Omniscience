@@ -1,19 +1,26 @@
 package net.lordofthecraft.omniscience.mongo;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.*;
 import com.mongodb.connection.ClusterSettings;
+import net.lordofthecraft.omniscience.api.entry.DataEntry;
+import net.lordofthecraft.omniscience.api.entry.EntryMapper;
+import net.lordofthecraft.omniscience.api.query.Query;
+import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bson.Document;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public final class MongoConnectionHandler {
 
@@ -71,10 +78,36 @@ public final class MongoConnectionHandler {
         return database;
     }
 
-    public MongoCollection<Document> getDataCollection() {
+    private MongoCollection<Document> getDataCollection() {
         if (dataEntryCollection == null) {
             database.getCollection("DataEntry");
         }
         return dataEntryCollection;
+    }
+
+    public CompletableFuture<List<DataEntry>> query(QuerySession session) {
+        Query query = session.getQuery();
+        checkNotNull(query);
+
+        List<DataEntry> entries = Lists.newArrayList();
+        CompletableFuture<List<DataEntry>> future = new CompletableFuture<>();
+
+        MongoCollection<Document> collection = getDataCollection();
+
+        final AggregateIterable<Document> aggregated = null;
+
+
+        try (MongoCursor<Document> cursor = aggregated.iterator()) {
+            while (cursor.hasNext()) {
+                Document wrapper = cursor.next();
+                Document document = wrapper;
+
+                Optional<DataEntry> entry = EntryMapper.INSTANCE.mapDocumentToDataEntry(document);
+
+                entry.ifPresent(entries::add);
+            }
+            future.complete(entries);
+        }
+        return future;
     }
 }
