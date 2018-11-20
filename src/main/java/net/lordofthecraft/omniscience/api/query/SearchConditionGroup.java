@@ -60,7 +60,7 @@ public class SearchConditionGroup implements SearchCondition {
         return operator;
     }
 
-    enum Operator {
+    public enum Operator {
         AND,
         OR
     }
