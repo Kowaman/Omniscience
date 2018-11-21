@@ -7,8 +7,6 @@ import net.lordofthecraft.omniscience.command.result.UseResult;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
-
 public class RollbackCommand implements OmniSubCommand {
 
     @Override
@@ -37,9 +35,9 @@ public class RollbackCommand implements OmniSubCommand {
     }
 
     @Override
-    public CommandResult run(CommandSender sender, IOmniscience core, ArrayList<String> args) {
+    public CommandResult run(CommandSender sender, IOmniscience core, String[] args) {
         //TODO rollback
-        if (args.isEmpty()) {
+        if (args.length == 0) {
             return CommandResult.failure(RED + "Error: " + GRAY + "Please specify search arguments.");
         }
         return CommandResult.success();

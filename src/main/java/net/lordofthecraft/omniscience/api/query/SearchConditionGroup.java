@@ -6,7 +6,7 @@ import org.bukkit.Location;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.lordofthecraft.omniscience.api.query.DataKeys.*;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
 public class SearchConditionGroup implements SearchCondition {
     private final List<SearchCondition> conditions = new ArrayList<>();

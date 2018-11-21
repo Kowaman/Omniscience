@@ -5,6 +5,9 @@ import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.command.CommandSender;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+
 public interface ParameterHandler {
 
     boolean canRun(CommandSender sender);
@@ -15,5 +18,5 @@ public interface ParameterHandler {
 
     ImmutableList<String> getAliases();
 
-    void buildForQuery(QuerySession session, String parameter, String value, Query query);
+    Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query);
 }

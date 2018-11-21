@@ -1,4 +1,4 @@
-package net.lordofthecraft.omniscience.api.query;
+package net.lordofthecraft.omniscience.api.flag;
 
 public enum Flag {
     DRAIN,

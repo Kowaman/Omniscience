@@ -1,14 +1,15 @@
 package net.lordofthecraft.omniscience.command.commands;
 
 import com.google.common.collect.ImmutableList;
-import net.lordofthecraft.omniscience.api.query.Query;
+import net.lordofthecraft.omniscience.api.parameter.ParameterException;
+import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.OmniSubCommand;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 public class SearchCommand implements OmniSubCommand {
 
@@ -38,13 +39,23 @@ public class SearchCommand implements OmniSubCommand {
     }
 
     @Override
-    public CommandResult run(CommandSender sender, IOmniscience core, ArrayList<String> args) {
-        if (args.isEmpty()) {
-            return CommandResult.failure(RED + "Error: " + GRAY + "Please specify search arguments.");
+    public CommandResult run(CommandSender sender, IOmniscience core, String[] args) {
+        final QuerySession session = new QuerySession(sender);
+
+        sender.sendMessage(DARK_AQUA + "Querying records... (This can take a bit, please be patient)");
+
+        try {
+            CompletableFuture<Void> future = session.newQueryFromArguments(args);
+            future.thenAccept(v -> {
+                //TODO ship off
+            });
+        } catch (ParameterException e) {
+            return CommandResult.failure(e.getMessage());
+        } catch (Exception ex) {
+            String message = ex.getMessage() == null ? "An unknown error occurred while running this command. Please check console." : ex.getMessage();
+            ex.printStackTrace();
+            return CommandResult.failure(message);
         }
-        Query query = new Query();
-        //TODO parse parameters
-        core.submitQuery(sender, query);
         return CommandResult.success();
     }
 }

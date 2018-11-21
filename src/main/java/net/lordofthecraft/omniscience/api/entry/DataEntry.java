@@ -1,7 +1,8 @@
 package net.lordofthecraft.omniscience.api.entry;
 
-import org.bson.Document;
+import net.lordofthecraft.omniscience.Omniscience;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 
 public abstract class DataEntry {
@@ -15,7 +16,15 @@ public abstract class DataEntry {
 
     }
 
-    void loadFromDocument(Document document) {
+    public static DataEntry from(String eventName, boolean isAggregate) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        final DataEntry entry;
+        if (isAggregate) {
+            entry = new DataAggregateEntry();
+        } else {
+            entry = Omniscience.getDataEntryClass(eventName)
+                    .orElse(DataEntryComplete.class).getConstructor().newInstance();
+        }
 
+        return entry;
     }
 }

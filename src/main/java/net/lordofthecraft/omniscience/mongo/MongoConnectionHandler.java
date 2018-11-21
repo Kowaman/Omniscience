@@ -7,21 +7,23 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.*;
+import com.mongodb.client.model.InsertOneModel;
+import com.mongodb.client.model.WriteModel;
 import com.mongodb.connection.ClusterSettings;
+import net.lordofthecraft.omniscience.api.data.DataKey;
+import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
-import net.lordofthecraft.omniscience.api.entry.EntryMapper;
+import net.lordofthecraft.omniscience.api.flag.Flag;
 import net.lordofthecraft.omniscience.api.query.*;
+import net.lordofthecraft.omniscience.util.DataHelper;
 import org.bson.Document;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static net.lordofthecraft.omniscience.api.query.DataKeys.*;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
 public final class MongoConnectionHandler {
 
@@ -86,6 +88,77 @@ public final class MongoConnectionHandler {
         return dataEntryCollection;
     }
 
+    public void write(List<DataWrapper> wrappers) {
+        MongoCollection<Document> collection = getDataCollection();
+
+        List<WriteModel<Document>> documents = Lists.newArrayList();
+        for (DataWrapper wrapper : wrappers) {
+            Document document = documentFromDataWrapper(wrapper);
+
+            document.append("Expires", "10000"); //TODO record expiry
+
+            documents.add(new InsertOneModel<>(document));
+        }
+
+        collection.bulkWrite(documents);
+
+        //TODO return result
+    }
+
+    private Document documentFromDataWrapper(DataWrapper wrapper) {
+        Document document = new Document();
+
+        Set<DataKey> keys = wrapper.getKeys();
+        for (DataKey dataKey : keys) {
+            Optional<Object> oObject = wrapper.get(dataKey);
+            oObject.ifPresent(object -> {
+                String key = dataKey.toString();
+                if (object instanceof List) {
+                    List<Object> convertedList = Lists.newArrayList();
+                    for (Object innerObject : (List<?>) object) {
+                        if (innerObject instanceof DataWrapper) {
+                            convertedList.add(documentFromDataWrapper((DataWrapper) innerObject));
+                        } else if (DataHelper.isPrimitiveType(innerObject)) {
+                            convertedList.add(innerObject);
+                        } else {
+                            //TODO log unsupported data
+                        }
+                    }
+
+                    if (!convertedList.isEmpty()) {
+                        document.append(key, convertedList);
+                    }
+                } else if (object instanceof DataWrapper) {
+                    DataWrapper subWrapper = (DataWrapper) object;
+                    document.append(key, documentFromDataWrapper(subWrapper));
+                } else {
+                    if (key.equals(PLAYER_ID.toString())) {
+                        document.append(PLAYER_ID.toString(), object);
+                    } else {
+                        document.append(key, object);
+                    }
+                }
+            });
+        }
+        return document;
+    }
+
+    private DataWrapper documentToDataWrapper(Document document) {
+        DataWrapper wrapper = DataWrapper.createNew();
+
+        for (String key : document.keySet()) {
+            DataKey dataKey = DataKey.of(key);
+            Object object = document.get(key);
+
+            if (object instanceof Document) {
+                wrapper.set(dataKey, documentToDataWrapper((Document) object));
+            } else {
+                wrapper.set(dataKey, object);
+            }
+        }
+        return wrapper;
+    }
+
     private Document buildConditions(List<SearchCondition> conditions) {
         Document filter = new Document();
 
@@ -102,23 +175,23 @@ public final class MongoConnectionHandler {
                 FieldCondition field = (FieldCondition) condition;
 
                 Document matcher;
-                if (filter.containsKey(field.getField())) {
-                    matcher = (Document) filter.get(field.getField());
+                if (filter.containsKey(field.getField().toString())) {
+                    matcher = (Document) filter.get(field.getField().toString());
                 } else {
                     matcher = new Document();
                 }
 
                 if (field.getValue() instanceof List) {
                     matcher.append(field.getRule().equals(MatchRule.INCLUDES) ? "$in" : "$nin", field.getValue());
-                    filter.put(field.getField(), matcher);
+                    filter.put(field.getField().toString(), matcher);
                 } else if (field.getRule().equals(MatchRule.EQUALS)) {
-                    filter.put(field.getField(), field.getValue());
+                    filter.put(field.getField().toString(), field.getValue());
                 } else if (field.getRule().equals(MatchRule.GREATER_THAN_EQUAL)) {
                     matcher.append("$gte", field.getValue());
-                    filter.put(field.getField(), matcher);
+                    filter.put(field.getField().toString(), matcher);
                 } else if (field.getRule().equals(MatchRule.LESS_THAN_EQUAL)) {
                     matcher.append("$lte", field.getValue());
-                    filter.put(field.getField(), matcher);
+                    filter.put(field.getField().toString(), matcher);
                 } else if (field.getRule().equals(MatchRule.BETWEEN)) {
                     if (!(field.getValue() instanceof Range)) {
                         throw new IllegalArgumentException("Between matcher requires a value range");
@@ -127,7 +200,7 @@ public final class MongoConnectionHandler {
                     Range<?> range = (Range<?>) field.getValue();
 
                     Document between = new Document("$gte", range.lowerEndpoint()).append("$lte", range.upperEndpoint());
-                    filter.put(field.getField(), between);
+                    filter.put(field.getField().toString(), between);
                 }
             }
         }
@@ -140,30 +213,33 @@ public final class MongoConnectionHandler {
 
         List<DataEntry> entries = Lists.newArrayList();
         CompletableFuture<List<DataEntry>> future = new CompletableFuture<>();
+        future.thenAccept(dataEntries -> {
+            DataEntry entry = dataEntries.get(0);
+        });
 
         MongoCollection<Document> collection = getDataCollection();
 
         Document matcher = new Document("$match", buildConditions(session.getQuery().getSearchCriteria()));
 
         Document sortFields = new Document();
-        sortFields.put(CREATED, "value");
+        sortFields.put(CREATED.toString(), "value");
         Document sorter = new Document("$sort", sortFields);
 
         Document limit = new Document("$limit", 10);
 
         final AggregateIterable<Document> aggregated;
-        if (session != null) { //It's a me, mario. please replace.
+        if (!session.hasFlag(Flag.NO_GROUP)) {
             Document groupFields = new Document();
-            groupFields.put(EVENT_NAME, "$" + EVENT_NAME);
-            groupFields.put(PLAYER_ID, "$" + PLAYER_ID);
-            groupFields.put(CAUSE, "$" + CAUSE);
-            groupFields.put(TARGET, "$" + TARGET);
-            groupFields.put(DAY_OF_MONTH, "$" + CREATED);
-            groupFields.put(MONTH, "$" + CREATED);
-            groupFields.put(YEAR, "$" + CREATED);
+            groupFields.put(EVENT_NAME.toString(), "$" + EVENT_NAME);
+            groupFields.put(PLAYER_ID.toString(), "$" + PLAYER_ID);
+            groupFields.put(CAUSE.toString(), "$" + CAUSE);
+            groupFields.put(TARGET.toString(), "$" + TARGET);
+            groupFields.put(DAY_OF_MONTH.toString(), "$" + CREATED);
+            groupFields.put(MONTH.toString(), "$" + CREATED);
+            groupFields.put(YEAR.toString(), "$" + CREATED);
 
             Document groupHolder = new Document("_id", groupFields);
-            groupHolder.put(COUNT, new Document("$sum", 1));
+            groupHolder.put(COUNT.toString(), new Document("$sum", 1));
 
             Document group = new Document("$group", groupHolder);
 
@@ -188,11 +264,15 @@ public final class MongoConnectionHandler {
         try (MongoCursor<Document> cursor = aggregated.iterator()) {
             while (cursor.hasNext()) {
                 Document wrapper = cursor.next();
-                Document document = wrapper;
+                Document document = session.hasFlag(Flag.NO_GROUP) ? wrapper : (Document) wrapper.get("_id");
 
-                Optional<DataEntry> entry = EntryMapper.INSTANCE.mapDocumentToDataEntry(document);
+                DataWrapper internalWrapper = documentToDataWrapper(document);
 
-                entry.ifPresent(entries::add);
+                if (!session.hasFlag(Flag.NO_GROUP)) {
+                    internalWrapper.set(COUNT, wrapper.get(COUNT.toString()));
+                }
+
+                //TODO let's make us a DataEntry
             }
             future.complete(entries);
         }

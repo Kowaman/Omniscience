@@ -5,6 +5,8 @@ import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.command.CommandSender;
 
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 public class EventParameter extends BaseParameterHandler {
@@ -26,7 +28,8 @@ public class EventParameter extends BaseParameterHandler {
     }
 
     @Override
-    public void buildForQuery(QuerySession session, String parameter, String value, Query query) {
+    public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
 
+        return Optional.empty();
     }
 }

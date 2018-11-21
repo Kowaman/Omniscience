@@ -7,8 +7,6 @@ import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
-
 public interface OmniSubCommand {
 
     String RED = ChatColor.RED.toString();
@@ -42,7 +40,7 @@ public interface OmniSubCommand {
 
     String getDescription();
 
-    CommandResult run(CommandSender sender, IOmniscience core, ArrayList<String> args);
+    CommandResult run(CommandSender sender, IOmniscience core, String[] args);
 
     default boolean isCommand(String command) {
         return command.equalsIgnoreCase(getCommand()) || getAliases().contains(command);

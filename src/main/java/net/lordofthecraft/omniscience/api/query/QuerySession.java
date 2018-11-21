@@ -1,24 +1,69 @@
 package net.lordofthecraft.omniscience.api.query;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import net.lordofthecraft.omniscience.api.flag.Flag;
+import net.lordofthecraft.omniscience.api.parameter.ParameterException;
+import org.bukkit.command.CommandSender;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 public class QuerySession {
 
-    //private final List<DataEntry> dataEntries = Lists.newArrayList();
-    private Query query;
-    private int pageSize = 10;
+    protected final CommandSender sender;
+    protected final List<Flag> flags = Lists.newArrayList();
+    protected Query query;
+    protected int radius;
+    protected Sort sortOrder = Sort.NEWEST_FIRST;
+
+    public QuerySession(CommandSender sender) {
+        this.sender = sender;
+    }
 
     public Query getQuery() {
         return query;
+    }
+
+    public ImmutableList<Flag> getFlags() {
+        return ImmutableList.copyOf(flags);
+    }
+
+    public void addFlag(Flag flag) {
+        flags.add(flag);
+    }
+
+    public boolean hasFlag(Flag flag) {
+        return flags.contains(flag);
+    }
+
+    public void clearFlags() {
+        flags.clear();
+    }
+
+    public Sort getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(Sort sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+
+    public CommandSender getSender() {
+        return sender;
     }
 
     public void setQuery(Query query) {
         this.query = query;
     }
 
-    public int getPageSize() {
-        return pageSize;
+    public CompletableFuture<Void> newQueryFromArguments(String[] arguments) throws ParameterException {
+        CompletableFuture<Query> future = QueryBuilder.fromArguments(this, arguments);
+        return future.thenAccept(query -> this.query = query);
     }
 
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+    public enum Sort {
+        NEWEST_FIRST,
+        OLDEST_FIRST
     }
 }

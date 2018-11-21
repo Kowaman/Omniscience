@@ -1,7 +1,6 @@
 package net.lordofthecraft.omniscience.command;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import net.lordofthecraft.omniscience.command.commands.RollbackCommand;
 import net.lordofthecraft.omniscience.command.commands.SearchCommand;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
@@ -12,10 +11,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 public class OmniscienceCommand implements CommandExecutor {
@@ -30,9 +28,11 @@ public class OmniscienceCommand implements CommandExecutor {
     }
 
     private final IOmniscience omniscience;
+    private final Executor executorService;
 
-    public OmniscienceCommand(IOmniscience omniscience) {
+    public OmniscienceCommand(IOmniscience omniscience, Executor executorService) {
         this.omniscience = omniscience;
+        this.executorService = executorService;
     }
 
     @Override
@@ -45,14 +45,17 @@ public class OmniscienceCommand implements CommandExecutor {
                 .findFirst();
         if (cOptional.isPresent()) {
             OmniSubCommand subCommand = cOptional.get();
-            ArrayList<String> argsList = Lists.newArrayList();
-            argsList.addAll(Arrays.asList(args).subList(1, args.length));
+            String[] subArgs = new String[args.length - 2];
+            System.arraycopy(args, 1, subArgs, 0, args.length - 1);
             UseResult result = subCommand.canRun(commandSender);
             if (result == UseResult.SUCCESS) {
-                CommandResult cmdResult = subCommand.run(commandSender, omniscience, argsList);
-                if (!cmdResult.wasSuccessful()) {
-                    commandSender.sendMessage(cmdResult.getReason());
-                }
+                //Here we ship off the command to run async so that we don't block the current thread.
+                executorService.execute(() -> {
+                    CommandResult cmdResult = subCommand.run(commandSender, omniscience, subArgs);
+                    if (!cmdResult.wasSuccessful()) {
+                        commandSender.sendMessage(cmdResult.getReason());
+                    }
+                });
                 return true;
             } else {
                 return sendError(commandSender, result);
