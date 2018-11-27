@@ -1,16 +1,13 @@
 package net.lordofthecraft.omniscience.api.entry;
 
 import net.lordofthecraft.omniscience.Omniscience;
+import net.lordofthecraft.omniscience.api.data.DataWrapper;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.UUID;
 
 public abstract class DataEntry {
 
-    private String eventName;
-    private int x, y, z;
-    private UUID world;
-
+    protected DataWrapper data;
 
     public void save() {
 

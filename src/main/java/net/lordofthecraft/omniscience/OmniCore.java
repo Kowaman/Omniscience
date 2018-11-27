@@ -13,8 +13,11 @@ import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.OmniscienceCommand;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
+import net.lordofthecraft.omniscience.listener.BlockChangeListener;
+import net.lordofthecraft.omniscience.listener.ItemListener;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
 import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.PluginManager;
 
 import java.util.List;
 import java.util.Map;
@@ -43,6 +46,7 @@ final class OmniCore implements IOmniscience {
         registerParameters();
 
         registerCommands(omniscience);
+        registerEventHandlers(omniscience);
     }
 
     void onLoad(Omniscience omniscience) {
@@ -55,6 +59,12 @@ final class OmniCore implements IOmniscience {
 
     private void registerCommands(Omniscience omniscience) {
         omniscience.getCommand("omniscience").setExecutor(new OmniscienceCommand(this, queryService));
+    }
+
+    private void registerEventHandlers(Omniscience plugin) {
+        PluginManager pm = plugin.getServer().getPluginManager();
+        pm.registerEvents(new BlockChangeListener(), plugin);
+        pm.registerEvents(new ItemListener(), plugin);
     }
 
     private void registerParameters() {

@@ -2,5 +2,5 @@ package net.lordofthecraft.omniscience.api.entry;
 
 public interface Actionable {
 
-    ActionResult rollback();
+    ActionResult rollback() throws Exception;
 }

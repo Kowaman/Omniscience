@@ -1,7 +1,8 @@
 package net.lordofthecraft.omniscience.api.data;
 
 import com.google.common.collect.Maps;
-import org.bukkit.block.Block;
+import org.bukkit.Location;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
@@ -23,15 +24,17 @@ public final class DataWrapper {
         return new DataWrapper();
     }
 
-    public static DataWrapper of(Block block) {
+    public static DataWrapper of(BlockState block) {
         DataWrapper wrapper = new DataWrapper();
-        wrapper.set(X, block.getX());
-        wrapper.set(Y, block.getY());
-        wrapper.set(Z, block.getZ());
+        DataWrapper location = new DataWrapper();
+        location.set(X, block.getX());
+        location.set(Y, block.getY());
+        location.set(Z, block.getZ());
+        location.set(WORLD, block.getWorld().getUID().toString());
+        wrapper.set(LOCATION, location);
         wrapper.set(MATERIAL_TYPE, block.getType().name());
         //TODO We'll need a way to parse this. Return later when we know wtf this looks like.
         wrapper.set(BLOCK_DATA, block.getBlockData().getAsString());
-        wrapper.set(WORLD, block.getWorld().getUID().toString());
         return wrapper;
     }
 
@@ -56,8 +59,22 @@ public final class DataWrapper {
         return wrapper;
     }
 
-    public Optional<Object> get(DataKey key) {
-        return Optional.ofNullable(data.get(key.toString()));
+    public static DataWrapper of(Location location) {
+        DataWrapper wrapper = new DataWrapper();
+        wrapper.set(X, location.getBlockX());
+        wrapper.set(Y, location.getBlockY());
+        wrapper.set(Z, location.getBlockZ());
+        wrapper.set(WORLD, location.getWorld().getUID().toString());
+        return wrapper;
+    }
+
+    public <T> Optional<T> get(DataKey key) {
+        Object object = data.get(key.toString());
+        try {
+            return Optional.ofNullable((T) data.get(key.toString()));
+        } catch (Exception ignored) {
+            return Optional.empty();
+        }
     }
 
     public void set(DataKey key, Object value) {
