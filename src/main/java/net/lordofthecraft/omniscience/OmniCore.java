@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.lordofthecraft.omniscience.api.entry.BlockEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
+import net.lordofthecraft.omniscience.api.entry.EntryQueueRunner;
 import net.lordofthecraft.omniscience.api.flag.FlagExtended;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.flag.FlagNoGroup;
@@ -18,6 +19,7 @@ import net.lordofthecraft.omniscience.listener.BlockChangeListener;
 import net.lordofthecraft.omniscience.listener.ChatListener;
 import net.lordofthecraft.omniscience.listener.ItemListener;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
 final class OmniCore implements IOmniscience {
 
@@ -50,6 +53,13 @@ final class OmniCore implements IOmniscience {
 
         registerCommands(omniscience);
         registerEventHandlers(omniscience);
+
+        Bukkit.getScheduler().runTaskTimerAsynchronously(omniscience,
+                new EntryQueueRunner(),
+                20,
+                20);
+
+        omniscience.getLogger().log(Level.INFO, "Omniscience is Awake. They now have much to fear.");
     }
 
     void onLoad(Omniscience omniscience) {
