@@ -18,6 +18,7 @@ import net.lordofthecraft.omniscience.listener.BlockChangeListener;
 import net.lordofthecraft.omniscience.listener.ChatListener;
 import net.lordofthecraft.omniscience.listener.ItemListener;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -58,6 +59,10 @@ final class OmniCore implements IOmniscience {
                 new EntryQueueRunner(),
                 20,
                 20);
+
+        if (omniscience.getConfig().getBoolean("integration.fastAsyncWorldEdit") && Bukkit.getServer().getPluginManager().isPluginEnabled("FastAsyncWorldEdit")) {
+
+        }
 
         omniscience.getLogger().log(Level.INFO, "Omniscience is Awake. They now have much to fear.");
     }
