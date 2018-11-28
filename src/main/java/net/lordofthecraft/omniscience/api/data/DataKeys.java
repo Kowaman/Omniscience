@@ -2,18 +2,15 @@ package net.lordofthecraft.omniscience.api.data;
 
 public final class DataKeys {
 
-    public static final DataKey LOCATION = DataKey.of("location");
-    public static final DataKey WORLD = DataKey.of("world");
-    public static final DataKey X = DataKey.of("x");
-    public static final DataKey Y = DataKey.of("y");
-    public static final DataKey Z = DataKey.of("z");
-    public static final DataKey EVENT_NAME = DataKey.of("event");
-    public static final DataKey PLAYER_ID = DataKey.of("player");
-    public static final DataKey CAUSE = DataKey.of("cause");
-    public static final DataKey TARGET = DataKey.of("target");
-    public static final DataKey DAY_OF_MONTH = DataKey.of("dayOfMonth");
-    public static final DataKey MONTH = DataKey.of("month");
-    public static final DataKey YEAR = DataKey.of("year");
+    public static final DataKey LOCATION = DataKey.of("Location");
+    public static final DataKey WORLD = DataKey.of("World");
+    public static final DataKey X = DataKey.of("X");
+    public static final DataKey Y = DataKey.of("Y");
+    public static final DataKey Z = DataKey.of("Z");
+    public static final DataKey EVENT_NAME = DataKey.of("Event");
+    public static final DataKey PLAYER_ID = DataKey.of("Player");
+    public static final DataKey CAUSE = DataKey.of("Cause");
+    public static final DataKey TARGET = DataKey.of("Target");
     public static final DataKey COUNT = DataKey.of("count");
     public static final DataKey CREATED = DataKey.of("created");
     public static final DataKey BLOCK_DATA = DataKey.of("blockData");

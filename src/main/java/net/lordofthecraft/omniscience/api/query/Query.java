@@ -15,4 +15,8 @@ public class Query {
     public List<SearchCondition> getSearchCriteria() {
         return searchCriteria;
     }
+
+    public void addCondition(SearchCondition fieldCondition) {
+        searchCriteria.add(fieldCondition);
+    }
 }

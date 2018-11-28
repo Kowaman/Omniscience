@@ -4,6 +4,7 @@ import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Optional;
@@ -30,7 +31,7 @@ public final class Omniscience extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         INSTANCE = new OmniCore();
-        INSTANCE.onEnable(this);
+        INSTANCE.onEnable(this, Bukkit.getScheduler());
     }
 
     public static Optional<ParameterHandler> getParameterHandler(String key) {

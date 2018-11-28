@@ -12,12 +12,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
-public class EventParameter extends BaseParameterHandler {
-    //Credit to Prism for this regex
-    private final Pattern pattern = Pattern.compile("[~|!]?[\\w,-]+");
+public class BlockParameter extends BaseParameterHandler {
+    private final Pattern pattern = Pattern.compile("[\\w,:-]+");
 
-    public EventParameter() {
-        super(ImmutableList.of("e", "a", "event"));
+    public BlockParameter() {
+        super(ImmutableList.of("b", "block"));
     }
 
     @Override
@@ -32,7 +31,7 @@ public class EventParameter extends BaseParameterHandler {
 
     @Override
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
-        query.addCondition(FieldCondition.of(DataKeys.EVENT_NAME, MatchRule.EQUALS, value));
+        query.addCondition(FieldCondition.of(DataKeys.TARGET, MatchRule.EQUALS, Pattern.compile(value.replace('_', ' '))));
 
         return Optional.empty();
     }

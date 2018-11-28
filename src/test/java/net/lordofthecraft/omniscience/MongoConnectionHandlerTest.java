@@ -15,7 +15,7 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.spy;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MongoConnectionHandlerTest {
@@ -27,7 +27,6 @@ public class MongoConnectionHandlerTest {
         MongoDatabase database = spy(connectionHandler.getDatabase());
         assertNotNull(connectionHandler.getClient());
         assertNotNull(connectionHandler.getDatabase());
-        verify(database, times(1)).getCollection("DataEntry");
     }
 
     private MongoConnectionHandler makeMongoConnectionHandler(FileConfiguration configuration) {

@@ -18,7 +18,7 @@
     <url>https://lotc.co/</url>
 
     <build>
-        <defaultGoal>clean package</defaultGoal>
+        <defaultGoal>clean package install</defaultGoal>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -9,8 +9,7 @@ import net.lordofthecraft.omniscience.api.flag.FlagExtended;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.flag.FlagNoGroup;
 import net.lordofthecraft.omniscience.api.flag.FlagOrder;
-import net.lordofthecraft.omniscience.api.parameter.EventParameter;
-import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
+import net.lordofthecraft.omniscience.api.parameter.*;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.OmniscienceCommand;
 import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
@@ -19,8 +18,8 @@ import net.lordofthecraft.omniscience.listener.BlockChangeListener;
 import net.lordofthecraft.omniscience.listener.ChatListener;
 import net.lordofthecraft.omniscience.listener.ItemListener;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.List;
 import java.util.Map;
@@ -42,8 +41,9 @@ final class OmniCore implements IOmniscience {
     OmniCore() {
     }
 
-    void onEnable(Omniscience omniscience) {
+    void onEnable(Omniscience omniscience, BukkitScheduler scheduler) {
         omniscience.saveDefaultConfig();
+        OmniConfig.INSTANCE.setup(omniscience.getConfig());
         this.connectionHandler = MongoConnectionHandler.createHandler(omniscience.getConfig());
         this.queryService = Executors.newCachedThreadPool();
 
@@ -54,7 +54,7 @@ final class OmniCore implements IOmniscience {
         registerCommands(omniscience);
         registerEventHandlers(omniscience);
 
-        Bukkit.getScheduler().runTaskTimerAsynchronously(omniscience,
+        scheduler.runTaskTimerAsynchronously(omniscience,
                 new EntryQueueRunner(),
                 20,
                 20);
@@ -63,7 +63,6 @@ final class OmniCore implements IOmniscience {
     }
 
     void onLoad(Omniscience omniscience) {
-
     }
 
     void onDisable(Omniscience omniscience) {
@@ -92,6 +91,12 @@ final class OmniCore implements IOmniscience {
 
     private void registerParameters() {
         parameterHandlerList.add(new EventParameter());
+        parameterHandlerList.add(new PlayerParameter());
+        parameterHandlerList.add(new MessageParameter());
+        parameterHandlerList.add(new RadiusParameter());
+        parameterHandlerList.add(new TimeParameter());
+        parameterHandlerList.add(new CauseParameter());
+        parameterHandlerList.add(new BlockParameter());
     }
 
     private void registerFlags() {
@@ -107,6 +112,10 @@ final class OmniCore implements IOmniscience {
 
     public void registerEvent(String name, Class<? extends DataEntry> clazz) {
         eventMap.put(name, clazz);
+    }
+
+    public MongoConnectionHandler getConnectionHandler() {
+        return connectionHandler;
     }
 
     Optional<ParameterHandler> getParameterHandler(String key) {

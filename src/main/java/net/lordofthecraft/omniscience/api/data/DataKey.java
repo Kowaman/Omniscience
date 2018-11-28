@@ -1,5 +1,7 @@
 package net.lordofthecraft.omniscience.api.data;
 
+import java.util.Objects;
+
 public final class DataKey {
 
     private final String key;
@@ -19,5 +21,18 @@ public final class DataKey {
     @Override
     public String toString() {
         return key;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DataKey dataKey = (DataKey) o;
+        return key.equals(dataKey.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
     }
 }

@@ -57,6 +57,14 @@ public class QuerySession {
         this.query = query;
     }
 
+    public int getRadius() {
+        return radius;
+    }
+
+    public void setRadius(int radius) {
+        this.radius = radius;
+    }
+
     public CompletableFuture<Void> newQueryFromArguments(String[] arguments) throws ParameterException {
         CompletableFuture<Query> future = QueryBuilder.fromArguments(this, arguments);
         return future.thenAccept(query -> this.query = query);

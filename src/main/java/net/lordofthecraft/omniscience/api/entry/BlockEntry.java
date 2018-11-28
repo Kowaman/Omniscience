@@ -12,6 +12,8 @@ import static net.lordofthecraft.omniscience.api.data.DataKeys.ORIGINAL_BLOCK;
 
 public class BlockEntry extends DataEntryComplete implements Actionable {
 
+    public BlockEntry() {
+    }
 
     @Override
     public ActionResult rollback() throws Exception {

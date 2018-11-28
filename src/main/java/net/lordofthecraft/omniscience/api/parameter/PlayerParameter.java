@@ -6,18 +6,19 @@ import net.lordofthecraft.omniscience.api.query.FieldCondition;
 import net.lordofthecraft.omniscience.api.query.MatchRule;
 import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
-public class EventParameter extends BaseParameterHandler {
-    //Credit to Prism for this regex
-    private final Pattern pattern = Pattern.compile("[~|!]?[\\w,-]+");
+public class PlayerParameter extends BaseParameterHandler {
+    private final Pattern pattern = Pattern.compile("[\\w,:-]+");
 
-    public EventParameter() {
-        super(ImmutableList.of("e", "a", "event"));
+    public PlayerParameter() {
+        super(ImmutableList.of("p", "player"));
     }
 
     @Override
@@ -32,7 +33,11 @@ public class EventParameter extends BaseParameterHandler {
 
     @Override
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
-        query.addCondition(FieldCondition.of(DataKeys.EVENT_NAME, MatchRule.EQUALS, value));
+        OfflinePlayer player = Bukkit.getOfflinePlayer(value);
+
+        if (player != null) {
+            query.addCondition(FieldCondition.of(DataKeys.PLAYER_ID, MatchRule.EQUALS, player.getUniqueId().toString()));
+        }
 
         return Optional.empty();
     }

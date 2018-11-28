@@ -1,5 +1,6 @@
 package net.lordofthecraft.omniscience.api.entry;
 
+import net.lordofthecraft.omniscience.OmniConfig;
 import net.lordofthecraft.omniscience.util.DateUtil;
 
 import java.text.SimpleDateFormat;
@@ -9,7 +10,7 @@ import java.util.Optional;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.CREATED;
 
 public class DataEntryComplete extends DataEntry {
-    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
+    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(OmniConfig.INSTANCE.getDateFormat());
 
     public String getRelativeTime() {
         Optional<Object> date = data.get(CREATED);

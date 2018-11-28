@@ -1,5 +1,6 @@
 package net.lordofthecraft.omniscience.command.async;
 
+import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.entry.DataAggregateEntry;
@@ -15,6 +16,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class SearchCallback implements AsyncCallback {
@@ -39,7 +41,7 @@ public class SearchCallback implements AsyncCallback {
     @Override
     public void error(Exception e) {
         session.getSender().sendMessage(ChatColor.RED + "An error occurred. Please see console.");
-        //TODO log the error
+        Omniscience.getPlugin(Omniscience.class).getLogger().log(Level.SEVERE, "An error occurred while parsing!", e);
     }
 
     private BaseComponent[] buildComponent(DataEntry entry) {
@@ -47,7 +49,7 @@ public class SearchCallback implements AsyncCallback {
         builder.append(entry.getSourceName()).color(ChatColor.DARK_AQUA).append(" ");
         builder.append(entry.getVerbPastTense()).color(ChatColor.WHITE).append(" ");
 
-        //TODO this would be FUCKING AWESOME to show the item!
+        //this would be FUCKING AWESOME to show the item (if there is one)!
         ComponentBuilder hoverBuilder = new ComponentBuilder("");
         hoverBuilder.append("Source: ").color(ChatColor.DARK_GRAY).append(entry.getSourceName()).color(ChatColor.WHITE).append("\n");
         hoverBuilder.append("Event: ").color(ChatColor.DARK_GRAY).append(entry.getEventName()).color(ChatColor.WHITE).append("\n");

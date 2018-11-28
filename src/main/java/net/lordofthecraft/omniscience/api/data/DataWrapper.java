@@ -70,11 +70,7 @@ public final class DataWrapper {
 
     public <T> Optional<T> get(DataKey key) {
         Object object = data.get(key.toString());
-        try {
-            return Optional.ofNullable((T) data.get(key.toString()));
-        } catch (Exception ignored) {
-            return Optional.empty();
-        }
+        return Optional.ofNullable((T) data.get(key.toString()));
     }
 
     public Optional<String> getString(DataKey key) {

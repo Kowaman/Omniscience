@@ -10,13 +10,17 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.InsertOneModel;
 import com.mongodb.client.model.WriteModel;
 import com.mongodb.connection.ClusterSettings;
+import net.lordofthecraft.omniscience.OmniConfig;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.flag.Flag;
 import net.lordofthecraft.omniscience.api.query.*;
 import net.lordofthecraft.omniscience.util.DataHelper;
+import net.lordofthecraft.omniscience.util.DateUtil;
 import org.bson.Document;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.*;
@@ -95,7 +99,7 @@ public final class MongoConnectionHandler {
         for (DataWrapper wrapper : wrappers) {
             Document document = documentFromDataWrapper(wrapper);
 
-            document.append("Expires", "10000"); //TODO record expiry
+            document.append("Expires", DateUtil.parseTimeStringToDate(OmniConfig.INSTANCE.getRecordExpiry(), true));
 
             documents.add(new InsertOneModel<>(document));
         }
@@ -207,7 +211,7 @@ public final class MongoConnectionHandler {
         return filter;
     }
 
-    public CompletableFuture<List<DataEntry>> query(QuerySession session) {
+    public CompletableFuture<List<DataEntry>> query(QuerySession session) throws Exception {
         Query query = session.getQuery();
         checkNotNull(query);
 
@@ -234,9 +238,12 @@ public final class MongoConnectionHandler {
             groupFields.put(PLAYER_ID.toString(), "$" + PLAYER_ID);
             groupFields.put(CAUSE.toString(), "$" + CAUSE);
             groupFields.put(TARGET.toString(), "$" + TARGET);
-            groupFields.put(DAY_OF_MONTH.toString(), "$" + CREATED);
-            groupFields.put(MONTH.toString(), "$" + CREATED);
-            groupFields.put(YEAR.toString(), "$" + CREATED);
+
+            //TODO group by entity type
+
+            groupFields.put("dayOfMonth", new Document("$dayOfMonth", "$" + CREATED));
+            groupFields.put("month", new Document("$month", "$" + CREATED));
+            groupFields.put("year", new Document("$year", "$" + CREATED));
 
             Document groupHolder = new Document("_id", groupFields);
             groupHolder.put(COUNT.toString(), new Document("$sum", 1));
@@ -250,7 +257,7 @@ public final class MongoConnectionHandler {
             pipeline.add(limit);
 
             aggregated = collection.aggregate(pipeline);
-            //TODO log
+            //TODO log the query that we're sending out
         } else {
             List<Document> pipeline = Lists.newArrayList();
             pipeline.add(matcher);
@@ -258,8 +265,8 @@ public final class MongoConnectionHandler {
             pipeline.add(limit);
 
             aggregated = collection.aggregate(pipeline);
+            //TODO log the query that we're sending out
         }
-
 
         try (MongoCursor<Document> cursor = aggregated.iterator()) {
             while (cursor.hasNext()) {
@@ -272,7 +279,20 @@ public final class MongoConnectionHandler {
                     internalWrapper.set(COUNT, wrapper.get(COUNT.toString()));
                 }
 
-                //TODO let's make us a DataEntry
+                DataEntry entry = DataEntry.from(wrapper.get(EVENT_NAME.toString()).toString(), !session.hasFlag(Flag.NO_GROUP));
+
+                if (document.containsKey(PLAYER_ID.toString())) {
+                    String uuid = document.getString(PLAYER_ID.toString());
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(uuid));
+                    if (player != null) {
+                        internalWrapper.set(CAUSE, player.getName());
+                    } else {
+                        internalWrapper.set(CAUSE, uuid);
+                    }
+                }
+
+                entry.data = internalWrapper;
+                entries.add(entry);
             }
             future.complete(entries);
         }

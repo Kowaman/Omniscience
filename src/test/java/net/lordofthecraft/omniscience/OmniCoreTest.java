@@ -2,9 +2,13 @@ package net.lordofthecraft.omniscience;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.bukkit.Server;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.scheduler.BukkitScheduler;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -12,6 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static org.mockito.Mockito.*;
 
@@ -24,13 +29,33 @@ public class OmniCoreTest {
     @Mock
     PluginCommand command;
 
-    @Test
-    public void onEnable() {
-        OmniCore core = new OmniCore();
+    @Mock
+    PluginManager manager;
+
+    @Mock
+    Server server;
+
+    @Mock
+    BukkitScheduler scheduler;
+
+    @Mock
+    Logger logger;
+
+    @Before
+    public void setup() {
         doNothing().when(omniscience).saveDefaultConfig();
         when(omniscience.getConfig()).thenReturn(getDummyConfiguration());
         when(omniscience.getCommand("omniscience")).thenReturn(command);
-        core.onEnable(omniscience);
+        when(omniscience.getCommand("omnitele")).thenReturn(command);
+        when(omniscience.getServer()).thenReturn(server);
+        when(omniscience.getLogger()).thenReturn(logger);
+        when(server.getPluginManager()).thenReturn(manager);
+    }
+
+    @Test
+    public void onEnable() {
+        OmniCore core = new OmniCore();
+        core.onEnable(omniscience, scheduler);
         verify(omniscience, times(1)).saveDefaultConfig();
     }
 
