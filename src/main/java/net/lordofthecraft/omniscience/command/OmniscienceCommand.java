@@ -1,6 +1,7 @@
 package net.lordofthecraft.omniscience.command;
 
 import com.google.common.collect.ImmutableSet;
+import net.lordofthecraft.omniscience.command.commands.PageCommand;
 import net.lordofthecraft.omniscience.command.commands.RollbackCommand;
 import net.lordofthecraft.omniscience.command.commands.SearchCommand;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
@@ -23,7 +24,8 @@ public class OmniscienceCommand implements CommandExecutor {
     static {
         subCommandSet = ImmutableSet.of(
                 new SearchCommand(),
-                new RollbackCommand()
+                new RollbackCommand(),
+                new PageCommand()
         );
     }
 
@@ -49,13 +51,10 @@ public class OmniscienceCommand implements CommandExecutor {
             System.arraycopy(args, 1, subArgs, 0, args.length - 1);
             UseResult result = subCommand.canRun(commandSender);
             if (result == UseResult.SUCCESS) {
-                //Here we ship off the command to run async so that we don't block the current thread.
-                executorService.execute(() -> {
-                    CommandResult cmdResult = subCommand.run(commandSender, omniscience, subArgs);
-                    if (!cmdResult.wasSuccessful()) {
-                        commandSender.sendMessage(cmdResult.getReason());
-                    }
-                });
+                CommandResult cmdResult = subCommand.run(commandSender, omniscience, subArgs);
+                if (!cmdResult.wasSuccessful()) {
+                    commandSender.sendMessage(ChatColor.RED + cmdResult.getReason());
+                }
                 return true;
             } else {
                 return sendError(commandSender, result);

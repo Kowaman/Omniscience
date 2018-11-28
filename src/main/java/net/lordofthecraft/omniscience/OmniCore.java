@@ -2,6 +2,7 @@ package net.lordofthecraft.omniscience;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.lordofthecraft.omniscience.api.entry.BlockEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.flag.FlagExtended;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
@@ -9,14 +10,14 @@ import net.lordofthecraft.omniscience.api.flag.FlagNoGroup;
 import net.lordofthecraft.omniscience.api.flag.FlagOrder;
 import net.lordofthecraft.omniscience.api.parameter.EventParameter;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
-import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.OmniscienceCommand;
+import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.listener.BlockChangeListener;
+import net.lordofthecraft.omniscience.listener.ChatListener;
 import net.lordofthecraft.omniscience.listener.ItemListener;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
-import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 
 import java.util.List;
@@ -43,7 +44,9 @@ final class OmniCore implements IOmniscience {
         this.connectionHandler = MongoConnectionHandler.createHandler(omniscience.getConfig());
         this.queryService = Executors.newCachedThreadPool();
 
+        registerEventWrapperClasses();
         registerParameters();
+        registerFlags();
 
         registerCommands(omniscience);
         registerEventHandlers(omniscience);
@@ -59,12 +62,22 @@ final class OmniCore implements IOmniscience {
 
     private void registerCommands(Omniscience omniscience) {
         omniscience.getCommand("omniscience").setExecutor(new OmniscienceCommand(this, queryService));
+        //A simple command that will do what we expect every single time. Used for teleporting to locations.
+        omniscience.getCommand("omnitele").setExecutor(new OmniTeleCommand());
+    }
+
+    private void registerEventWrapperClasses() {
+        registerEvent("break", BlockEntry.class);
+        registerEvent("place", BlockEntry.class);
+        registerEvent("grow", BlockEntry.class);
+        registerEvent("form", BlockEntry.class);
     }
 
     private void registerEventHandlers(Omniscience plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
         pm.registerEvents(new BlockChangeListener(), plugin);
         pm.registerEvents(new ItemListener(), plugin);
+        pm.registerEvents(new ChatListener(), plugin);
     }
 
     private void registerParameters() {
@@ -93,10 +106,6 @@ final class OmniCore implements IOmniscience {
     @Override
     public Optional<Class<? extends DataEntry>> getEventClass(String name) {
         return Optional.ofNullable(eventMap.get(name));
-    }
-
-    @Override
-    public void submitQuery(CommandSender sender, Query query) {
     }
 
     Optional<FlagHandler> getFlagHandler(String key) {

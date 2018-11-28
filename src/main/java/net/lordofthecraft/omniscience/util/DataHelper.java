@@ -1,6 +1,9 @@
 package net.lordofthecraft.omniscience.util;
 
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
@@ -73,5 +76,14 @@ public final class DataHelper {
     public static Optional<Entity> getEntityFromWrapper(DataWrapper wrapper) throws IllegalAccessException {
         //TODO there's no way this can return a raw entity. Likely will need to do something special for this method.
         throw new IllegalAccessException("this method is not yet implemented");
+    }
+
+    public static BaseComponent[] buildLocation(Location location, boolean clickable) {
+        ComponentBuilder builder = new ComponentBuilder("(x: " + location.getBlockX() + " y: " + location.getBlockY() + " z: " + location.getBlockZ());
+        builder.append(" world: " + location.getWorld().getName());
+        if (clickable) {
+            builder.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/omnitele " + location.getWorld().getUID().toString() + " " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ()));
+        }
+        return builder.append(")").create();
     }
 }

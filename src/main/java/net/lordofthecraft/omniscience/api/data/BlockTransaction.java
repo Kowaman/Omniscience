@@ -5,12 +5,17 @@ import org.bukkit.block.BlockState;
 import java.util.Optional;
 
 public final class BlockTransaction {
+
+    private BlockTransaction(BlockState before, BlockState after) {
+        this.before = before;
+        this.after = after;
+    }
+
     private final BlockState before;
     private final BlockState after;
 
-    public BlockTransaction(BlockState before, BlockState after) {
-        this.before = before;
-        this.after = after;
+    public static BlockTransaction from(BlockState before, BlockState after) {
+        return new BlockTransaction(before, after);
     }
 
     public Optional<BlockState> getBefore() {

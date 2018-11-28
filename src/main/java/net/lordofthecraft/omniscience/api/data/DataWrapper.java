@@ -77,6 +77,14 @@ public final class DataWrapper {
         }
     }
 
+    public Optional<String> getString(DataKey key) {
+        return get(key);
+    }
+
+    public Optional<Integer> getInt(DataKey key) {
+        return get(key);
+    }
+
     public void set(DataKey key, Object value) {
         data.put(key.toString(), value);
     }

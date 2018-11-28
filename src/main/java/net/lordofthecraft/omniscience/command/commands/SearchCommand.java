@@ -1,17 +1,27 @@
 package net.lordofthecraft.omniscience.command.commands;
 
 import com.google.common.collect.ImmutableList;
+import net.lordofthecraft.omniscience.Omniscience;
+import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.parameter.ParameterException;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.OmniSubCommand;
+import net.lordofthecraft.omniscience.command.async.AsyncCallback;
+import net.lordofthecraft.omniscience.command.async.SearchCallback;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
+import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class SearchCommand implements OmniSubCommand {
+
+    private final ImmutableList<String> commands = ImmutableList.of("s", "sc", "lookup", "l");
 
     @Override
     public UseResult canRun(CommandSender sender) {
@@ -25,7 +35,7 @@ public class SearchCommand implements OmniSubCommand {
 
     @Override
     public ImmutableList<String> getAliases() {
-        return ImmutableList.of("s", "sc", "lookup", "l");
+        return commands;
     }
 
     @Override
@@ -46,9 +56,7 @@ public class SearchCommand implements OmniSubCommand {
 
         try {
             CompletableFuture<Void> future = session.newQueryFromArguments(args);
-            future.thenAccept(v -> {
-                //TODO ship off
-            });
+            future.thenAccept(ignored -> lookup(session, new SearchCallback(session)));
         } catch (ParameterException e) {
             return CommandResult.failure(e.getMessage());
         } catch (Exception ex) {
@@ -57,5 +65,28 @@ public class SearchCommand implements OmniSubCommand {
             return CommandResult.failure(message);
         }
         return CommandResult.success();
+    }
+
+    private void lookup(final QuerySession session, AsyncCallback callback) {
+        Bukkit.getScheduler().runTaskAsynchronously(Omniscience.getProvidingPlugin(Omniscience.class), () -> {
+            try {
+                CompletableFuture<List<DataEntry>> future = MongoConnectionHandler.getInstance().query(session);
+                future.thenAccept(results -> {
+                    try {
+                        if (results.isEmpty()) {
+                            callback.empty();
+                        } else {
+                            callback.success(results);
+                        }
+                    } catch (Exception e) {
+                        session.getSender().sendMessage(ChatColor.RED + e.getMessage());
+                        e.printStackTrace();
+                    }
+                });
+            } catch (Exception e) {
+                callback.error(e);
+                e.printStackTrace();
+            }
+        });
     }
 }

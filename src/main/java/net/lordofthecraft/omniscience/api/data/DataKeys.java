@@ -22,6 +22,8 @@ public final class DataKeys {
     public static final DataKey ITEMSTACK = DataKey.of("itemStack");
     public static final DataKey ORIGINAL_BLOCK = DataKey.of("originalBlock");
     public static final DataKey NEW_BLOCK = DataKey.of("newBlock");
+    public static final DataKey IPADDRESS = DataKey.of("ipAddress");
+    public static final DataKey QUANTITY = DataKey.of("quantity");
 
     private DataKeys() {
     }

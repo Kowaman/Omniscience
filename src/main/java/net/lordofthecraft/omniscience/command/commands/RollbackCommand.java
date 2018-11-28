@@ -9,6 +9,8 @@ import org.bukkit.command.CommandSender;
 
 public class RollbackCommand implements OmniSubCommand {
 
+    private final ImmutableList<String> commands = ImmutableList.of("rb", "roll", "restore");
+
     @Override
     public UseResult canRun(CommandSender sender) {
         return hasPermission(sender, "omniscience.commands.rollback");
@@ -21,7 +23,7 @@ public class RollbackCommand implements OmniSubCommand {
 
     @Override
     public ImmutableList<String> getAliases() {
-        return ImmutableList.of("rb", "roll", "restore");
+        return commands;
     }
 
     @Override

@@ -7,55 +7,52 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 
-public class BlockChangeListener implements Listener {
+public final class BlockChangeListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onLeavesDecay(LeavesDecayEvent event) {
-        OEntry.create().environment().decayedBlock(new BlockTransaction(event.getBlock().getState(), null)).save();
+        OEntry.create().environment().decayedBlock(BlockTransaction.from(event.getBlock().getState(), null)).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event) {
-        OEntry.create().source(event.getPlayer()).brokeBlock(new BlockTransaction(event.getBlock().getState(), null)).save();
+        OEntry.create().source(event.getPlayer()).brokeBlock(BlockTransaction.from(event.getBlock().getState(), null)).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlace(BlockPlaceEvent event) {
-        OEntry.create().source(event.getPlayer()).brokeBlock(new BlockTransaction(event.getBlockReplacedState(), event.getBlock().getState())).save();
+        OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(event.getBlockReplacedState(), event.getBlock().getState())).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockBurn(BlockBurnEvent event) {
-        //TODO how to handle?
+        OEntry.create().environment().brokeBlock(BlockTransaction.from(event.getBlock().getState(), null));
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onBlockIgnite(BlockIgniteEvent event) {
+        //TODO we need to track this... but it's complex.
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockExplode(BlockExplodeEvent event) {
-        //TODO handle
+        //TODO Man I'd LOVE to have a player source for this.
+        event.blockList().forEach(block -> OEntry.create().environment().brokeBlock(BlockTransaction.from(block.getState(), null)).save());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockFade(BlockFadeEvent event) {
-        //TODO handle
+        OEntry.create().environment().decayedBlock(BlockTransaction.from(event.getBlock().getState(), event.getNewState())).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockForm(BlockFormEvent event) {
-        //TODO handle
+        OEntry.create().environment().formedBlock(BlockTransaction.from(event.getBlock().getState(), event.getNewState())).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockMultiPlace(BlockMultiPlaceEvent event) {
-        //TODO handle?
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onBlockFromTo(BlockFromToEvent event) {
-        //TODO handle?
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onBlockPhysics(BlockPhysicsEvent event) {
-        //TODO handle?
+        //TODO absolutely verify this works
+        event.getReplacedBlockStates().forEach(state -> OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(state, state.getBlock().getState())).save());
     }
 }

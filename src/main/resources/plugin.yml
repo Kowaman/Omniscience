@@ -11,3 +11,6 @@ commands:
     aliases: o, omni
     usage: /<command> help
     permission: omniscience.mayuse
+  omnitele:
+    usage: /<command>
+    permission: omniscience.mayuse
