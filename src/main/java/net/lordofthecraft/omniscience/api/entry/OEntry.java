@@ -5,6 +5,7 @@ import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.CommandBlock;
+import org.bukkit.block.data.type.Sign;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
@@ -175,6 +176,13 @@ public final class OEntry {
 
         private Player player() {
             return (Player) sourceBuilder.getSource();
+        }
+
+        public OEntry signInteract(Sign sign) {
+            this.eventName = "useSign";
+            wrapper.set(TARGET, sign.getMaterial().name());
+            wrapper.set(ORIGINAL_BLOCK, sign.getAsString());
+            return new OEntry(sourceBuilder, this);
         }
 
         public OEntry quit() {

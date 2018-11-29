@@ -16,6 +16,7 @@ import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.listener.BlockChangeListener;
 import net.lordofthecraft.omniscience.listener.ChatListener;
+import net.lordofthecraft.omniscience.listener.CraftBookSignListener;
 import net.lordofthecraft.omniscience.listener.ItemListener;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
 import org.bukkit.Bukkit;
@@ -60,11 +61,12 @@ final class OmniCore implements IOmniscience {
                 20,
                 20);
 
-        if (omniscience.getConfig().getBoolean("integration.fastAsyncWorldEdit") && Bukkit.getServer().getPluginManager().isPluginEnabled("FastAsyncWorldEdit")) {
+        if (omniscience.getConfig().getBoolean("integration.fastAsyncWorldEdit")
+                && Bukkit.getServer().getPluginManager().isPluginEnabled("FastAsyncWorldEdit")) {
 
         }
 
-        omniscience.getLogger().log(Level.INFO, "Omniscience is Awake. They now have much to fear.");
+        omniscience.getLogger().log(Level.INFO, "Omniscience is Awake. None can escape.");
     }
 
     void onLoad(Omniscience omniscience) {
@@ -76,7 +78,7 @@ final class OmniCore implements IOmniscience {
 
     private void registerCommands(Omniscience omniscience) {
         omniscience.getCommand("omniscience").setExecutor(new OmniscienceCommand(this, queryService));
-        //A simple command that will do what we expect every single time. Used for teleporting to locations.
+        //A simple command that will do what we expect every single time. Used for teleporting to locations that could be in different worlds. Shouldn't be, but could be.
         omniscience.getCommand("omnitele").setExecutor(new OmniTeleCommand());
     }
 
@@ -92,6 +94,10 @@ final class OmniCore implements IOmniscience {
         pm.registerEvents(new BlockChangeListener(), plugin);
         pm.registerEvents(new ItemListener(), plugin);
         pm.registerEvents(new ChatListener(), plugin);
+        if (plugin.getConfig().getBoolean("integration.craftBookSigns")
+                && Bukkit.getServer().getPluginManager().isPluginEnabled("CraftBook")) {
+            pm.registerEvents(new CraftBookSignListener(), plugin);
+        }
     }
 
     private void registerParameters() {

@@ -51,6 +51,8 @@ public abstract class DataEntry {
                 return "said";
             case "command":
                 return "ran command";
+            case "useSign":
+                return "used sign";
             default:
                 return word;
         }

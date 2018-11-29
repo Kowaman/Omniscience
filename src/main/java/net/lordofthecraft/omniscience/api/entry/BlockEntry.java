@@ -22,7 +22,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
 
         if (!(original instanceof DataWrapper)) {
             //TODO return invalid result
-            return null;
+            return ActionResult.failure("TODO");
         }
 
         DataWrapper originalBlock = (DataWrapper) original;
@@ -37,6 +37,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
             //TODO is this really the best place to do this?
             location.getBlock().setBlockData(data);
         }
-        return null;
+        //TODO return a block transaction incase this went bad?
+        return ActionResult.success();
     }
 }
