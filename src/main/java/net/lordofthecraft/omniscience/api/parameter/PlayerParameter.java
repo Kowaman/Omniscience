@@ -9,10 +9,14 @@ import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class PlayerParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w,:-]+");
@@ -40,5 +44,14 @@ public class PlayerParameter extends BaseParameterHandler {
         }
 
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<String>> suggestTabCompletion(String partial) {
+        Stream<? extends Player> playerStream = Bukkit.getOnlinePlayers().stream();
+        if (partial != null && !partial.isEmpty()) {
+            playerStream = playerStream.filter(player -> player.getName().toLowerCase().startsWith(partial.toLowerCase()));
+        }
+        return Optional.of(playerStream.map(Player::getName).collect(Collectors.toList()));
     }
 }

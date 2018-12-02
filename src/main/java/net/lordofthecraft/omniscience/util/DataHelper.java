@@ -1,9 +1,11 @@
 package net.lordofthecraft.omniscience.util;
 
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
@@ -79,11 +81,12 @@ public final class DataHelper {
     }
 
     public static BaseComponent[] buildLocation(Location location, boolean clickable) {
-        ComponentBuilder builder = new ComponentBuilder("(x: " + location.getBlockX() + " y: " + location.getBlockY() + " z: " + location.getBlockZ());
-        builder.append(" world: " + location.getWorld().getName());
+        ComponentBuilder builder = new ComponentBuilder("(x: " + location.getBlockX() + " y: " + location.getBlockY() + " z: " + location.getBlockZ()).color(ChatColor.GRAY);
+        builder.append(" world: " + location.getWorld().getName()).color(ChatColor.GRAY);
         if (clickable) {
+            builder.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("Click to teleport").color(ChatColor.GRAY).italic(true).create()));
             builder.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/omnitele " + location.getWorld().getUID().toString() + " " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ()));
         }
-        return builder.append(")").create();
+        return builder.append(")").color(ChatColor.GRAY).create();
     }
 }

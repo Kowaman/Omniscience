@@ -71,7 +71,23 @@ public class QuerySession {
     }
 
     public enum Sort {
-        NEWEST_FIRST,
-        OLDEST_FIRST
+        NEWEST_FIRST(-1, "DESC"),
+        OLDEST_FIRST(1, "ASC");
+
+        private String sortString;
+        private int sortVal;
+
+        Sort(int sortVal, String sortString) {
+            this.sortVal = sortVal;
+            this.sortString = sortString;
+        }
+
+        public int getSortVal() {
+            return sortVal;
+        }
+
+        public String getSortString() {
+            return sortString;
+        }
     }
 }

@@ -95,9 +95,10 @@ public final class OEntry {
             this.eventName = "break";
             blockTransaction.getBefore().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.of(block));
-                wrapper.set(TARGET, block.getType().getKey().getKey());
+                wrapper.set(TARGET, block.getType().name());
             });
             blockTransaction.getAfter().ifPresent(block -> wrapper.set(NEW_BLOCK, DataWrapper.of(block)));
+            wrapper.set(LOCATION, DataWrapper.of(blockTransaction.getLocation()));
             return new OEntry(sourceBuilder, this);
         }
 
@@ -106,8 +107,9 @@ public final class OEntry {
             blockTransaction.getBefore().ifPresent(block -> wrapper.set(ORIGINAL_BLOCK, DataWrapper.of(block)));
             blockTransaction.getAfter().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.of(block));
-                wrapper.set(TARGET, block.getType().getKey().getKey());
+                wrapper.set(TARGET, block.getType().name());
             });
+            wrapper.set(LOCATION, DataWrapper.of(blockTransaction.getLocation()));
             return new OEntry(sourceBuilder, this);
         }
 
@@ -115,9 +117,10 @@ public final class OEntry {
             this.eventName = "decay";
             blockTransaction.getBefore().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.of(block));
-                wrapper.set(TARGET, block.getType().getKey().getKey());
+                wrapper.set(TARGET, block.getType().name());
             });
             blockTransaction.getAfter().ifPresent(block -> wrapper.set(NEW_BLOCK, DataWrapper.of(block)));
+            wrapper.set(LOCATION, DataWrapper.of(blockTransaction.getLocation()));
             return new OEntry(sourceBuilder, this);
         }
 
@@ -126,8 +129,9 @@ public final class OEntry {
             blockTransaction.getBefore().ifPresent(block -> wrapper.set(ORIGINAL_BLOCK, DataWrapper.of(block)));
             blockTransaction.getAfter().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.of(block));
-                wrapper.set(TARGET, block.getType().getKey().getKey());
+                wrapper.set(TARGET, block.getType().name());
             });
+            wrapper.set(LOCATION, DataWrapper.of(blockTransaction.getLocation()));
             return new OEntry(sourceBuilder, this);
         }
 
@@ -135,7 +139,7 @@ public final class OEntry {
             this.eventName = "drop";
             wrapper.set(ITEMSTACK, DataWrapper.of(item.getItemStack()));
             wrapper.set(QUANTITY, item.getItemStack().getAmount());
-            wrapper.set(TARGET, item.getItemStack().getType().getKey().getKey());
+            wrapper.set(TARGET, item.getItemStack().getType().name());
             wrapper.set(LOCATION, DataWrapper.of(item.getLocation()));
             return new OEntry(sourceBuilder, this);
         }
@@ -144,7 +148,7 @@ public final class OEntry {
             this.eventName = "pickup";
             wrapper.set(ITEMSTACK, DataWrapper.of(item.getItemStack()));
             wrapper.set(QUANTITY, item.getItemStack().getAmount());
-            wrapper.set(TARGET, item.getItemStack().getType().getKey().getKey());
+            wrapper.set(TARGET, item.getItemStack().getType().name());
             wrapper.set(LOCATION, DataWrapper.of(item.getLocation()));
             return new OEntry(sourceBuilder, this);
         }

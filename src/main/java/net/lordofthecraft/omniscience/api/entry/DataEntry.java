@@ -4,6 +4,7 @@ import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
 import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
@@ -39,6 +40,8 @@ public abstract class DataEntry {
                 return "grown";
             case "join":
                 return "joined";
+            case "form":
+                return "formed";
             case "place":
                 return "placed";
             case "death":
@@ -68,5 +71,25 @@ public abstract class DataEntry {
         }
 
         return entry;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(data);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DataEntry)) return false;
+        DataEntry dataEntry = (DataEntry) o;
+        return Objects.equals(data, dataEntry.data);
+    }
+
+    @Override
+    public String toString() {
+        return "DataEntry{" +
+                "data=" + data +
+                '}';
     }
 }

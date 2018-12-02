@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
@@ -49,6 +50,11 @@ public class RadiusParameter extends BaseParameterHandler {
             query.addCondition(SearchConditionGroup.from(location, radius));
         }
 
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<String>> suggestTabCompletion(String partial) {
         return Optional.empty();
     }
 

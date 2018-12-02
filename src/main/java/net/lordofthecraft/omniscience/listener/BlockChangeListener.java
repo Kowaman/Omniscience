@@ -11,22 +11,22 @@ public final class BlockChangeListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onLeavesDecay(LeavesDecayEvent event) {
-        OEntry.create().environment().decayedBlock(BlockTransaction.from(event.getBlock().getState(), null)).save();
+        OEntry.create().environment().decayedBlock(BlockTransaction.from(event.getBlock().getLocation(), event.getBlock().getState(), null)).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event) {
-        OEntry.create().source(event.getPlayer()).brokeBlock(BlockTransaction.from(event.getBlock().getState(), null)).save();
+        OEntry.create().source(event.getPlayer()).brokeBlock(BlockTransaction.from(event.getBlock().getLocation(), event.getBlock().getState(), null)).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockPlace(BlockPlaceEvent event) {
-        OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(event.getBlockReplacedState(), event.getBlock().getState())).save();
+        OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(event.getBlock().getLocation(), event.getBlockReplacedState(), event.getBlock().getState())).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockBurn(BlockBurnEvent event) {
-        OEntry.create().environment().brokeBlock(BlockTransaction.from(event.getBlock().getState(), null));
+        OEntry.create().environment().brokeBlock(BlockTransaction.from(event.getBlock().getLocation(), event.getBlock().getState(), null));
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -37,22 +37,24 @@ public final class BlockChangeListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockExplode(BlockExplodeEvent event) {
         //TODO Man I'd LOVE to have a player source for this.
-        event.blockList().forEach(block -> OEntry.create().environment().brokeBlock(BlockTransaction.from(block.getState(), null)).save());
+        event.blockList().forEach(block -> OEntry.create().environment().brokeBlock(BlockTransaction.from(event.getBlock().getLocation(), block.getState(), null)).save());
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockFade(BlockFadeEvent event) {
-        OEntry.create().environment().decayedBlock(BlockTransaction.from(event.getBlock().getState(), event.getNewState())).save();
+        OEntry.create().environment().decayedBlock(BlockTransaction.from(event.getBlock().getLocation(), event.getBlock().getState(), event.getNewState())).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockForm(BlockFormEvent event) {
-        OEntry.create().environment().formedBlock(BlockTransaction.from(event.getBlock().getState(), event.getNewState())).save();
+        OEntry.create().environment().formedBlock(BlockTransaction.from(event.getBlock().getLocation(), event.getBlock().getState(), event.getNewState())).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockMultiPlace(BlockMultiPlaceEvent event) {
         //TODO absolutely verify this works
-        event.getReplacedBlockStates().forEach(state -> OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(state, state.getBlock().getState())).save());
+        event.getReplacedBlockStates().forEach(state -> OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(event.getBlock().getLocation(), state, state.getBlock().getState())).save());
     }
+
+
 }

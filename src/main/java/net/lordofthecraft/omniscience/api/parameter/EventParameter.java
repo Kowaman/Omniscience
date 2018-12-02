@@ -1,6 +1,8 @@
 package net.lordofthecraft.omniscience.api.parameter;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.query.FieldCondition;
 import net.lordofthecraft.omniscience.api.query.MatchRule;
@@ -8,9 +10,11 @@ import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.command.CommandSender;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class EventParameter extends BaseParameterHandler {
     //Credit to Prism for this regex
@@ -35,5 +39,27 @@ public class EventParameter extends BaseParameterHandler {
         query.addCondition(FieldCondition.of(DataKeys.EVENT_NAME, MatchRule.EQUALS, value));
 
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<String>> suggestTabCompletion(String partial) {
+        if (partial == null || partial.isEmpty()) {
+            return Optional.of(Lists.newArrayList(Omniscience.getEvents()));
+        }
+        String[] values = partial.split(",");
+        String target = values[values.length - 1];
+        return Optional.of(Omniscience.getEvents().stream()
+                .filter(event -> event.startsWith(target))
+                .map(val -> {
+                    StringBuilder builder = new StringBuilder();
+                    if (values.length > 1) {
+                        for (int i = 0; i < values.length - 2; i++) {
+                            builder.append(values[i]).append(",");
+                        }
+                    }
+                    builder.append(val);
+                    return builder.toString();
+                })
+                .collect(Collectors.toList()));
     }
 }

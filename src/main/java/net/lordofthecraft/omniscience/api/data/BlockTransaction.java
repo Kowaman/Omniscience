@@ -1,21 +1,25 @@
 package net.lordofthecraft.omniscience.api.data;
 
+import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 
 import java.util.Optional;
 
 public final class BlockTransaction {
 
-    private BlockTransaction(BlockState before, BlockState after) {
-        this.before = before;
-        this.after = after;
-    }
+    private final Location location;
 
     private final BlockState before;
     private final BlockState after;
 
-    public static BlockTransaction from(BlockState before, BlockState after) {
-        return new BlockTransaction(before, after);
+    private BlockTransaction(BlockState before, BlockState after, Location location) {
+        this.before = before;
+        this.after = after;
+        this.location = location;
+    }
+
+    public static BlockTransaction from(Location location, BlockState before, BlockState after) {
+        return new BlockTransaction(before, after, location);
     }
 
     public Optional<BlockState> getBefore() {
@@ -24,5 +28,9 @@ public final class BlockTransaction {
 
     public Optional<BlockState> getAfter() {
         return Optional.ofNullable(after);
+    }
+
+    public Location getLocation() {
+        return location;
     }
 }

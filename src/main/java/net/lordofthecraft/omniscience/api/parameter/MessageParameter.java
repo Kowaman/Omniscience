@@ -8,6 +8,7 @@ import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.command.CommandSender;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
@@ -33,6 +34,11 @@ public class MessageParameter extends BaseParameterHandler {
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
         query.addCondition(FieldCondition.of(DataKeys.TARGET, MatchRule.EQUALS, Pattern.compile(value)));
 
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<List<String>> suggestTabCompletion(String partial) {
         return Optional.empty();
     }
 }

@@ -5,6 +5,7 @@ import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.command.CommandSender;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -19,4 +20,6 @@ public interface ParameterHandler {
     ImmutableList<String> getAliases();
 
     Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query);
+
+    Optional<List<String>> suggestTabCompletion(String partial);
 }

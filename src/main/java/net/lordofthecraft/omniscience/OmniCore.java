@@ -2,6 +2,8 @@ package net.lordofthecraft.omniscience;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import me.lucko.commodore.Commodore;
+import me.lucko.commodore.CommodoreProvider;
 import net.lordofthecraft.omniscience.api.entry.BlockEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.entry.EntryQueueRunner;
@@ -12,6 +14,7 @@ import net.lordofthecraft.omniscience.api.flag.FlagOrder;
 import net.lordofthecraft.omniscience.api.parameter.*;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.OmniscienceCommand;
+import net.lordofthecraft.omniscience.command.OmniscienceTabCompleter;
 import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.listener.BlockChangeListener;
@@ -20,14 +23,14 @@ import net.lordofthecraft.omniscience.listener.CraftBookSignListener;
 import net.lordofthecraft.omniscience.listener.ItemListener;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Set;
 import java.util.logging.Level;
 
 final class OmniCore implements IOmniscience {
@@ -36,7 +39,6 @@ final class OmniCore implements IOmniscience {
     private Map<String, Class<? extends DataEntry>> eventMap = Maps.newHashMap();
     private Map<String, QuerySession> querySessions = Maps.newHashMap();
     private List<FlagHandler> flagHandlerList = Lists.newArrayList();
-    private ExecutorService queryService;
 
     private MongoConnectionHandler connectionHandler;
 
@@ -47,7 +49,6 @@ final class OmniCore implements IOmniscience {
         omniscience.saveDefaultConfig();
         OmniConfig.INSTANCE.setup(omniscience.getConfig());
         this.connectionHandler = MongoConnectionHandler.createHandler(omniscience.getConfig());
-        this.queryService = Executors.newCachedThreadPool();
 
         registerEventWrapperClasses();
         registerParameters();
@@ -77,7 +78,16 @@ final class OmniCore implements IOmniscience {
     }
 
     private void registerCommands(Omniscience omniscience) {
-        omniscience.getCommand("omniscience").setExecutor(new OmniscienceCommand(this, queryService));
+        PluginCommand command = omniscience.getCommand("omniscience");
+        command.setExecutor(new OmniscienceCommand(this));
+        command.setTabCompleter(new OmniscienceTabCompleter());
+        if (CommodoreProvider.isSupported()) {
+            Commodore commodore = CommodoreProvider.getCommodore(omniscience);
+
+            OmniscienceCommand.registerCompletions(commodore, command);
+        } else {
+            omniscience.getLogger().info("Brigadier isn't supported by this server, Omniscience will not use it for suggestions.");
+        }
         //A simple command that will do what we expect every single time. Used for teleporting to locations that could be in different worlds. Shouldn't be, but could be.
         omniscience.getCommand("omnitele").setExecutor(new OmniTeleCommand());
     }
@@ -131,6 +141,18 @@ final class OmniCore implements IOmniscience {
 
     Optional<ParameterHandler> getParameterHandler(String key) {
         return parameterHandlerList.stream().filter(ph -> ph.canHandle(key)).findFirst();
+    }
+
+    List<ParameterHandler> getParameterHandlerList() {
+        return parameterHandlerList;
+    }
+
+    Set<String> getEventSet() {
+        return eventMap.keySet();
+    }
+
+    List<FlagHandler> getFlagHandlerList() {
+        return flagHandlerList;
     }
 
     @Override

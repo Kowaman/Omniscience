@@ -1,15 +1,18 @@
 package net.lordofthecraft.omniscience.command.commands;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.parameter.ParameterException;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
-import net.lordofthecraft.omniscience.command.OmniSubCommand;
 import net.lordofthecraft.omniscience.command.async.AsyncCallback;
 import net.lordofthecraft.omniscience.command.async.SearchCallback;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
+import net.lordofthecraft.omniscience.command.util.SearchParameterHelper;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
 import org.bukkit.Bukkit;
@@ -19,9 +22,11 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class SearchCommand implements OmniSubCommand {
+public class SearchCommand extends SimpleCommand {
 
-    private final ImmutableList<String> commands = ImmutableList.of("s", "sc", "lookup", "l");
+    public SearchCommand() {
+        super(ImmutableList.of("s", "sc", "lookup", "l"));
+    }
 
     @Override
     public UseResult canRun(CommandSender sender) {
@@ -31,11 +36,6 @@ public class SearchCommand implements OmniSubCommand {
     @Override
     public String getCommand() {
         return "search";
-    }
-
-    @Override
-    public ImmutableList<String> getAliases() {
-        return commands;
     }
 
     @Override
@@ -65,6 +65,16 @@ public class SearchCommand implements OmniSubCommand {
             return CommandResult.failure(message);
         }
         return CommandResult.success();
+    }
+
+    @Override
+    public void buildLiteralArgumentBuilder(LiteralArgumentBuilder<Object> builder) {
+        builder.then(RequiredArgumentBuilder.argument("search-parameters", StringArgumentType.greedyString()));
+    }
+
+    @Override
+    public List<String> getCommandSuggestions(String partial) {
+        return SearchParameterHelper.suggestParameterCompletion(partial);
     }
 
     private void lookup(final QuerySession session, AsyncCallback callback) {

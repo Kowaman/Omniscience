@@ -1,6 +1,7 @@
 package net.lordofthecraft.omniscience.api.entry;
 
 import com.google.common.collect.Lists;
+import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
 
@@ -15,6 +16,8 @@ public final class EntryQueueRunner implements Runnable {
         while (!EntryQueue.getQueue().isEmpty()) {
             DataWrapper wrapper = EntryQueue.getQueue().poll();
             if (wrapper != null) {
+                System.out.println("We're now saving the event: " + wrapper.getString(DataKeys.EVENT_NAME).orElse("Unknown"));
+                System.out.println("Data: " + wrapper);
                 batchWrappers.add(wrapper);
             }
         }

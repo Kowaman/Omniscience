@@ -1,5 +1,7 @@
 package net.lordofthecraft.omniscience;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
@@ -40,6 +42,18 @@ public final class Omniscience extends JavaPlugin {
 
     public static Optional<FlagHandler> getFlagHandler(String key) {
         return INSTANCE.getFlagHandler(key);
+    }
+
+    public static ImmutableList<ParameterHandler> getParameters() {
+        return ImmutableList.copyOf(INSTANCE.getParameterHandlerList());
+    }
+
+    public static ImmutableList<FlagHandler> getFlagHandlers() {
+        return ImmutableList.copyOf(INSTANCE.getFlagHandlerList());
+    }
+
+    public static ImmutableSet<String> getEvents() {
+        return ImmutableSet.copyOf(INSTANCE.getEventSet());
     }
 
     @Override

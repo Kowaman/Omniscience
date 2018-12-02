@@ -3,10 +3,12 @@ package net.lordofthecraft.omniscience.api.data;
 import com.google.common.collect.Maps;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,12 +28,6 @@ public final class DataWrapper {
 
     public static DataWrapper of(BlockState block) {
         DataWrapper wrapper = new DataWrapper();
-        DataWrapper location = new DataWrapper();
-        location.set(X, block.getX());
-        location.set(Y, block.getY());
-        location.set(Z, block.getZ());
-        location.set(WORLD, block.getWorld().getUID().toString());
-        wrapper.set(LOCATION, location);
         wrapper.set(MATERIAL_TYPE, block.getType().name());
         //TODO We'll need a way to parse this. Return later when we know wtf this looks like.
         wrapper.set(BLOCK_DATA, block.getBlockData().getAsString());
@@ -48,15 +44,23 @@ public final class DataWrapper {
 
     public static DataWrapper of(ItemStack itemStack) {
         DataWrapper wrapper = new DataWrapper();
-        DataWrapper itemData = new DataWrapper();
         Map<String, Object> data = itemStack.serialize();
         data.forEach((key, value) -> {
             DataKey dataKey = DataKey.of(key);
-            itemData.set(dataKey, itemData);
+            wrapper.set(dataKey, value);
         });
-        wrapper.set(ITEMSTACK, itemData);
-        wrapper.set(MATERIAL_TYPE, itemStack.getType().name());
         return wrapper;
+    }
+
+    public static DataWrapper of(BlockData data) {
+        //TODO flesh out making a datawrapper of blockdata
+        String blockData = data.getAsString();
+        String[] splitData = blockData.split("\\[");
+        String blockName = splitData[0].split(":")[1];
+        if (splitData.length > 1) {
+
+        }
+        return null;
     }
 
     public static DataWrapper of(Location location) {
@@ -87,5 +91,25 @@ public final class DataWrapper {
 
     public Set<DataKey> getKeys() {
         return data.keySet().stream().map(DataKey::of).collect(Collectors.toSet());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(data);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DataWrapper that = (DataWrapper) o;
+        return Objects.equals(data, that.data);
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "data=" + data +
+                '}';
     }
 }

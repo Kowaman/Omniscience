@@ -87,7 +87,7 @@ public final class MongoConnectionHandler {
 
     private MongoCollection<Document> getDataCollection() {
         if (dataEntryCollection == null) {
-            database.getCollection("DataEntry");
+            dataEntryCollection = database.getCollection("DataEntry");
         }
         return dataEntryCollection;
     }
@@ -226,7 +226,7 @@ public final class MongoConnectionHandler {
         Document matcher = new Document("$match", buildConditions(session.getQuery().getSearchCriteria()));
 
         Document sortFields = new Document();
-        sortFields.put(CREATED.toString(), "value");
+        sortFields.put(CREATED.toString(), session.getSortOrder().getSortVal());
         Document sorter = new Document("$sort", sortFields);
 
         Document limit = new Document("$limit", 10);
@@ -274,12 +274,15 @@ public final class MongoConnectionHandler {
                 Document document = session.hasFlag(Flag.NO_GROUP) ? wrapper : (Document) wrapper.get("_id");
 
                 DataWrapper internalWrapper = documentToDataWrapper(document);
+                System.out.println("Loading data. Wrapper: " + wrapper);
+                System.out.println("Document: " + document);
+                System.out.println("internalWrapper: " + internalWrapper);
 
                 if (!session.hasFlag(Flag.NO_GROUP)) {
                     internalWrapper.set(COUNT, wrapper.get(COUNT.toString()));
                 }
 
-                DataEntry entry = DataEntry.from(wrapper.get(EVENT_NAME.toString()).toString(), !session.hasFlag(Flag.NO_GROUP));
+                DataEntry entry = DataEntry.from(document.get(EVENT_NAME.toString()).toString(), !session.hasFlag(Flag.NO_GROUP));
 
                 if (document.containsKey(PLAYER_ID.toString())) {
                     String uuid = document.getString(PLAYER_ID.toString());

@@ -1,26 +1,7 @@
 package net.lordofthecraft.omniscience.api.data;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.Spy;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
-
 public class DataWrapperTest {
-
+/*
     @Mock
     World world;
 
@@ -102,4 +83,5 @@ public class DataWrapperTest {
         localmap.put("quantity", 1);
         return localmap;
     }
+    */
 }

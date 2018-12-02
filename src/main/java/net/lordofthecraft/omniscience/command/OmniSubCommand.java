@@ -1,11 +1,13 @@
 package net.lordofthecraft.omniscience.command;
 
-import com.google.common.collect.ImmutableList;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+
+import java.util.List;
 
 public interface OmniSubCommand {
 
@@ -34,17 +36,17 @@ public interface OmniSubCommand {
 
     String getCommand();
 
-    ImmutableList<String> getAliases();
-
     String getUsage();
 
     String getDescription();
 
+    boolean isCommand(String command);
+
     CommandResult run(CommandSender sender, IOmniscience core, String[] args);
 
-    default boolean isCommand(String command) {
-        return command.equalsIgnoreCase(getCommand()) || getAliases().contains(command);
-    }
+    void buildLiteralArgumentBuilder(LiteralArgumentBuilder<Object> builder);
+
+    List<String> getCommandSuggestions(String partial);
 
     default UseResult hasPermission(CommandSender sender, String permission) {
         if (sender.hasPermission(permission)) {

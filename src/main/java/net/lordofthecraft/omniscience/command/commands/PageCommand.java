@@ -1,8 +1,11 @@
 package net.lordofthecraft.omniscience.command.commands;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.lordofthecraft.omniscience.command.OmniSubCommand;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
@@ -16,16 +19,19 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Map;
 
-public class PageCommand implements OmniSubCommand {
+public class PageCommand extends SimpleCommand {
 
     private static final Map<CommandSender, List<BaseComponent[]>> searchResults = Maps.newConcurrentMap();
-    private final ImmutableList<String> commands = ImmutableList.of("p", "pg");
 
     public static void setSearchResults(CommandSender sender, List<BaseComponent[]> results) {
         searchResults.put(sender, results);
         if (!results.isEmpty()) {
             showPage(sender, 0);
         }
+    }
+
+    public PageCommand() {
+        super(ImmutableList.of("p", "pg"));
     }
 
     private static CommandResult showPage(CommandSender sender, int pageNum) {
@@ -38,6 +44,9 @@ public class PageCommand implements OmniSubCommand {
         }
         sender.sendMessage(Formatter.getPageHeader((pageNum + 1), (int) Math.round(Math.ceil(results.size() / 15D))));
         for (int i = pageNum * 15; i < (pageNum * 15) + 14; i++) {
+            if (i >= results.size()) {
+                break;
+            }
             BaseComponent[] component = results.get(i);
             if (sender instanceof Player) {
                 ((Player) sender).spigot().sendMessage(component);
@@ -60,18 +69,18 @@ public class PageCommand implements OmniSubCommand {
     }
 
     @Override
-    public ImmutableList<String> getAliases() {
-        return commands;
-    }
-
-    @Override
     public String getUsage() {
-        return "<Page #>";
+        return GREEN + "<Page #>";
     }
 
     @Override
     public String getDescription() {
         return "Moves you onto the page specified of your results, if available.";
+    }
+
+    @Override
+    public void buildLiteralArgumentBuilder(LiteralArgumentBuilder<Object> builder) {
+        builder.then(RequiredArgumentBuilder.argument("page-number", IntegerArgumentType.integer(1)));
     }
 
     @Override
@@ -81,5 +90,10 @@ public class PageCommand implements OmniSubCommand {
         }
         int pageNum = Integer.valueOf(args[0]) - 1;
         return showPage(sender, pageNum);
+    }
+
+    @Override
+    public List<String> getCommandSuggestions(String partial) {
+        return Lists.newArrayList();
     }
 }
