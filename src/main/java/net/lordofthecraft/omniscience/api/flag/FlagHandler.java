@@ -1,9 +1,11 @@
 package net.lordofthecraft.omniscience.api.flag;
 
+import com.google.common.collect.ImmutableList;
 import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.command.CommandSender;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -14,6 +16,16 @@ public interface FlagHandler {
     boolean acceptsValue(String value);
 
     boolean handles(String flag);
+
+    ImmutableList<String> getAliases();
+
+    default boolean requiresArguments() {
+        return false;
+    }
+
+    default Optional<List<String>> suggestCompletionOptions(String partial) {
+        return Optional.empty();
+    }
 
     Optional<CompletableFuture<?>> process(QuerySession session, String flag, String value, Query query);
 }

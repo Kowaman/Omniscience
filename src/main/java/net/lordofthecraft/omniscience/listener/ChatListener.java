@@ -22,6 +22,6 @@ public final class ChatListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-        OEntry.create().source(event.getPlayer()).ranCommand(event.getMessage().substring(1)).save();
+        OEntry.create().source(event.getPlayer()).ranCommand(event.getMessage()).save();
     }
 }

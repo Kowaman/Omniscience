@@ -13,4 +13,9 @@ public abstract class BaseFlagHandler implements FlagHandler {
     public boolean handles(String alias) {
         return aliases.contains(alias);
     }
+
+    @Override
+    public ImmutableList<String> getAliases() {
+        return aliases;
+    }
 }

@@ -12,11 +12,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
-public class CauseParameter extends BaseParameterHandler {
-    private final Pattern pattern = Pattern.compile("[\\w,:-]+");
+public class IpParameter extends BaseParameterHandler {
+    private final Pattern pattern = Pattern.compile("[(\\w|.|:),-]+");
 
-    public CauseParameter() {
-        super(ImmutableList.of("c", "cause"));
+    public IpParameter() {
+        super(ImmutableList.of("ip"));
     }
 
     @Override
@@ -31,7 +31,7 @@ public class CauseParameter extends BaseParameterHandler {
 
     @Override
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
-        query.addCondition(FieldCondition.of(DataKeys.CAUSE, MatchRule.EQUALS, Pattern.compile(value)));
+        query.addCondition(FieldCondition.of(DataKeys.IPADDRESS, MatchRule.EQUALS, value));
 
         return Optional.empty();
     }

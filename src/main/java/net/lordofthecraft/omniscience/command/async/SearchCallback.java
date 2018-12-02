@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience.command.async;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
+import net.lordofthecraft.omniscience.api.display.DisplayHandler;
 import net.lordofthecraft.omniscience.api.entry.DataAggregateEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntryComplete;
@@ -16,8 +17,8 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -47,20 +48,23 @@ public class SearchCallback implements AsyncCallback {
     }
 
     private BaseComponent[] buildComponent(DataEntry entry) {
-        System.out.println("buildComponent 1 " + entry);
+        Optional<DisplayHandler> displayHandler = Optional.empty();
+        Optional<String> oDHandler = entry.data.getString(DataKeys.DISPLAY_METHOD);
+        if (oDHandler.isPresent()) {
+            displayHandler = Omniscience.getDisplayHandler(oDHandler.get());
+            if (!displayHandler.isPresent()) {
+                Omniscience.getPluginInstance().getLogger().warning("The display handler for the record " + entry.data + " is set to " + oDHandler.get() + ", but no handler was found. Is this an error?");
+            }
+        }
 
         StringBuilder message = new StringBuilder();
         StringBuilder hoverMessage = new StringBuilder();
         message.append(ChatColor.DARK_AQUA).append(entry.getSourceName()).append(" ");
         message.append(ChatColor.WHITE).append(entry.getVerbPastTense()).append(" ");
 
-        System.out.println("buildComponent 2 " + message + ":" + hoverMessage);
-
         //this would be FUCKING AWESOME to show the item (if there is one)!
         hoverMessage.append(ChatColor.DARK_GRAY).append("Source: ").append(ChatColor.WHITE).append(entry.getSourceName());
         hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Event: ").append(ChatColor.WHITE).append(entry.getEventName());
-
-        System.out.println("buildComponent 3 " + message + ":" + hoverMessage);
 
         String quantity = entry.data.getString(DataKeys.QUANTITY).orElse(null);
         if (quantity != null && !quantity.isEmpty()) {
@@ -68,15 +72,14 @@ public class SearchCallback implements AsyncCallback {
             hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Quantity: ").append(ChatColor.WHITE).append(quantity);
         }
 
-        System.out.println("buildComponent 4 " + message + ":" + hoverMessage);
-
         String target = entry.data.getString(DataKeys.TARGET).orElse("Unknown");
+        if (displayHandler.isPresent()) {
+            target = displayHandler.get().buildTargetMessage(entry, target, this.session).orElse(target);
+        }
         if (!target.isEmpty()) {
             message.append(ChatColor.DARK_AQUA).append(target).append(" ");
             hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Target: ").append(ChatColor.WHITE).append(target);
         }
-
-        System.out.println("buildComponent 5 " + message + ":" + hoverMessage);
 
         if (entry instanceof DataAggregateEntry) {
             entry.data.getInt(DataKeys.COUNT).ifPresent(count -> {
@@ -85,7 +88,13 @@ public class SearchCallback implements AsyncCallback {
             });
         }
 
-        System.out.println("buildComponent 6 " + message + ":" + hoverMessage);
+        displayHandler.ifPresent(
+                handler -> handler
+                        .buildAdditionalHoverData(entry, this.session)
+                        .ifPresent(
+                                hoverMessages -> hoverMessages.forEach(hm -> hoverMessage.append("\n").append(hm)
+                                )
+                        ));
 
         ComponentBuilder resultBuilder = new ComponentBuilder("");
 
@@ -120,8 +129,6 @@ public class SearchCallback implements AsyncCallback {
             main.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverMessage.toString()).create()));
             resultBuilder.append(main);
         }
-
-        System.out.println("buildComponent 7 " + message + ":" + hoverMessage + " (" + Arrays.toString(resultBuilder.create()) + ")");
 
         return resultBuilder.create();
     }

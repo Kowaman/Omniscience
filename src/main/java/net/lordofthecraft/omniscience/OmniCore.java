@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
+import net.lordofthecraft.omniscience.api.display.DisplayHandler;
+import net.lordofthecraft.omniscience.api.display.MessageDisplayHandler;
 import net.lordofthecraft.omniscience.api.entry.BlockEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.entry.EntryQueueRunner;
@@ -12,7 +14,6 @@ import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.flag.FlagNoGroup;
 import net.lordofthecraft.omniscience.api.flag.FlagOrder;
 import net.lordofthecraft.omniscience.api.parameter.*;
-import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.OmniscienceCommand;
 import net.lordofthecraft.omniscience.command.OmniscienceTabCompleter;
 import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
@@ -37,8 +38,8 @@ final class OmniCore implements IOmniscience {
 
     private List<ParameterHandler> parameterHandlerList = Lists.newArrayList();
     private Map<String, Class<? extends DataEntry>> eventMap = Maps.newHashMap();
-    private Map<String, QuerySession> querySessions = Maps.newHashMap();
     private List<FlagHandler> flagHandlerList = Lists.newArrayList();
+    private List<DisplayHandler> displayHandlerList = Lists.newArrayList();
 
     private MongoConnectionHandler connectionHandler;
 
@@ -53,6 +54,7 @@ final class OmniCore implements IOmniscience {
         registerEventWrapperClasses();
         registerParameters();
         registerFlags();
+        registerDisplayHandlers();
 
         registerCommands(omniscience);
         registerEventHandlers(omniscience);
@@ -118,13 +120,17 @@ final class OmniCore implements IOmniscience {
         parameterHandlerList.add(new TimeParameter());
         parameterHandlerList.add(new CauseParameter());
         parameterHandlerList.add(new BlockParameter());
+        parameterHandlerList.add(new IpParameter());
     }
 
     private void registerFlags() {
         flagHandlerList.add(new FlagExtended());
         flagHandlerList.add(new FlagNoGroup());
         flagHandlerList.add(new FlagOrder());
+    }
 
+    private void registerDisplayHandlers() {
+        displayHandlerList.add(new MessageDisplayHandler());
     }
 
     public void registerParameter(ParameterHandler handler) {
@@ -141,6 +147,10 @@ final class OmniCore implements IOmniscience {
 
     Optional<ParameterHandler> getParameterHandler(String key) {
         return parameterHandlerList.stream().filter(ph -> ph.canHandle(key)).findFirst();
+    }
+
+    Optional<DisplayHandler> getDisplayHandler(String key) {
+        return displayHandlerList.stream().filter(dh -> dh.handles(key)).findFirst();
     }
 
     List<ParameterHandler> getParameterHandlerList() {

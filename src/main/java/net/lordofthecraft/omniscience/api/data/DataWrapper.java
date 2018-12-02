@@ -4,8 +4,8 @@ import com.google.common.collect.Maps;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 import java.util.Objects;
@@ -42,12 +42,16 @@ public final class DataWrapper {
         return wrapper;
     }
 
-    public static DataWrapper of(ItemStack itemStack) {
+    public static DataWrapper of(ConfigurationSerializable configurationSerializable) {
         DataWrapper wrapper = new DataWrapper();
-        Map<String, Object> data = itemStack.serialize();
+        Map<String, Object> data = configurationSerializable.serialize();
         data.forEach((key, value) -> {
             DataKey dataKey = DataKey.of(key);
-            wrapper.set(dataKey, value);
+            if (value instanceof ConfigurationSerializable) {
+                wrapper.set(dataKey, of((ConfigurationSerializable) value));
+            } else {
+                wrapper.set(dataKey, value);
+            }
         });
         return wrapper;
     }
@@ -91,6 +95,10 @@ public final class DataWrapper {
 
     public Set<DataKey> getKeys() {
         return data.keySet().stream().map(DataKey::of).collect(Collectors.toSet());
+    }
+
+    public boolean hasKey(DataKey key) {
+        return data.keySet().contains(key.toString());
     }
 
     @Override

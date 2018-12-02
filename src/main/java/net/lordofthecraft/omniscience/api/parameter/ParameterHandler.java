@@ -21,5 +21,7 @@ public interface ParameterHandler {
 
     Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query);
 
-    Optional<List<String>> suggestTabCompletion(String partial);
+    default Optional<List<String>> suggestTabCompletion(String partial) {
+        return Optional.empty();
+    }
 }

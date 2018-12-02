@@ -155,7 +155,9 @@ public final class OEntry {
 
         public OEntry said(String message) {
             this.eventName = "say";
-            wrapper.set(TARGET, message);
+            wrapper.set(TARGET, "something to Everyone");
+            wrapper.set(DISPLAY_METHOD, "message");
+            wrapper.set(MESSAGE, message);
             if (sourceBuilder.getSource() instanceof Entity) {
                 wrapper.set(LOCATION, DataWrapper.of(((Entity) sourceBuilder.getSource()).getLocation()));
             }
@@ -164,7 +166,9 @@ public final class OEntry {
 
         public OEntry ranCommand(String command) {
             this.eventName = "command";
-            wrapper.set(TARGET, command);
+            wrapper.set(TARGET, command.split(" ")[0]);
+            wrapper.set(DISPLAY_METHOD, "message");
+            wrapper.set(MESSAGE, command);
             if (sourceBuilder.getSource() instanceof Entity) {
                 wrapper.set(LOCATION, DataWrapper.of(((Entity) sourceBuilder.getSource()).getLocation()));
             }

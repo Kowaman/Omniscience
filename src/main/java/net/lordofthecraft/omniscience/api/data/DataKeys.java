@@ -21,6 +21,10 @@ public final class DataKeys {
     public static final DataKey NEW_BLOCK = DataKey.of("NewBlock");
     public static final DataKey IPADDRESS = DataKey.of("IpAddress");
     public static final DataKey QUANTITY = DataKey.of("Quantity");
+    public static final DataKey MESSAGE = DataKey.of("Message");
+
+    //META TAGS
+    public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");
 
     private DataKeys() {
     }

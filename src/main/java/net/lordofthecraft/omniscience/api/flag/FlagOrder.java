@@ -5,13 +5,19 @@ import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.command.CommandSender;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class FlagOrder extends BaseFlagHandler {
 
+    private final ImmutableList<String> argumentOptions;
+
     public FlagOrder() {
         super(ImmutableList.of("ord", "order"));
+        this.argumentOptions = ImmutableList.of("new", "newest", "desc", "old", "oldest", "asc");
     }
 
     @Override
@@ -21,17 +27,23 @@ public class FlagOrder extends BaseFlagHandler {
 
     @Override
     public boolean acceptsValue(String value) {
-        switch (value) {
-            case "new":
-            case "newest":
-            case "desc":
-            case "old":
-            case "oldest":
-            case "asc":
-                return true;
-            default:
-                return false;
+        return argumentOptions.contains(value);
+    }
+
+    @Override
+    public boolean requiresArguments() {
+        return true;
+    }
+
+    @Override
+    public Optional<List<String>> suggestCompletionOptions(String partial) {
+        if (partial == null || partial.isEmpty()) {
+            return Optional.of(new ArrayList<>(argumentOptions));
         }
+        return Optional.of(argumentOptions
+                .stream()
+                .filter(opt -> opt.toLowerCase().startsWith(partial.toLowerCase()))
+                .collect(Collectors.toList()));
     }
 
     @Override

@@ -10,7 +10,6 @@ import net.lordofthecraft.omniscience.util.DateUtil;
 import org.bukkit.command.CommandSender;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
@@ -53,11 +52,6 @@ public class TimeParameter extends BaseParameterHandler {
 
         query.addCondition(FieldCondition.of(DataKeys.CREATED, rule, date));
 
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<List<String>> suggestTabCompletion(String partial) {
         return Optional.empty();
     }
 
