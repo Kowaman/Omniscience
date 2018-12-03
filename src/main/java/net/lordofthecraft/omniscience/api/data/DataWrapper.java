@@ -15,7 +15,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static net.lordofthecraft.omniscience.api.data.DataKey.of;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
-
 public final class DataWrapper {
     private final Map<String, Object> data = Maps.newLinkedHashMap();
     private final DataKey key;

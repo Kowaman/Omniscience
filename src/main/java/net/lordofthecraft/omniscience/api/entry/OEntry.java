@@ -99,19 +99,19 @@ public final class OEntry {
         public OEntry brokeBlock(BlockTransaction blockTransaction) {
             this.eventName = "break";
             blockTransaction.getBefore().ifPresent(block -> {
-                wrapper.set(ORIGINAL_BLOCK, DataWrapper.of(block));
+                wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
             });
-            blockTransaction.getAfter().ifPresent(block -> wrapper.set(NEW_BLOCK, DataWrapper.of(block)));
+            blockTransaction.getAfter().ifPresent(block -> wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block)));
             writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry placedBlock(BlockTransaction blockTransaction) {
             this.eventName = "place";
-            blockTransaction.getBefore().ifPresent(block -> wrapper.set(ORIGINAL_BLOCK, DataWrapper.of(block)));
+            blockTransaction.getBefore().ifPresent(block -> wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block)));
             blockTransaction.getAfter().ifPresent(block -> {
-                wrapper.set(NEW_BLOCK, DataWrapper.of(block));
+                wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
             });
             writeLocationData(blockTransaction.getLocation());
@@ -121,19 +121,19 @@ public final class OEntry {
         public OEntry decayedBlock(BlockTransaction blockTransaction) {
             this.eventName = "decay";
             blockTransaction.getBefore().ifPresent(block -> {
-                wrapper.set(ORIGINAL_BLOCK, DataWrapper.of(block));
+                wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
             });
-            blockTransaction.getAfter().ifPresent(block -> wrapper.set(NEW_BLOCK, DataWrapper.of(block)));
+            blockTransaction.getAfter().ifPresent(block -> wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block)));
             writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry formedBlock(BlockTransaction blockTransaction) {
             this.eventName = "form";
-            blockTransaction.getBefore().ifPresent(block -> wrapper.set(ORIGINAL_BLOCK, DataWrapper.of(block)));
+            blockTransaction.getBefore().ifPresent(block -> wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block)));
             blockTransaction.getAfter().ifPresent(block -> {
-                wrapper.set(NEW_BLOCK, DataWrapper.of(block));
+                wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
             });
             writeLocationData(blockTransaction.getLocation());
@@ -142,7 +142,7 @@ public final class OEntry {
 
         public OEntry dropped(Item item) {
             this.eventName = "drop";
-            wrapper.set(ITEMSTACK, DataWrapper.of(item.getItemStack()));
+            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(item.getItemStack()));
             wrapper.set(QUANTITY, item.getItemStack().getAmount());
             wrapper.set(TARGET, item.getItemStack().getType().name());
             wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(item.getItemStack()));
@@ -153,7 +153,7 @@ public final class OEntry {
 
         public OEntry pickup(Item item) {
             this.eventName = "pickup";
-            wrapper.set(ITEMSTACK, DataWrapper.of(item.getItemStack()));
+            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(item.getItemStack()));
             wrapper.set(QUANTITY, item.getItemStack().getAmount());
             wrapper.set(TARGET, item.getItemStack().getType().name());
             wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(item.getItemStack()));
@@ -185,10 +185,10 @@ public final class OEntry {
         }
 
         protected void writeLocationData(Location location) {
-            wrapper.set(X, location.getBlockX());
-            wrapper.set(Y, location.getBlockY());
-            wrapper.set(Z, location.getBlockZ());
-            wrapper.set(WORLD, location.getWorld().getUID().toString());
+            wrapper.set(LOCATION.then(X), location.getBlockX());
+            wrapper.set(LOCATION.then(Y), location.getBlockY());
+            wrapper.set(LOCATION.then(Z), location.getBlockZ());
+            wrapper.set(LOCATION.then(WORLD), location.getWorld().getUID().toString());
         }
     }
 
@@ -202,10 +202,11 @@ public final class OEntry {
             return (Player) sourceBuilder.getSource();
         }
 
-        public OEntry signInteract(Sign sign) {
+        public OEntry signInteract(Location location, Sign sign) {
             this.eventName = "useSign";
             wrapper.set(TARGET, sign.getMaterial().name());
             wrapper.set(ORIGINAL_BLOCK, sign.getAsString());
+            writeLocationData(location);
             return new OEntry(sourceBuilder, this);
         }
 

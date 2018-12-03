@@ -70,6 +70,11 @@ public class QuerySession {
         return future.thenAccept(query -> this.query = query);
     }
 
+    public Query newQuery() {
+        this.query = new Query();
+        return query;
+    }
+
     public enum Sort {
         NEWEST_FIRST(-1, "DESC"),
         OLDEST_FIRST(1, "ASC");

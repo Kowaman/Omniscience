@@ -8,7 +8,7 @@ import java.util.List;
 
 import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
-public class SearchConditionGroup implements SearchCondition {
+public final class SearchConditionGroup implements SearchCondition {
     private final List<SearchCondition> conditions = new ArrayList<>();
     private final Operator operator;
 
@@ -19,10 +19,10 @@ public class SearchConditionGroup implements SearchCondition {
     public static SearchConditionGroup from(Location location) {
         SearchConditionGroup group = new SearchConditionGroup(Operator.AND);
 
-        group.add(FieldCondition.of(X, MatchRule.EQUALS, location.getBlockX()));
-        group.add(FieldCondition.of(Y, MatchRule.EQUALS, location.getBlockY()));
-        group.add(FieldCondition.of(Z, MatchRule.EQUALS, location.getBlockZ()));
-        group.add(FieldCondition.of(WORLD, MatchRule.EQUALS, location.getWorld().getUID()));
+        group.add(FieldCondition.of(LOCATION.then(X), MatchRule.EQUALS, location.getBlockX()));
+        group.add(FieldCondition.of(LOCATION.then(Y), MatchRule.EQUALS, location.getBlockY()));
+        group.add(FieldCondition.of(LOCATION.then(Z), MatchRule.EQUALS, location.getBlockZ()));
+        group.add(FieldCondition.of(LOCATION.then(WORLD), MatchRule.EQUALS, location.getWorld().getUID()));
 
         return group;
     }
@@ -30,16 +30,16 @@ public class SearchConditionGroup implements SearchCondition {
     public static SearchConditionGroup from(Location location, int radius) {
         SearchConditionGroup group = new SearchConditionGroup(Operator.AND);
 
-        group.add(FieldCondition.of(WORLD, MatchRule.EQUALS, location.getWorld().getUID()));
+        group.add(FieldCondition.of(LOCATION.then(WORLD), MatchRule.EQUALS, location.getWorld().getUID()));
 
         Range<Integer> xRange = Range.open(location.getBlockX() - radius, location.getBlockX() + radius);
-        group.add(FieldCondition.of(X, xRange));
+        group.add(FieldCondition.of(LOCATION.then(X), xRange));
 
         Range<Integer> yRange = Range.open(location.getBlockY() - radius, location.getBlockY() + radius);
-        group.add(FieldCondition.of(Y, yRange));
+        group.add(FieldCondition.of(LOCATION.then(Y), yRange));
 
         Range<Integer> zRange = Range.open(location.getBlockZ() - radius, location.getBlockZ() + radius);
-        group.add(FieldCondition.of(Z, zRange));
+        group.add(FieldCondition.of(LOCATION.then(Z), zRange));
 
         return group;
     }

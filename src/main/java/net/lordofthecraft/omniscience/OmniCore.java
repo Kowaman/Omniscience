@@ -2,6 +2,7 @@ package net.lordofthecraft.omniscience;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
 import net.lordofthecraft.omniscience.api.display.DisplayHandler;
@@ -16,20 +17,15 @@ import net.lordofthecraft.omniscience.command.OmniscienceCommand;
 import net.lordofthecraft.omniscience.command.OmniscienceTabCompleter;
 import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
-import net.lordofthecraft.omniscience.listener.BlockChangeListener;
-import net.lordofthecraft.omniscience.listener.ChatListener;
-import net.lordofthecraft.omniscience.listener.CraftBookSignListener;
-import net.lordofthecraft.omniscience.listener.ItemListener;
+import net.lordofthecraft.omniscience.listener.*;
 import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 
 final class OmniCore implements IOmniscience {
@@ -38,6 +34,8 @@ final class OmniCore implements IOmniscience {
     private Map<String, Class<? extends DataEntry>> eventMap = Maps.newHashMap();
     private List<FlagHandler> flagHandlerList = Lists.newArrayList();
     private List<DisplayHandler> displayHandlerList = Lists.newArrayList();
+
+    private Set<UUID> activeWandList = Sets.newHashSet();
 
     private MongoConnectionHandler connectionHandler;
 
@@ -102,6 +100,7 @@ final class OmniCore implements IOmniscience {
 
     private void registerEventHandlers(Omniscience plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
+        pm.registerEvents(new WandInteractListener(), plugin);
         pm.registerEvents(new BlockChangeListener(), plugin);
         pm.registerEvents(new ItemListener(), plugin);
         pm.registerEvents(new ChatListener(), plugin);
@@ -164,6 +163,18 @@ final class OmniCore implements IOmniscience {
 
     List<FlagHandler> getFlagHandlerList() {
         return flagHandlerList;
+    }
+
+    boolean hasActiveWand(Player player) {
+        return activeWandList.contains(player.getUniqueId());
+    }
+
+    void wandActivateFor(Player player) {
+        activeWandList.add(player.getUniqueId());
+    }
+
+    void wandDeactivateFor(Player player) {
+        activeWandList.remove(player.getUniqueId());
     }
 
     @Override

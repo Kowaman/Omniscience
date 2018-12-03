@@ -22,6 +22,7 @@ public final class DataKeys {
     public static final DataKey IPADDRESS = DataKey.of("IpAddress");
     public static final DataKey QUANTITY = DataKey.of("Quantity");
     public static final DataKey MESSAGE = DataKey.of("Message");
+    public static final DataKey LOCATION = DataKey.of("Location");
 
     //META TAGS
     public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");

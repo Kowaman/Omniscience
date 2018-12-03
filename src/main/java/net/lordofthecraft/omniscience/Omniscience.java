@@ -8,6 +8,7 @@ import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Optional;
@@ -66,6 +67,18 @@ public final class Omniscience extends JavaPlugin {
 
     public static ImmutableSet<String> getEvents() {
         return ImmutableSet.copyOf(INSTANCE.getEventSet());
+    }
+
+    public static boolean hasActiveWand(Player player) {
+        return INSTANCE.hasActiveWand(player);
+    }
+
+    public static void wandActivateFor(Player player) {
+        INSTANCE.wandActivateFor(player);
+    }
+
+    public static void wandDeactivateFor(Player player) {
+        INSTANCE.wandDeactivateFor(player);
     }
 
     @Override

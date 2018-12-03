@@ -1,5 +1,6 @@
 package net.lordofthecraft.omniscience;
 
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public enum OmniConfig {
@@ -17,6 +18,8 @@ public enum OmniConfig {
     private int minPoolSize;
     private int purgeBatchLimit;
 
+    private Material wandMaterial;
+
     void setup(FileConfiguration configuration) {
         this.defaultsEnabled = configuration.getBoolean("defaults.enabled");
         this.defaultRadius = configuration.getInt("defaults.radius");
@@ -29,6 +32,13 @@ public enum OmniConfig {
         this.maxPoolSize = configuration.getInt("storage.maxPoolSize");
         this.minPoolSize = configuration.getInt("storage.minPoolSize");
         this.purgeBatchLimit = configuration.getInt("storage.purgeBatchLimit");
+        String wandMaterialName = configuration.getString("wand.material");
+
+        wandMaterial = Material.matchMaterial(wandMaterialName);
+        if (wandMaterial == null || !wandMaterial.isBlock()) {
+            wandMaterial = Material.REDSTONE_LAMP;
+            Omniscience.getPluginInstance().getLogger().warning("Invalid configuration option for wand.material: " + wandMaterialName + ". Defaulting to REDSTONE_LAMP");
+        }
     }
 
     public boolean isDefaultsEnabled() {
@@ -73,5 +83,9 @@ public enum OmniConfig {
 
     public int getPurgeBatchLimit() {
         return purgeBatchLimit;
+    }
+
+    public Material getWandMaterial() {
+        return wandMaterial;
     }
 }

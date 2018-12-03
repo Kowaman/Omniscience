@@ -7,8 +7,4 @@ import java.util.Optional;
 public interface IOmniscience {
 
     Optional<Class<? extends DataEntry>> getEventClass(String name);
-
-    default String getMe() {
-        return "thing";
-    }
 }

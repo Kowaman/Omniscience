@@ -6,6 +6,7 @@ import me.lucko.commodore.Commodore;
 import net.lordofthecraft.omniscience.command.commands.PageCommand;
 import net.lordofthecraft.omniscience.command.commands.RollbackCommand;
 import net.lordofthecraft.omniscience.command.commands.SearchCommand;
+import net.lordofthecraft.omniscience.command.commands.ToolCommand;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
@@ -25,6 +26,7 @@ public class OmniscienceCommand implements CommandExecutor {
 
     static {
         subCommandSet = ImmutableSet.of(
+                new ToolCommand(),
                 new SearchCommand(),
                 new RollbackCommand(),
                 new PageCommand()
