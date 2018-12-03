@@ -2,12 +2,10 @@ package net.lordofthecraft.omniscience.api.entry;
 
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.util.DataHelper;
-import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
 
 import java.util.Optional;
 
-import static net.lordofthecraft.omniscience.api.data.DataKeys.LOCATION;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.ORIGINAL_BLOCK;
 
 public class BlockEntry extends DataEntryComplete implements Actionable {
@@ -28,7 +26,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
         DataWrapper originalBlock = (DataWrapper) original;
 
         Optional<BlockData> oData = DataHelper.getBlockDataFromWrapper(originalBlock);
-        Optional<Location> oLocation = DataHelper.getLocationFromDataWrapper((DataWrapper) originalBlock.get(LOCATION)
+        /*Optional<Location> oLocation = DataHelper.getLocationFromDataWrapper((DataWrapper) originalBlock.get(LOCATION)
                 .orElseThrow(() -> new IllegalArgumentException("The data for this block doesn't have a location!")));
         if (oData.isPresent()
                 && oLocation.isPresent()) {
@@ -37,7 +35,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
             //TODO is this really the best place to do this?
             location.getBlock().setBlockData(data);
         }
-        //TODO return a block transaction incase this went bad?
+        //TODO return a block transaction incase this went bad?*/
         return ActionResult.success();
     }
 }

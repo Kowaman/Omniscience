@@ -40,7 +40,7 @@ public class PageCommand extends SimpleCommand {
         }
         List<BaseComponent[]> results = searchResults.get(sender);
         if (results.size() < pageNum * 15) {
-            return CommandResult.failure("Error: " + (pageNum + 1 + " is not a valid page."));
+            return CommandResult.failure("Error: " + (pageNum + 1) + " is not a valid page.");
         }
         sender.sendMessage(Formatter.getPageHeader((pageNum + 1), (int) Math.round(Math.ceil(results.size() / 15D))));
         for (int i = pageNum * 15; i < (pageNum * 15) + 14; i++) {

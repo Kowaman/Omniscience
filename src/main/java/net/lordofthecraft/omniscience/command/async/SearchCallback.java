@@ -2,7 +2,6 @@ package net.lordofthecraft.omniscience.command.async;
 
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
-import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.display.DisplayHandler;
 import net.lordofthecraft.omniscience.api.entry.DataAggregateEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
@@ -57,33 +56,37 @@ public class SearchCallback implements AsyncCallback {
             }
         }
 
-        StringBuilder message = new StringBuilder();
+        StringBuilder startOfMessage = new StringBuilder();
+        StringBuilder endOfMessage = new StringBuilder();
         StringBuilder hoverMessage = new StringBuilder();
-        message.append(ChatColor.DARK_AQUA).append(entry.getSourceName()).append(" ");
-        message.append(ChatColor.WHITE).append(entry.getVerbPastTense()).append(" ");
+        startOfMessage.append(ChatColor.DARK_AQUA).append(entry.getSourceName()).append(" ");
+        startOfMessage.append(ChatColor.WHITE).append(entry.getVerbPastTense()).append(" ");
 
         //this would be FUCKING AWESOME to show the item (if there is one)!
         hoverMessage.append(ChatColor.DARK_GRAY).append("Source: ").append(ChatColor.WHITE).append(entry.getSourceName());
         hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Event: ").append(ChatColor.WHITE).append(entry.getEventName());
 
-        String quantity = entry.data.getString(DataKeys.QUANTITY).orElse(null);
-        if (quantity != null && !quantity.isEmpty()) {
-            message.append(ChatColor.DARK_AQUA).append(quantity).append(" ");
-            hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Quantity: ").append(ChatColor.WHITE).append(quantity);
-        }
+        entry.data.getInt(DataKeys.QUANTITY)
+                .ifPresent(quantity -> {
+                    startOfMessage.append(ChatColor.DARK_AQUA).append(quantity).append(" ");
+                    hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Quantity: ").append(ChatColor.WHITE).append(quantity);
+                });
 
         String target = entry.data.getString(DataKeys.TARGET).orElse("Unknown");
         if (displayHandler.isPresent()) {
-            target = displayHandler.get().buildTargetMessage(entry, target, this.session).orElse(target);
+            target = ChatColor.DARK_AQUA + displayHandler.get().buildTargetMessage(entry, target, this.session).orElse(target);
         }
         if (!target.isEmpty()) {
-            message.append(ChatColor.DARK_AQUA).append(target).append(" ");
             hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Target: ").append(ChatColor.WHITE).append(target);
+        }
+        Optional<TextComponent> targetHover = Optional.empty();
+        if (displayHandler.isPresent()) {
+            targetHover = displayHandler.get().buildTargetSpecificHoverData(entry, target, this.session);
         }
 
         if (entry instanceof DataAggregateEntry) {
             entry.data.getInt(DataKeys.COUNT).ifPresent(count -> {
-                message.append(ChatColor.GREEN).append("x").append(count).append(" ");
+                endOfMessage.append(ChatColor.GREEN).append("x").append(count).append(" ");
                 hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Count: ").append(ChatColor.WHITE).append(count);
             });
         }
@@ -101,32 +104,45 @@ public class SearchCallback implements AsyncCallback {
         if (entry instanceof DataEntryComplete) {
             DataEntryComplete complete = (DataEntryComplete) entry;
 
-            message.append(ChatColor.WHITE).append(complete.getRelativeTime());
+            endOfMessage.append(ChatColor.WHITE).append(complete.getRelativeTime());
             hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Time: ").append(ChatColor.WHITE).append(complete.getTime());
 
-            TextComponent main = new TextComponent();
-            main.addExtra(message.toString());
+            TextComponent start = new TextComponent(startOfMessage.toString());
+            TextComponent targetComponent = targetHover.orElse(new TextComponent(target));
+            TextComponent end = new TextComponent(endOfMessage.toString());
 
             ComponentBuilder holdingBuilder = new ComponentBuilder("");
             ComponentBuilder hoverMessageBuilder = new ComponentBuilder(hoverMessage.toString());
 
-            complete.data.get(DataKeys.LOCATION).ifPresent(oLoc -> {
-                DataWrapper wrapper = (DataWrapper) oLoc;
-                DataHelper.getLocationFromDataWrapper(wrapper).ifPresent(location -> {
-                    if (this.session.hasFlag(Flag.EXTENDED)) {
-                        holdingBuilder.append("\n").append(" - ").color(ChatColor.GRAY).append(DataHelper.buildLocation(location, true)).color(ChatColor.GRAY);
-                    }
+            DataHelper.getLocationFromDataWrapper(complete.data).ifPresent(location -> {
+                if (this.session.hasFlag(Flag.EXTENDED)) {
+                    holdingBuilder.append("\n").append(" - ").color(ChatColor.GRAY).append(DataHelper.buildLocation(location, true)).color(ChatColor.GRAY);
+                }
 
-                    hoverMessageBuilder.append("\n").append("Location: ").color(ChatColor.DARK_GRAY).append(DataHelper.buildLocation(location, false)).color(ChatColor.GRAY);
-                });
+                hoverMessageBuilder.append("\n").append("Location: ").color(ChatColor.DARK_GRAY).append(DataHelper.buildLocation(location, false)).color(ChatColor.GRAY);
             });
 
-            main.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverMessageBuilder.create()));
-            resultBuilder.append(main).append(holdingBuilder.create());
+            HoverEvent infoHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverMessageBuilder.create());
+            start.setHoverEvent(infoHover);
+            if (!targetHover.isPresent()) {
+                targetComponent.setHoverEvent(infoHover);
+            }
+            end.setHoverEvent(infoHover);
+            resultBuilder.append(start).append(targetComponent).append(" ").append(end).append(holdingBuilder.create());
         } else {
             TextComponent main = new TextComponent();
-            main.addExtra(message.toString());
-            main.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverMessage.toString()).create()));
+            HoverEvent infoHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverMessage.toString()).create());
+            main.addExtra(startOfMessage.toString());
+            main.setHoverEvent(infoHover);
+            if (targetHover.isPresent()) {
+                main.addExtra(targetHover.get());
+                main.addExtra(" ");
+            } else {
+                main.addExtra(target + " ");
+                main.setHoverEvent(infoHover);
+            }
+            main.addExtra(endOfMessage.toString());
+            main.setHoverEvent(infoHover);
             resultBuilder.append(main);
         }
 

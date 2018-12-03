@@ -32,7 +32,7 @@ public class MessageParameter extends BaseParameterHandler {
 
     @Override
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
-        query.addCondition(FieldCondition.of(DataKeys.TARGET, MatchRule.EQUALS, Pattern.compile(value)));
+        query.addCondition(FieldCondition.of(DataKeys.MESSAGE, MatchRule.EQUALS, Pattern.compile(value)));
 
         return Optional.empty();
     }

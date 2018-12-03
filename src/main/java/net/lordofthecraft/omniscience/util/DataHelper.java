@@ -9,11 +9,12 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,20 +32,6 @@ public final class DataHelper {
                 object instanceof Long ||
                 object instanceof Short ||
                 object instanceof String);
-    }
-
-    public static Optional<ItemStack> getItemStackFromWrapper(DataWrapper wrapper) {
-        if (!wrapper.getKeys().contains(ITEMSTACK)) {
-            return Optional.empty();
-        }
-        Optional<Object> oObject = wrapper.get(ITEMSTACK);
-        if (oObject.isPresent()) {
-            Object object = oObject.get();
-            if (object instanceof Map) {
-                return Optional.ofNullable(ItemStack.deserialize((Map<String, Object>) object));
-            }
-        }
-        return Optional.empty();
     }
 
     public static Optional<BlockData> getBlockDataFromWrapper(DataWrapper wrapper) {
@@ -71,6 +58,23 @@ public final class DataHelper {
                 && oWorld.isPresent()) {
             Location location = new Location(Bukkit.getWorld(UUID.fromString(oWorld.get())), oX.get(), oY.get(), oZ.get());
             return Optional.of(location);
+        }
+        return Optional.empty();
+    }
+
+    public static String convertConfigurationSerializable(ConfigurationSerializable configurationSerializable) {
+        YamlConfiguration configuration = new YamlConfiguration();
+        configuration.set("configdata", configurationSerializable);
+        return configuration.saveToString();
+    }
+
+    public static <T extends ConfigurationSerializable> Optional<T> loadFromString(String config) {
+        YamlConfiguration configuration = new YamlConfiguration();
+        try {
+            configuration.loadFromString(config);
+            return Optional.of((T) configuration.get("configdata"));
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
         }
         return Optional.empty();
     }

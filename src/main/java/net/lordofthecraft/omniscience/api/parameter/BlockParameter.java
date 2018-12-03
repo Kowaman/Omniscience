@@ -36,7 +36,7 @@ public class BlockParameter extends BaseParameterHandler {
 
     @Override
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
-        query.addCondition(FieldCondition.of(DataKeys.TARGET, MatchRule.EQUALS, Pattern.compile(value.replace('_', ' '))));
+        query.addCondition(FieldCondition.of(DataKeys.TARGET, MatchRule.EQUALS, Pattern.compile(value.toUpperCase())));
 
         return Optional.empty();
     }

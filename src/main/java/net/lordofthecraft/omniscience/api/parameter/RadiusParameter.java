@@ -5,6 +5,7 @@ import net.lordofthecraft.omniscience.OmniConfig;
 import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.api.query.SearchConditionGroup;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -12,10 +13,8 @@ import org.bukkit.entity.Player;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.regex.Pattern;
 
 public class RadiusParameter extends BaseParameterHandler {
-    private final Pattern pattern = Pattern.compile("[\\w,:-]+");
 
     public RadiusParameter() {
         super(ImmutableList.of("r", "radius"));
@@ -28,7 +27,7 @@ public class RadiusParameter extends BaseParameterHandler {
 
     @Override
     public boolean acceptsValue(String value) {
-        return pattern.matcher(value).matches();
+        return NumberUtils.isDigits(value);
     }
 
     @Override

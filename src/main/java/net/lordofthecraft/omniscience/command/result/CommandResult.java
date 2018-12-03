@@ -17,7 +17,7 @@ public class CommandResult {
     }
 
     public static CommandResult failure(String reason) {
-        return new CommandResult(null, Status.FAILURE);
+        return new CommandResult(reason, Status.FAILURE);
     }
 
     public String getReason() {

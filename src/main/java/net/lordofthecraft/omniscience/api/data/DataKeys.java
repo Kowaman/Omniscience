@@ -2,7 +2,6 @@ package net.lordofthecraft.omniscience.api.data;
 
 public final class DataKeys {
 
-    public static final DataKey LOCATION = DataKey.of("Location");
     public static final DataKey WORLD = DataKey.of("World");
     public static final DataKey X = DataKey.of("X");
     public static final DataKey Y = DataKey.of("Y");
@@ -17,6 +16,7 @@ public final class DataKeys {
     public static final DataKey MATERIAL_TYPE = DataKey.of("MaterialType");
     public static final DataKey ENTITY_TYPE = DataKey.of("EntityType");
     public static final DataKey ITEMSTACK = DataKey.of("ItemStack");
+    public static final DataKey ITEMDATA = DataKey.of("ItemData");
     public static final DataKey ORIGINAL_BLOCK = DataKey.of("OriginalBlock");
     public static final DataKey NEW_BLOCK = DataKey.of("NewBlock");
     public static final DataKey IPADDRESS = DataKey.of("IpAddress");

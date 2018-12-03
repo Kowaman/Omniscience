@@ -5,14 +5,12 @@ import com.google.common.collect.Maps;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
 import net.lordofthecraft.omniscience.api.display.DisplayHandler;
+import net.lordofthecraft.omniscience.api.display.ItemDisplayHandler;
 import net.lordofthecraft.omniscience.api.display.MessageDisplayHandler;
 import net.lordofthecraft.omniscience.api.entry.BlockEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.entry.EntryQueueRunner;
-import net.lordofthecraft.omniscience.api.flag.FlagExtended;
-import net.lordofthecraft.omniscience.api.flag.FlagHandler;
-import net.lordofthecraft.omniscience.api.flag.FlagNoGroup;
-import net.lordofthecraft.omniscience.api.flag.FlagOrder;
+import net.lordofthecraft.omniscience.api.flag.*;
 import net.lordofthecraft.omniscience.api.parameter.*;
 import net.lordofthecraft.omniscience.command.OmniscienceCommand;
 import net.lordofthecraft.omniscience.command.OmniscienceTabCompleter;
@@ -88,7 +86,8 @@ final class OmniCore implements IOmniscience {
 
             OmniscienceCommand.registerCompletions(commodore, command);
         } else {
-            omniscience.getLogger().info("Brigadier isn't supported by this server, Omniscience will not use it for suggestions.");
+            omniscience.getLogger().warning("Brigadier isn't supported by this server, Omniscience will not use it for suggestions.");
+            omniscience.getLogger().warning("(By the way, if you're seeing this message there is a 99.9999999% chance this plugin isn't going to run. Consider using something else.)");
         }
         //A simple command that will do what we expect every single time. Used for teleporting to locations that could be in different worlds. Shouldn't be, but could be.
         omniscience.getCommand("omnitele").setExecutor(new OmniTeleCommand());
@@ -127,10 +126,12 @@ final class OmniCore implements IOmniscience {
         flagHandlerList.add(new FlagExtended());
         flagHandlerList.add(new FlagNoGroup());
         flagHandlerList.add(new FlagOrder());
+        flagHandlerList.add(new FlagDrain());
     }
 
     private void registerDisplayHandlers() {
         displayHandlerList.add(new MessageDisplayHandler());
+        displayHandlerList.add(new ItemDisplayHandler());
     }
 
     public void registerParameter(ParameterHandler handler) {

@@ -3,6 +3,8 @@ package net.lordofthecraft.omniscience.api.entry;
 import net.lordofthecraft.omniscience.api.data.BlockTransaction;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
+import net.lordofthecraft.omniscience.util.DataHelper;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.CommandBlock;
 import org.bukkit.block.data.type.Sign;
@@ -50,7 +52,10 @@ public final class OEntry {
         } else if (sourceBuilder.getSource() instanceof BlockCommandSender) {
             BlockCommandSender sender = (BlockCommandSender) sourceBuilder.getSource();
             CommandBlock commandBlock = (CommandBlock) sender.getBlock().getState();
-            eventBuilder.getWrapper().set(LOCATION, DataWrapper.of(commandBlock.getLocation()));
+            eventBuilder.getWrapper().set(X, commandBlock.getX());
+            eventBuilder.getWrapper().set(Y, commandBlock.getY());
+            eventBuilder.getWrapper().set(Z, commandBlock.getZ());
+            eventBuilder.getWrapper().set(WORLD, commandBlock.getWorld().getUID().toString());
             causeId = "command block";
             if (commandBlock.getName() != null) {
                 causeId = causeId + " (" + commandBlock.getName() + ")";
@@ -98,7 +103,7 @@ public final class OEntry {
                 wrapper.set(TARGET, block.getType().name());
             });
             blockTransaction.getAfter().ifPresent(block -> wrapper.set(NEW_BLOCK, DataWrapper.of(block)));
-            wrapper.set(LOCATION, DataWrapper.of(blockTransaction.getLocation()));
+            writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -109,7 +114,7 @@ public final class OEntry {
                 wrapper.set(NEW_BLOCK, DataWrapper.of(block));
                 wrapper.set(TARGET, block.getType().name());
             });
-            wrapper.set(LOCATION, DataWrapper.of(blockTransaction.getLocation()));
+            writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -120,7 +125,7 @@ public final class OEntry {
                 wrapper.set(TARGET, block.getType().name());
             });
             blockTransaction.getAfter().ifPresent(block -> wrapper.set(NEW_BLOCK, DataWrapper.of(block)));
-            wrapper.set(LOCATION, DataWrapper.of(blockTransaction.getLocation()));
+            writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -131,7 +136,7 @@ public final class OEntry {
                 wrapper.set(NEW_BLOCK, DataWrapper.of(block));
                 wrapper.set(TARGET, block.getType().name());
             });
-            wrapper.set(LOCATION, DataWrapper.of(blockTransaction.getLocation()));
+            writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -140,7 +145,9 @@ public final class OEntry {
             wrapper.set(ITEMSTACK, DataWrapper.of(item.getItemStack()));
             wrapper.set(QUANTITY, item.getItemStack().getAmount());
             wrapper.set(TARGET, item.getItemStack().getType().name());
-            wrapper.set(LOCATION, DataWrapper.of(item.getLocation()));
+            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(item.getItemStack()));
+            wrapper.set(DISPLAY_METHOD, "item");
+            writeLocationData(item.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -149,7 +156,9 @@ public final class OEntry {
             wrapper.set(ITEMSTACK, DataWrapper.of(item.getItemStack()));
             wrapper.set(QUANTITY, item.getItemStack().getAmount());
             wrapper.set(TARGET, item.getItemStack().getType().name());
-            wrapper.set(LOCATION, DataWrapper.of(item.getLocation()));
+            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(item.getItemStack()));
+            wrapper.set(DISPLAY_METHOD, "item");
+            writeLocationData(item.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -159,7 +168,7 @@ public final class OEntry {
             wrapper.set(DISPLAY_METHOD, "message");
             wrapper.set(MESSAGE, message);
             if (sourceBuilder.getSource() instanceof Entity) {
-                wrapper.set(LOCATION, DataWrapper.of(((Entity) sourceBuilder.getSource()).getLocation()));
+                writeLocationData(((Entity) sourceBuilder.getSource()).getLocation());
             }
             return new OEntry(sourceBuilder, this);
         }
@@ -170,9 +179,16 @@ public final class OEntry {
             wrapper.set(DISPLAY_METHOD, "message");
             wrapper.set(MESSAGE, command);
             if (sourceBuilder.getSource() instanceof Entity) {
-                wrapper.set(LOCATION, DataWrapper.of(((Entity) sourceBuilder.getSource()).getLocation()));
+                writeLocationData(((Entity) sourceBuilder.getSource()).getLocation());
             }
             return new OEntry(sourceBuilder, this);
+        }
+
+        protected void writeLocationData(Location location) {
+            wrapper.set(X, location.getBlockX());
+            wrapper.set(Y, location.getBlockY());
+            wrapper.set(Z, location.getBlockZ());
+            wrapper.set(WORLD, location.getWorld().getUID().toString());
         }
     }
 
@@ -196,16 +212,16 @@ public final class OEntry {
         public OEntry quit() {
             this.eventName = "quit";
             wrapper.set(TARGET, player().getName());
-            wrapper.set(LOCATION, DataWrapper.of(player().getLocation()));
             wrapper.set(IPADDRESS, player().getAddress().getAddress().getHostAddress());
+            writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry joined() {
             this.eventName = "join";
             wrapper.set(TARGET, player().getName());
-            wrapper.set(LOCATION, DataWrapper.of(player().getLocation()));
             wrapper.set(IPADDRESS, player().getAddress().getAddress().getHostAddress());
+            writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
         }
     }

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import net.lordofthecraft.omniscience.OmniConfig;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.parameter.ParameterException;
@@ -78,6 +79,7 @@ public class SearchCommand extends SimpleCommand {
     }
 
     private void lookup(final QuerySession session, AsyncCallback callback) {
+        session.getQuery().setSearchLimit(OmniConfig.INSTANCE.getLookupSizeLimit());
         Bukkit.getScheduler().runTaskAsynchronously(Omniscience.getProvidingPlugin(Omniscience.class), () -> {
             try {
                 CompletableFuture<List<DataEntry>> future = MongoConnectionHandler.getInstance().query(session);

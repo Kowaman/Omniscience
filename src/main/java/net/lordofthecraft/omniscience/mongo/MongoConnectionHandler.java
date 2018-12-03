@@ -11,6 +11,7 @@ import com.mongodb.client.model.InsertOneModel;
 import com.mongodb.client.model.WriteModel;
 import com.mongodb.connection.ClusterSettings;
 import net.lordofthecraft.omniscience.OmniConfig;
+import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
@@ -112,7 +113,7 @@ public final class MongoConnectionHandler {
     private Document documentFromDataWrapper(DataWrapper wrapper) {
         Document document = new Document();
 
-        Set<DataKey> keys = wrapper.getKeys();
+        Set<DataKey> keys = wrapper.getKeys(false);
         for (DataKey dataKey : keys) {
             Optional<Object> oObject = wrapper.get(dataKey);
             oObject.ifPresent(object -> {
@@ -170,6 +171,7 @@ public final class MongoConnectionHandler {
             if (condition instanceof SearchConditionGroup) {
                 SearchConditionGroup group = (SearchConditionGroup) condition;
                 Document subFilter = buildConditions(group.getConditions());
+
                 if (group.getOperator().equals(SearchConditionGroup.Operator.OR)) {
                     filter.append("$or", subFilter);
                 } else {
@@ -217,19 +219,16 @@ public final class MongoConnectionHandler {
 
         List<DataEntry> entries = Lists.newArrayList();
         CompletableFuture<List<DataEntry>> future = new CompletableFuture<>();
-        future.thenAccept(dataEntries -> {
-            DataEntry entry = dataEntries.get(0);
-        });
 
         MongoCollection<Document> collection = getDataCollection();
 
-        Document matcher = new Document("$match", buildConditions(session.getQuery().getSearchCriteria()));
+        Document matcher = new Document("$match", buildConditions(query.getSearchCriteria()));
 
         Document sortFields = new Document();
         sortFields.put(CREATED.toString(), session.getSortOrder().getSortVal());
         Document sorter = new Document("$sort", sortFields);
 
-        Document limit = new Document("$limit", 10);
+        Document limit = new Document("$limit", query.getSearchLimit());
 
         final AggregateIterable<Document> aggregated;
         if (!session.hasFlag(Flag.NO_GROUP)) {
@@ -257,7 +256,7 @@ public final class MongoConnectionHandler {
             pipeline.add(limit);
 
             aggregated = collection.aggregate(pipeline);
-            //TODO log the query that we're sending out
+            Omniscience.getPluginInstance().getLogger().info("MongoDB Query: " + pipeline);
         } else {
             List<Document> pipeline = Lists.newArrayList();
             pipeline.add(matcher);
@@ -265,7 +264,7 @@ public final class MongoConnectionHandler {
             pipeline.add(limit);
 
             aggregated = collection.aggregate(pipeline);
-            //TODO log the query that we're sending out
+            Omniscience.getPluginInstance().getLogger().info("MongoDB Query: " + pipeline);
         }
 
         try (MongoCursor<Document> cursor = aggregated.iterator()) {
