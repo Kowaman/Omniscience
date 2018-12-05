@@ -4,6 +4,7 @@ import net.lordofthecraft.omniscience.api.data.BlockTransaction;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.util.DataHelper;
+import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.CommandBlock;
@@ -201,6 +202,18 @@ public final class OEntry {
                 wrapper.set(TARGET, shot.getName());
             }
             writeLocationData(shot.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry kill(Entity killed) {
+            this.eventName = "kill";
+            wrapper.set(TARGET, killed.getType().name());
+            if (killed instanceof Player) {
+                wrapper.set(TARGET, killed.getName());
+            }
+            wrapper.set(ENTITY_TYPE, killed.getType().name());
+            wrapper.set(ENTITY, ReflectionHandler.getEntityJson(killed));
+            writeLocationData(killed.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 

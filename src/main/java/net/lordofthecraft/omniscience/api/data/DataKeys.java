@@ -23,6 +23,7 @@ public final class DataKeys {
     public static final DataKey QUANTITY = DataKey.of("Quantity");
     public static final DataKey MESSAGE = DataKey.of("Message");
     public static final DataKey LOCATION = DataKey.of("Location");
+    public static final DataKey ENTITY = DataKey.of("Entity");
 
     //META TAGS
     public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");

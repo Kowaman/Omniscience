@@ -36,7 +36,7 @@ public final class BlockChangeListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockExplode(BlockExplodeEvent event) {
-        //TODO Man I'd LOVE to have a player source for this.
+        //Man I'd LOVE to have a player source for this.
         event.blockList().forEach(block -> OEntry.create().environment().brokeBlock(BlockTransaction.from(event.getBlock().getLocation(), block.getState(), null)).save());
     }
 
@@ -52,7 +52,7 @@ public final class BlockChangeListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockMultiPlace(BlockMultiPlaceEvent event) {
-        //TODO absolutely verify this works
+        //TODO absolutely verify this works (it doesnt work, figure out how the hell to fix this)
         event.getReplacedBlockStates().forEach(state -> OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(event.getBlock().getLocation(), state, state.getBlock().getState())).save());
     }
 

@@ -17,7 +17,6 @@ import java.util.Optional;
 public final class Omniscience extends JavaPlugin {
     /*
     @TODO Implement events being turned on/off
-    @TODO Implement the year/month/day display for grouped records
     @TODO Fix up query search autocomplete to allow e: to specify all available events.
     @TODO figure out why timestamp parameter isn't working
     @TODO Ensure rollbacks work
@@ -25,6 +24,8 @@ public final class Omniscience extends JavaPlugin {
     @TODO Save inventory related events
     @TODO implement unimplemented config options
     @TODO investigate async rollback options
+    @TODO world edit selection
+    @TODO send message about what someone is searching when they use the tool
 
     @TODO Implement DynamoDB
      */

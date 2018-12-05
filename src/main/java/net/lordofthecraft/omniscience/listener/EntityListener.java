@@ -14,7 +14,7 @@ public class EntityListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent e) {
         if (e.getDamager() instanceof Projectile && ((Projectile) e.getDamager()).getShooter() instanceof Player) {
-            OEntry.create().source(((Projectile) e.getDamager()).getShooter()).shot(e.getEntity()).save();
+            OEntry.create().source(e.getDamager()).shot(e.getEntity()).save();
             return;
         }
         if (e.getDamager() instanceof Player
@@ -26,7 +26,7 @@ public class EntityListener implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent e) {
         if (e.getEntity().getKiller() != null) {
-            //TODO save an entity death record
+            OEntry.create().source(e.getEntity().getKiller()).kill(e.getEntity()).save();
         }
     }
 }

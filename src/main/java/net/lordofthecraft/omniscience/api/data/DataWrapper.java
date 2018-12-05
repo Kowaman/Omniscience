@@ -3,8 +3,8 @@ package net.lordofthecraft.omniscience.api.data;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
 
@@ -46,8 +46,8 @@ public final class DataWrapper {
     public static DataWrapper ofEntity(Entity entity) {
         DataWrapper wrapper = new DataWrapper();
         //TODO flesh out
+        wrapper.set(ENTITY, ReflectionHandler.getEntityJson(entity));
         wrapper.set(ENTITY_TYPE, entity.getType().name());
-        wrapper.set(WORLD, entity.getWorld().getUID().toString());
         return wrapper;
     }
 
@@ -63,17 +63,6 @@ public final class DataWrapper {
             }
         });
         return wrapper;
-    }
-
-    public static DataWrapper ofBlockData(BlockData data) {
-        //TODO flesh out making a datawrapper of blockdata
-        String blockData = data.getAsString();
-        String[] splitData = blockData.split("\\[");
-        String blockName = splitData[0].split(":")[1];
-        if (splitData.length > 1) {
-
-        }
-        return null;
     }
 
     public DataKey getKey() {
