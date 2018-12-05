@@ -71,4 +71,5 @@ public class SearchCommand extends SimpleCommand {
     public List<String> getCommandSuggestions(String partial) {
         return SearchParameterHelper.suggestParameterCompletion(partial);
     }
+
 }

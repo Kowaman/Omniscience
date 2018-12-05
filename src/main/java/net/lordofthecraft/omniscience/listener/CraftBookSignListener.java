@@ -13,7 +13,7 @@ public class CraftBookSignListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.hasBlock()
                 && event.getClickedBlock().getBlockData() instanceof Sign) {
-            OEntry.create().player(event.getPlayer()).signInteract((Sign) event.getClickedBlock().getBlockData()).save();
+            OEntry.create().player(event.getPlayer()).signInteract(event.getClickedBlock().getLocation(), (Sign) event.getClickedBlock().getBlockData()).save();
         }
     }
 }

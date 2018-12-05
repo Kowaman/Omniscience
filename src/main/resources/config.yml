@@ -16,6 +16,7 @@
 
 display:
   format: d/M/yy hh:mm:ss
+  simpleFormat: d/M/yy
 
 wand:
   material: redstone_lamp
@@ -24,17 +25,27 @@ wand:
 ###                       Server Config                        ###
 ##################################################################
 
+
+# We support two database types: mongodb or dynamodb.
+# DynamoDB is a database style used by Amazon Web Services. If you want to use this (it's pretty cool!) look it up to find out more.
+# DynamoDB is required by the web panel.
+database:
+  type: mongodb
+  name: Omniscience
+  dataTableName: DataEntry
+
 # The MongoDB server(s) to store information in.
 # You can specify more servers for scalability.
 
 # Don't know what MongoDB is? Find out more information here: https://www.mongodb.com/what-is-mongodb
-mongodb.servers:
-- ServerA:
-    address: 127.0.0.1
-    port: 27017
-    usesauth: false
-    user: username
-    pass: password
+mongodb:
+  servers:
+  - ServerA:
+      address: 127.0.0.1
+      port: 27017
+      usesauth: false
+      user: username
+      pass: password
 
 # Q: Where is MySQL/SQL?
 # A: MySQL and other SQL-based programs/languages are nice when it comes to the collection and storage of uniform data.

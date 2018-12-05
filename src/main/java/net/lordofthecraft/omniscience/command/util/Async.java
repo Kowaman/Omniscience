@@ -5,9 +5,8 @@ import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.async.AsyncCallback;
-import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
+import net.lordofthecraft.omniscience.util.Formatter;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +17,7 @@ public final class Async {
         session.getQuery().setSearchLimit(OmniConfig.INSTANCE.getLookupSizeLimit());
         Bukkit.getScheduler().runTaskAsynchronously(Omniscience.getProvidingPlugin(Omniscience.class), () -> {
             try {
-                CompletableFuture<List<DataEntry>> future = MongoConnectionHandler.getInstance().query(session);
+                CompletableFuture<List<DataEntry>> future = Omniscience.getStorageHandler().records().query(session);
                 future.thenAccept(results -> {
                     try {
                         if (results.isEmpty()) {
@@ -27,7 +26,7 @@ public final class Async {
                             callback.success(results);
                         }
                     } catch (Exception e) {
-                        session.getSender().sendMessage(ChatColor.RED + e.getMessage());
+                        session.getSender().sendMessage(Formatter.error(e.getMessage()));
                         e.printStackTrace();
                     }
                 });

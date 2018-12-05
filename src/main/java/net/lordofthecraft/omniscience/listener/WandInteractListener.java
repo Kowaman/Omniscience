@@ -10,6 +10,7 @@ import net.lordofthecraft.omniscience.command.util.Async;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -18,11 +19,13 @@ public final class WandInteractListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (!event.hasBlock()
-                || !event.hasItem()
+        if (!event.hasItem()
                 || event.getItem().getType() != OmniConfig.INSTANCE.getWandMaterial()
                 || event.getHand() != EquipmentSlot.HAND
                 || !Omniscience.hasActiveWand(event.getPlayer())) {
+            return;
+        }
+        if (event.hasBlock() && event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             return;
         }
         event.setCancelled(true);

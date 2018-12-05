@@ -38,8 +38,6 @@ public abstract class DataEntry {
                 return "burned";
             case "grow":
                 return "grown";
-            case "join":
-                return "joined";
             case "form":
                 return "formed";
             case "place":
@@ -56,6 +54,10 @@ public abstract class DataEntry {
                 return "ran command";
             case "useSign":
                 return "used sign";
+            case "quit":
+                return "quit from";
+            case "join":
+                return "joined from";
             default:
                 return word;
         }

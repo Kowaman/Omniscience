@@ -6,6 +6,7 @@ import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.api.query.SearchConditionGroup;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -51,5 +52,20 @@ public class RadiusParameter extends BaseParameterHandler {
         return Optional.empty();
     }
 
-    //TODO process default
+    @Override
+    public Optional<Pair<String, String>> processDefault(QuerySession session, Query query) {
+        if (session.getSender() instanceof Player) {
+            int defaultRadius = OmniConfig.INSTANCE.getDefaultRadius();
+
+            Location location = ((Player) session.getSender()).getLocation();
+
+            query.addCondition(SearchConditionGroup.from(location, defaultRadius));
+
+            session.setRadius(defaultRadius);
+
+            return Optional.of(Pair.of(aliases.get(0), String.valueOf(defaultRadius)));
+        }
+
+        return Optional.empty();
+    }
 }

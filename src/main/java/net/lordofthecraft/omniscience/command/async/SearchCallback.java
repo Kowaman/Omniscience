@@ -10,6 +10,7 @@ import net.lordofthecraft.omniscience.api.flag.Flag;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.commands.PageCommand;
 import net.lordofthecraft.omniscience.util.DataHelper;
+import net.lordofthecraft.omniscience.util.Formatter;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -37,12 +38,14 @@ public class SearchCallback implements AsyncCallback {
 
     @Override
     public void empty() {
-        session.getSender().sendMessage(ChatColor.RED + "Nothing was found. Check /omni help for help.");
+        PageCommand.removeSearchResults(session.getSender());
+        session.getSender().sendMessage(Formatter.error("Nothing was found. (/omni help)"));
     }
 
     @Override
     public void error(Exception e) {
-        session.getSender().sendMessage(ChatColor.RED + "An error occurred. Please see console.");
+        PageCommand.removeSearchResults(session.getSender());
+        session.getSender().sendMessage(Formatter.error("An error occurred. Please see console."));
         Omniscience.getPlugin(Omniscience.class).getLogger().log(Level.SEVERE, "An error occurred while parsing!", e);
     }
 
@@ -56,10 +59,10 @@ public class SearchCallback implements AsyncCallback {
             }
         }
 
-        StringBuilder startOfMessage = new StringBuilder();
+        StringBuilder startOfMessage = new StringBuilder().append(ChatColor.GRAY);
         StringBuilder endOfMessage = new StringBuilder();
         StringBuilder hoverMessage = new StringBuilder();
-        startOfMessage.append(ChatColor.DARK_AQUA).append(entry.getSourceName()).append(" ");
+        startOfMessage.append(Formatter.formatSecondaryMessage(entry.getSourceName())).append(" ");
         startOfMessage.append(ChatColor.WHITE).append(entry.getVerbPastTense()).append(" ");
 
         //this would be FUCKING AWESOME to show the item (if there is one)!
@@ -68,16 +71,17 @@ public class SearchCallback implements AsyncCallback {
 
         entry.data.getInt(DataKeys.QUANTITY)
                 .ifPresent(quantity -> {
-                    startOfMessage.append(ChatColor.DARK_AQUA).append(quantity).append(" ");
+                    startOfMessage.append(Formatter.formatSecondaryMessage(String.valueOf(quantity))).append(" ");
                     hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Quantity: ").append(ChatColor.WHITE).append(quantity);
                 });
 
         String target = entry.data.getString(DataKeys.TARGET).orElse("Unknown");
         if (displayHandler.isPresent()) {
-            target = ChatColor.DARK_AQUA + displayHandler.get().buildTargetMessage(entry, target, this.session).orElse(target);
+            target = displayHandler.get().buildTargetMessage(entry, target, this.session).orElse(target);
         }
         if (!target.isEmpty()) {
-            hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Target: ").append(ChatColor.WHITE).append(target);
+            target = Formatter.formatPrimaryMessage(target);
+            hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Target: ").append(ChatColor.WHITE).append(ChatColor.stripColor(target));
         }
         Optional<TextComponent> targetHover = Optional.empty();
         if (displayHandler.isPresent()) {
@@ -107,7 +111,7 @@ public class SearchCallback implements AsyncCallback {
             endOfMessage.append(ChatColor.WHITE).append(complete.getRelativeTime());
             hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Time: ").append(ChatColor.WHITE).append(complete.getTime());
 
-            TextComponent start = new TextComponent(startOfMessage.toString());
+            TextComponent start = new TextComponent(startOfMessage.insert(0, ChatColor.GRAY + "= ").toString());
             TextComponent targetComponent = targetHover.orElse(new TextComponent(target));
             TextComponent end = new TextComponent(endOfMessage.toString());
 
@@ -132,13 +136,17 @@ public class SearchCallback implements AsyncCallback {
         } else {
             TextComponent main = new TextComponent();
             HoverEvent infoHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverMessage.toString()).create());
-            main.addExtra(startOfMessage.toString());
+            if (entry instanceof DataAggregateEntry) {
+                main.addExtra(startOfMessage.insert(0, ChatColor.GRAY + "= (" + ((DataAggregateEntry) entry).getDate() + ") ").toString());
+            } else {
+                main.addExtra(startOfMessage.insert(0, ChatColor.GRAY + "= ").toString());
+            }
             main.setHoverEvent(infoHover);
             if (targetHover.isPresent()) {
                 main.addExtra(targetHover.get());
                 main.addExtra(" ");
             } else {
-                main.addExtra(target + " ");
+                main.addExtra(Formatter.formatPrimaryMessage(target + " "));
                 main.setHoverEvent(infoHover);
             }
             main.addExtra(endOfMessage.toString());

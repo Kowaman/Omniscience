@@ -17,7 +17,7 @@ public class MessageDisplayHandler extends SimpleDisplayHandler {
 
     @Override
     public Optional<String> buildTargetMessage(DataEntry entry, String target, QuerySession session) {
-        if (!session.hasFlag(Flag.NO_GROUP) || !entry.data.hasKey(MESSAGE)) {
+        if (!session.hasFlag(Flag.NO_GROUP) || !entry.data.getKeys(false).contains(MESSAGE)) {
             return Optional.empty();
         }
         return entry.data.getString(MESSAGE);

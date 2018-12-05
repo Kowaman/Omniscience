@@ -184,6 +184,26 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
+        public OEntry hit(Entity target) {
+            this.eventName = "hit";
+            wrapper.set(TARGET, target.getType().name());
+            if (target instanceof Player) {
+                wrapper.set(TARGET, target.getName());
+            }
+            writeLocationData(target.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry shot(Entity shot) {
+            this.eventName = "shot";
+            wrapper.set(TARGET, shot.getType().name());
+            if (shot instanceof Player) {
+                wrapper.set(TARGET, shot.getName());
+            }
+            writeLocationData(shot.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
         protected void writeLocationData(Location location) {
             wrapper.set(LOCATION.then(X), location.getBlockX());
             wrapper.set(LOCATION.then(Y), location.getBlockY());
@@ -212,21 +232,18 @@ public final class OEntry {
 
         public OEntry quit() {
             this.eventName = "quit";
-            wrapper.set(TARGET, player().getName());
-            wrapper.set(IPADDRESS, player().getAddress().getAddress().getHostAddress());
+            wrapper.set(TARGET, player().getAddress().getHostName());
             writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry joined() {
+        public OEntry joined(String host) {
             this.eventName = "join";
-            wrapper.set(TARGET, player().getName());
-            wrapper.set(IPADDRESS, player().getAddress().getAddress().getHostAddress());
+            wrapper.set(TARGET, host);
             writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
         }
     }
-
     public static final class EntryBuilder {
 
         public EventBuilder source(Object source) {

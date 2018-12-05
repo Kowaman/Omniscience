@@ -10,7 +10,6 @@ public class DataKeyTest {
     public void testGetter_Setter() {
         String key = "test";
         DataKey testKey = DataKey.of(key);
-        assertEquals(key, testKey.getKey());
         assertEquals(key, testKey.toString());
     }
 }

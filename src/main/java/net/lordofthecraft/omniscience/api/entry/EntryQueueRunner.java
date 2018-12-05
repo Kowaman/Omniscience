@@ -1,9 +1,9 @@
 package net.lordofthecraft.omniscience.api.entry;
 
 import com.google.common.collect.Lists;
+import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
-import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public final class EntryQueueRunner implements Runnable {
 
         if (batchWrappers.size() > 0) {
             try {
-                MongoConnectionHandler.getInstance().write(batchWrappers);
+                Omniscience.getStorageHandler().records().write(batchWrappers);
             } catch (Exception e) {
                 e.printStackTrace();
             }

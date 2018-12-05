@@ -31,24 +31,18 @@ public class ItemDisplayHandler extends SimpleDisplayHandler {
 
     @Override
     public Optional<TextComponent> buildTargetSpecificHoverData(DataEntry entry, String target, QuerySession session) {
-        System.out.println("Beginning the display stack of item data. {" + entry + "} ((" + target + "))");
         Optional<String> oConfig = entry.data.getString(DataKeys.ITEMDATA);
-        System.out.println("Item Check 1");
         if (oConfig.isPresent()) {
-            System.out.println("Item Check 2");
             Optional<ItemStack> oItem = DataHelper.loadFromString(oConfig.get());
             if (oItem.isPresent()) {
-                System.out.println("Item Check 3");
                 ItemStack is = oItem.get();
                 TextComponent component = new TextComponent(target);
                 ComponentBuilder hover = new ComponentBuilder("");
                 hover.append(ReflectionHandler.getItemJson(is));
                 component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, hover.create()));
-                System.out.println("Item Check 4");
                 return Optional.of(component);
             }
         }
-        System.out.println("Item Check Error");
         return Optional.empty();
     }
 }

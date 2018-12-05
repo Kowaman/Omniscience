@@ -111,35 +111,37 @@ public final class DataWrapper {
             return Optional.empty();
         }
         DataWrapper subWrapper = oSubWrapper.get();
-        return subWrapper.get(key.popFirst());
+        Optional<Object> objectOpt = subWrapper.get(key.popFirst());
+        return objectOpt;
     }
 
-    public DataWrapper set(DataKey key, Object value) {
-        checkNotNull(key, "key");
+    public DataWrapper set(DataKey path, Object value) {
+        checkNotNull(path, "key");
         checkNotNull(value, "value");
 
-        List<String> parts = key.getParts();
-        String rootKey = parts.get(0);
+        List<String> parts = path.getParts();
+        String key = parts.get(0);
         if (parts.size() > 1) {
-            DataKey subKey = of(parts);
-            Optional<DataWrapper> oSubWrapper = this.getUnsafeWrapper(subKey);
+            DataKey subQuery = of(key);
+            Optional<DataWrapper> oSubWrapper = this.getUnsafeWrapper(subQuery);
             DataWrapper subWrapper;
             if (!oSubWrapper.isPresent()) {
-                this.createWrapper(subKey);
-                subWrapper = (DataWrapper) this.data.get(rootKey);
+                this.createWrapper(subQuery);
+                subWrapper = (DataWrapper) this.data.get(key);
             } else {
                 subWrapper = oSubWrapper.get();
             }
-            subWrapper.set(key.popFirst(), value);
+            subWrapper.set(path.popFirst(), value);
+            return this;
         }
         if (value instanceof DataWrapper) {
             checkArgument(value != this, "Cannot set a DataWrapper to itself");
 
-            copyDataWrapper(key, (DataWrapper) value);
+            copyDataWrapper(path, (DataWrapper) value);
         } else if (value instanceof Map) {
-            setMap(rootKey, (Map) value);
+            setMap(key, (Map) value);
         } else {
-            this.data.put(rootKey, value);
+            this.data.put(key, value);
         }
         return this;
     }
@@ -176,28 +178,28 @@ public final class DataWrapper {
         return this;
     }
 
-    public DataWrapper createWrapper(DataKey key) {
-        List<String> keyParts = key.getParts();
+    public DataWrapper createWrapper(DataKey path) {
+        List<String> queryParts = path.getParts();
 
-        int size = keyParts.size();
+        int size = queryParts.size();
 
         checkArgument(size != 0, "The size of the key must be at least 1");
 
-        String rootKey = keyParts.get(0);
-        DataKey rootDataKey = of(rootKey);
+        String key = queryParts.get(0);
+        DataKey keyQuery = of(key);
 
         if (size == 1) {
-            DataWrapper result = new DataWrapper(parent, rootDataKey);
-            this.data.put(rootKey, result);
+            DataWrapper result = new DataWrapper(this, keyQuery);
+            this.data.put(key, result);
             return result;
         }
-        DataKey subKey = key.popFirst();
-        DataWrapper subWrapper = (DataWrapper) this.data.get(rootKey);
-        if (subWrapper == null) {
-            subWrapper = new DataWrapper(this.parent, rootDataKey);
-            this.data.put(rootKey, subWrapper);
+        DataKey subQuery = path.popFirst();
+        DataWrapper subView = (DataWrapper) this.data.get(key);
+        if (subView == null) {
+            subView = new DataWrapper(this.parent, keyQuery);
+            this.data.put(key, subView);
         }
-        return subWrapper.createWrapper(subKey);
+        return subView.createWrapper(subQuery);
     }
 
     public Optional<DataWrapper> getWrapper(DataKey key) {

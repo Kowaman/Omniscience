@@ -17,8 +17,8 @@ import net.lordofthecraft.omniscience.command.OmniscienceCommand;
 import net.lordofthecraft.omniscience.command.OmniscienceTabCompleter;
 import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
+import net.lordofthecraft.omniscience.io.StorageHandler;
 import net.lordofthecraft.omniscience.listener.*;
-import net.lordofthecraft.omniscience.mongo.MongoConnectionHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -37,7 +37,7 @@ final class OmniCore implements IOmniscience {
 
     private Set<UUID> activeWandList = Sets.newHashSet();
 
-    private MongoConnectionHandler connectionHandler;
+    private StorageHandler storageHandler;
 
     OmniCore() {
     }
@@ -45,7 +45,18 @@ final class OmniCore implements IOmniscience {
     void onEnable(Omniscience omniscience, BukkitScheduler scheduler) {
         omniscience.saveDefaultConfig();
         OmniConfig.INSTANCE.setup(omniscience.getConfig());
-        this.connectionHandler = MongoConnectionHandler.createHandler(omniscience.getConfig());
+        try {
+            this.storageHandler = OmniConfig.INSTANCE.getDbType().invokeConstructor();
+            if (!this.storageHandler.connect(omniscience)) {
+                omniscience.getLogger().severe("Failed to connect to the database specified, shutting down.");
+                Bukkit.getPluginManager().disablePlugin(omniscience);
+                return;
+            }
+        } catch (Exception e) {
+            omniscience.getLogger().log(Level.SEVERE, "Failed to connect to database, shutting down.", e);
+            Bukkit.getPluginManager().disablePlugin(omniscience);
+            return;
+        }
 
         registerEventWrapperClasses();
         registerParameters();
@@ -104,6 +115,8 @@ final class OmniCore implements IOmniscience {
         pm.registerEvents(new BlockChangeListener(), plugin);
         pm.registerEvents(new ItemListener(), plugin);
         pm.registerEvents(new ChatListener(), plugin);
+        pm.registerEvents(new PlayerListener(), plugin);
+        pm.registerEvents(new EntityListener(), plugin);
         if (plugin.getConfig().getBoolean("integration.craftBookSigns")
                 && Bukkit.getServer().getPluginManager().isPluginEnabled("CraftBook")) {
             pm.registerEvents(new CraftBookSignListener(), plugin);
@@ -141,8 +154,8 @@ final class OmniCore implements IOmniscience {
         eventMap.put(name, clazz);
     }
 
-    public MongoConnectionHandler getConnectionHandler() {
-        return connectionHandler;
+    public StorageHandler getStorageHandler() {
+        return storageHandler;
     }
 
     Optional<ParameterHandler> getParameterHandler(String key) {

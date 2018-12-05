@@ -30,6 +30,10 @@ public class PageCommand extends SimpleCommand {
         }
     }
 
+    public static void removeSearchResults(CommandSender sender) {
+        searchResults.remove(sender);
+    }
+
     public PageCommand() {
         super(ImmutableList.of("p", "pg"));
     }

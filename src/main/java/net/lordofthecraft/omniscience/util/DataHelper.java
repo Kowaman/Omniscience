@@ -14,7 +14,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,7 +34,7 @@ public final class DataHelper {
     }
 
     public static Optional<BlockData> getBlockDataFromWrapper(DataWrapper wrapper) {
-        if (!wrapper.getKeys().contains(BLOCK_DATA)) {
+        if (!wrapper.getKeys(false).contains(BLOCK_DATA)) {
             return Optional.empty();
         }
         return wrapper
@@ -45,13 +44,13 @@ public final class DataHelper {
     }
 
     public static Optional<Location> getLocationFromDataWrapper(DataWrapper wrapper) {
-        if (!wrapper.getKeys().containsAll(Arrays.asList(X, Y, Z, WORLD))) {
+        if (!wrapper.get(LOCATION).isPresent()) {
             return Optional.empty();
         }
-        Optional<Integer> oX = wrapper.get(X);
-        Optional<Integer> oY = wrapper.get(Y);
-        Optional<Integer> oZ = wrapper.get(Z);
-        Optional<String> oWorld = wrapper.get(WORLD);
+        Optional<Integer> oX = wrapper.getInt(LOCATION.then(X));
+        Optional<Integer> oY = wrapper.getInt(LOCATION.then(Y));
+        Optional<Integer> oZ = wrapper.getInt(LOCATION.then(Z));
+        Optional<String> oWorld = wrapper.getString(LOCATION.then(WORLD));
         if (oX.isPresent()
                 && oY.isPresent()
                 && oZ.isPresent()

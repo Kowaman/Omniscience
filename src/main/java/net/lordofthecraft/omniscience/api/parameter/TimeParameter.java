@@ -1,12 +1,14 @@
 package net.lordofthecraft.omniscience.api.parameter;
 
 import com.google.common.collect.ImmutableList;
+import net.lordofthecraft.omniscience.OmniConfig;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.query.FieldCondition;
 import net.lordofthecraft.omniscience.api.query.MatchRule;
 import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.util.DateUtil;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.command.CommandSender;
 
 import java.util.Date;
@@ -55,5 +57,18 @@ public class TimeParameter extends BaseParameterHandler {
         return Optional.empty();
     }
 
-    //TODO default time parameter
+    @Override
+    public Optional<Pair<String, String>> processDefault(QuerySession session, Query query) {
+        String since = OmniConfig.INSTANCE.getDefaultSearchTime();
+
+        try {
+            Date date = DateUtil.parseTimeStringToDate(since, false);
+            query.addCondition(FieldCondition.of(DataKeys.CREATED, MatchRule.GREATER_THAN_EQUAL, date));
+            return Optional.of(Pair.of("since", since));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return Optional.empty();
+    }
 }

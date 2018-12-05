@@ -3,10 +3,12 @@ package net.lordofthecraft.omniscience.api.query;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mongodb.lang.Nullable;
+import net.lordofthecraft.omniscience.OmniConfig;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterException;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
+import net.lordofthecraft.omniscience.util.Formatter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -68,7 +70,30 @@ public class QueryBuilder {
             future.complete(query);
         }
 
-        //TODO default parameters
+        if (OmniConfig.INSTANCE.areDefaultsEnabled()) {
+            StringBuilder usedDefaults = new StringBuilder();
+            for (ParameterHandler handler : Omniscience.getParameters()) {
+                boolean aliasFound = false;
+
+                for (String alias : handler.getAliases()) {
+                    if (definedParameters.containsKey(alias)) {
+                        aliasFound = true;
+                        break;
+                    }
+                }
+
+                if (!aliasFound) {
+                    handler.processDefault(session, query)
+                            .ifPresent(
+                                    stringStringPair -> usedDefaults.append(stringStringPair.getKey()).append(":").append(stringStringPair.getValue()).append(" ")
+                            );
+                }
+            }
+
+            if (usedDefaults.length() > 0) {
+                session.getSender().sendMessage(Formatter.subHeader(String.format("Defaults used: %s", usedDefaults.toString())));
+            }
+        }
 
         return future;
     }

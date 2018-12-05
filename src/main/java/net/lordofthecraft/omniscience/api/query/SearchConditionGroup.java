@@ -22,7 +22,7 @@ public final class SearchConditionGroup implements SearchCondition {
         group.add(FieldCondition.of(LOCATION.then(X), MatchRule.EQUALS, location.getBlockX()));
         group.add(FieldCondition.of(LOCATION.then(Y), MatchRule.EQUALS, location.getBlockY()));
         group.add(FieldCondition.of(LOCATION.then(Z), MatchRule.EQUALS, location.getBlockZ()));
-        group.add(FieldCondition.of(LOCATION.then(WORLD), MatchRule.EQUALS, location.getWorld().getUID()));
+        group.add(FieldCondition.of(LOCATION.then(WORLD), MatchRule.EQUALS, location.getWorld().getUID().toString()));
 
         return group;
     }
@@ -30,7 +30,7 @@ public final class SearchConditionGroup implements SearchCondition {
     public static SearchConditionGroup from(Location location, int radius) {
         SearchConditionGroup group = new SearchConditionGroup(Operator.AND);
 
-        group.add(FieldCondition.of(LOCATION.then(WORLD), MatchRule.EQUALS, location.getWorld().getUID()));
+        group.add(FieldCondition.of(LOCATION.then(WORLD), MatchRule.EQUALS, location.getWorld().getUID().toString()));
 
         Range<Integer> xRange = Range.open(location.getBlockX() - radius, location.getBlockX() + radius);
         group.add(FieldCondition.of(LOCATION.then(X), xRange));
