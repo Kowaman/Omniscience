@@ -86,6 +86,12 @@ public final class ReflectionHandler {
         return null;
     }
 
+    /**
+     * This method will load entity data that has been stored in nbt into the entity. This will create a LITERAL COPY OF THE SAVED ENTITY. Basically, everything will be the exact same.
+     *
+     * @param entity A base entity to overwrite. As we're loading entity data, you're gonna have to give us an entity to brainwash.
+     * @param nbt    The nbt string to parse and load into the entity.
+     */
     public static void loadEntityFromNBT(Entity entity, String nbt) {
         try {
             Object readLimiter = nbtReadLimiter.newInstance((long) nbt.length());
