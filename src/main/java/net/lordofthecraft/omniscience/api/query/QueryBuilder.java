@@ -73,6 +73,9 @@ public class QueryBuilder {
         if (OmniConfig.INSTANCE.areDefaultsEnabled()) {
             StringBuilder usedDefaults = new StringBuilder();
             for (ParameterHandler handler : Omniscience.getParameters()) {
+                if (session.isIgnoredDefault(handler)) { //Skip over any parameter that has been explicitly ignored.
+                    continue;
+                }
                 boolean aliasFound = false;
 
                 for (String alias : handler.getAliases()) {

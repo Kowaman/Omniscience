@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.lordofthecraft.omniscience.api.display.DisplayHandler;
+import net.lordofthecraft.omniscience.api.entry.ActionResult;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
@@ -12,7 +13,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public final class Omniscience extends JavaPlugin {
     /*
@@ -20,7 +23,6 @@ public final class Omniscience extends JavaPlugin {
     @TODO Fix up query search autocomplete to allow e: to specify all available events.
     @TODO figure out why timestamp parameter isn't working
     @TODO Ensure rollbacks work
-    @TODO Save entity-related events
     @TODO Save inventory related events
     @TODO implement unimplemented config options
     @TODO investigate async rollback options
@@ -98,6 +100,14 @@ public final class Omniscience extends JavaPlugin {
 
     public static StorageHandler getStorageHandler() {
         return INSTANCE.getStorageHandler();
+    }
+
+    public static void addLastActionResults(UUID id, List<ActionResult> results) {
+        INSTANCE.addLastActionResults(id, results);
+    }
+
+    public static Optional<List<ActionResult>> getLastActionResults(UUID id) {
+        return INSTANCE.getLastActionResults(id);
     }
 
     @Override

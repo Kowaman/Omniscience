@@ -8,9 +8,7 @@ import me.lucko.commodore.CommodoreProvider;
 import net.lordofthecraft.omniscience.api.display.DisplayHandler;
 import net.lordofthecraft.omniscience.api.display.ItemDisplayHandler;
 import net.lordofthecraft.omniscience.api.display.MessageDisplayHandler;
-import net.lordofthecraft.omniscience.api.entry.BlockEntry;
-import net.lordofthecraft.omniscience.api.entry.DataEntry;
-import net.lordofthecraft.omniscience.api.entry.EntryQueueRunner;
+import net.lordofthecraft.omniscience.api.entry.*;
 import net.lordofthecraft.omniscience.api.flag.*;
 import net.lordofthecraft.omniscience.api.parameter.*;
 import net.lordofthecraft.omniscience.command.OmniscienceCommand;
@@ -34,6 +32,7 @@ final class OmniCore implements IOmniscience {
     private Map<String, Class<? extends DataEntry>> eventMap = Maps.newHashMap();
     private List<FlagHandler> flagHandlerList = Lists.newArrayList();
     private List<DisplayHandler> displayHandlerList = Lists.newArrayList();
+    private Map<UUID, List<ActionResult>> lastActionResults = Maps.newHashMap();
 
     private Set<UUID> activeWandList = Sets.newHashSet();
 
@@ -107,6 +106,9 @@ final class OmniCore implements IOmniscience {
         registerEvent("place", BlockEntry.class);
         registerEvent("grow", BlockEntry.class);
         registerEvent("form", BlockEntry.class);
+        registerEvent("kill", EntityEntry.class);
+        registerEvent("withdraw", ItemEntry.class);
+        registerEvent("deposit", ItemEntry.class);
     }
 
     private void registerEventHandlers(Omniscience plugin) {
@@ -139,6 +141,9 @@ final class OmniCore implements IOmniscience {
         flagHandlerList.add(new FlagNoGroup());
         flagHandlerList.add(new FlagOrder());
         flagHandlerList.add(new FlagDrain());
+        if (OmniConfig.INSTANCE.areDefaultsEnabled()) {
+            flagHandlerList.add(new FlagIgnoreDefault());
+        }
     }
 
     private void registerDisplayHandlers() {
@@ -188,6 +193,14 @@ final class OmniCore implements IOmniscience {
 
     void wandDeactivateFor(Player player) {
         activeWandList.remove(player.getUniqueId());
+    }
+
+    void addLastActionResults(UUID id, List<ActionResult> results) {
+        this.lastActionResults.put(id, results);
+    }
+
+    Optional<List<ActionResult>> getLastActionResults(UUID id) {
+        return Optional.ofNullable(lastActionResults.get(id));
     }
 
     @Override

@@ -1,35 +1,43 @@
 package net.lordofthecraft.omniscience.api.entry;
 
-import com.mongodb.lang.Nullable;
+import net.lordofthecraft.omniscience.api.data.Transaction;
 
 public class ActionResult {
 
-    private final String result;
-    private final Status status;
+    private final boolean changeWasApplied;
+    private final SkipReason reason;
+    private final Transaction transaction;
 
-    private ActionResult(@Nullable String result, Status status) {
-        this.result = result;
-        this.status = status;
+    private ActionResult(SkipReason reason) {
+        this.reason = reason;
+        this.changeWasApplied = false;
+        this.transaction = null;
     }
 
-    public static ActionResult success() {
-        return new ActionResult(null, Status.SUCCESS);
+    private ActionResult(Transaction transaction) {
+        this.changeWasApplied = true;
+        this.reason = null;
+        this.transaction = transaction;
     }
 
-    public static ActionResult failure(String reason) {
-        return new ActionResult(reason, Status.FAILURE);
+    public static ActionResult success(Transaction transaction) {
+        return new ActionResult(transaction);
     }
 
-    public String getResult() {
-        return result;
+    public static ActionResult skipped(SkipReason reason) {
+        return new ActionResult(reason);
     }
 
-    public Status getStatus() {
-        return status;
+    public boolean applied() {
+        return changeWasApplied;
     }
 
-    enum Status {
-        SUCCESS,
-        FAILURE
+    public SkipReason getReason() {
+        return reason;
     }
+
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.lordofthecraft.omniscience.api.flag.Flag;
 import net.lordofthecraft.omniscience.api.parameter.ParameterException;
+import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class QuerySession {
     protected Query query;
     protected int radius;
     protected Sort sortOrder = Sort.NEWEST_FIRST;
+    protected List<ParameterHandler> ignoredDefaults = Lists.newArrayList();
 
     public QuerySession(CommandSender sender) {
         this.sender = sender;
@@ -55,6 +57,14 @@ public class QuerySession {
 
     public void setQuery(Query query) {
         this.query = query;
+    }
+
+    public void addIgnoredDefault(ParameterHandler handler) {
+        ignoredDefaults.add(handler);
+    }
+
+    public boolean isIgnoredDefault(ParameterHandler handler) {
+        return ignoredDefaults.contains(handler);
     }
 
     public int getRadius() {

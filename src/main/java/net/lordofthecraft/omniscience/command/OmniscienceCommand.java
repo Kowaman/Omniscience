@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience.command;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.lucko.commodore.Commodore;
+import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.commands.*;
 import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
@@ -24,10 +25,12 @@ public class OmniscienceCommand implements CommandExecutor {
 
     static {
         subCommandSet = ImmutableSet.of(
-                new ToolCommand(),
-                new SearchCommand(),
-                new RollbackCommand(),
                 new PageCommand(),
+                new SearchCommand(),
+                new ApplierCommand(QuerySession.Sort.NEWEST_FIRST), //Rollback
+                new ApplierCommand(QuerySession.Sort.OLDEST_FIRST), //Restore
+                new UndoCommand(),
+                new ToolCommand(),
                 new ColorCommand()
         );
     }

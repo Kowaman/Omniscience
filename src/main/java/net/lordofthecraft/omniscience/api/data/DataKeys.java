@@ -24,6 +24,9 @@ public final class DataKeys {
     public static final DataKey MESSAGE = DataKey.of("Message");
     public static final DataKey LOCATION = DataKey.of("Location");
     public static final DataKey ENTITY = DataKey.of("Entity");
+    public static final DataKey SIGN_TEXT = DataKey.of("SignText");
+    public static final DataKey INVENTORY = DataKey.of("Inventory");
+    public static final DataKey ITEM_SLOT = DataKey.of("ItemSlot");
 
     //META TAGS
     public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");

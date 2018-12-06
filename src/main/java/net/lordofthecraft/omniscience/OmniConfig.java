@@ -54,6 +54,8 @@ public enum OmniConfig {
             wandMaterial = Material.REDSTONE_LAMP;
             Omniscience.getPluginInstance().getLogger().warning("Invalid configuration option for wand.material: " + wandMaterialName + ". Defaulting to REDSTONE_LAMP");
         }
+
+
     }
 
     private Material wandMaterial;

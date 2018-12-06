@@ -1,11 +1,14 @@
 package net.lordofthecraft.omniscience.api.entry;
 
+import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
+import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.util.DataHelper;
+import org.bukkit.Location;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
 
-import java.util.Optional;
-
+import static net.lordofthecraft.omniscience.api.data.DataKeys.NEW_BLOCK;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.ORIGINAL_BLOCK;
 
 public class BlockEntry extends DataEntryComplete implements Actionable {
@@ -15,27 +18,41 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
 
     @Override
     public ActionResult rollback() throws Exception {
-        Object original = data.get(ORIGINAL_BLOCK)
-                .orElseThrow(() -> new IllegalAccessException("Rollback was called on an entry that doesn't support rollback!"));
+        DataWrapper original = data.getWrapper(ORIGINAL_BLOCK)
+                .orElseThrow(() -> skipped(SkipReason.INVALID));
 
-        if (!(original instanceof DataWrapper)) {
-            //TODO return invalid result
-            return ActionResult.failure("TODO");
-        }
+        BlockData originalData = DataHelper.getBlockDataFromWrapper(original)
+                .orElseThrow(() -> skipped(SkipReason.INVALID));
+        Location location = DataHelper.getLocationFromDataWrapper(
+                data.getWrapper(DataKeys.LOCATION).orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION)
+                )).orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
 
-        DataWrapper originalBlock = (DataWrapper) original;
+        BlockState beforeState = location.getBlock().getState();
 
-        Optional<BlockData> oData = DataHelper.getBlockDataFromWrapper(originalBlock);
-        /*Optional<Location> oLocation = DataHelper.getLocationFromDataWrapper((DataWrapper) originalBlock.get(LOCATION)
-                .orElseThrow(() -> new IllegalArgumentException("The data for this block doesn't have a location!")));
-        if (oData.isPresent()
-                && oLocation.isPresent()) {
-            BlockData data = oData.get();
-            Location location = oLocation.get();
-            //TODO is this really the best place to do this?
-            location.getBlock().setBlockData(data);
-        }
-        //TODO return a block transaction incase this went bad?*/
-        return ActionResult.success();
+        location.getBlock().setBlockData(originalData);
+
+        //TODO if there is additional stored state data we need to pull that down and apply it
+
+        return ActionResult.success(new Transaction<>(beforeState, location.getBlock().getState()));
+    }
+
+    @Override
+    public ActionResult restore() throws Exception {
+        DataWrapper finalState = data.getWrapper(NEW_BLOCK)
+                .orElseThrow(() -> skipped(SkipReason.INVALID));
+
+        BlockData finalData = DataHelper.getBlockDataFromWrapper(finalState)
+                .orElseThrow(() -> skipped(SkipReason.INVALID));
+        Location location = DataHelper.getLocationFromDataWrapper(
+                data.getWrapper(DataKeys.LOCATION).orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION)
+                )).orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
+
+        BlockState beforeState = location.getBlock().getState();
+
+        location.getBlock().setBlockData(finalData);
+
+        //TODO if there is additional stored state data we need to pull that down and apply it
+
+        return ActionResult.success(new Transaction<>(beforeState, location.getBlock().getState()));
     }
 }

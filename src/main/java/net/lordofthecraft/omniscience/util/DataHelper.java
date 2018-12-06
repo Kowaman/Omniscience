@@ -13,6 +13,7 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -67,11 +68,28 @@ public final class DataHelper {
         return configuration.saveToString();
     }
 
-    public static <T extends ConfigurationSerializable> Optional<T> loadFromString(String config) {
+    public static String convertItemList(ItemStack[] items) {
+        YamlConfiguration configuration = new YamlConfiguration();
+        configuration.set("configdata", items);
+        return configuration.saveToString();
+    }
+
+    public static Optional<ItemStack[]> convertConfigItems(String config) {
         YamlConfiguration configuration = new YamlConfiguration();
         try {
             configuration.loadFromString(config);
-            return Optional.of((T) configuration.get("configdata"));
+            return Optional.ofNullable((ItemStack[]) configuration.get("configdata"));
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<ItemStack> loadFromString(String config) {
+        YamlConfiguration configuration = new YamlConfiguration();
+        try {
+            configuration.loadFromString(config);
+            return Optional.of(configuration.getSerializable("configdata", ItemStack.class));
         } catch (InvalidConfigurationException e) {
             e.printStackTrace();
         }
