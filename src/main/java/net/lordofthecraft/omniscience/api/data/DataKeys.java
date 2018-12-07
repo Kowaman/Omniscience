@@ -1,5 +1,10 @@
 package net.lordofthecraft.omniscience.api.data;
 
+/**
+ * A collection of easily accessed keys that are used by this plugin
+ *
+ * @author 501warhead
+ */
 public final class DataKeys {
 
     public static final DataKey WORLD = DataKey.of("World");

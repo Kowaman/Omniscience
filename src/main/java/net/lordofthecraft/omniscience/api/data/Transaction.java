@@ -4,6 +4,11 @@ import com.google.common.base.MoreObjects;
 
 import java.util.Objects;
 
+/**
+ * A record that essentially shows the progress of something over time. It includes an original, pre-change version and a final, post-change version.
+ *
+ * @param <T> The class that a change is being recorded for
+ */
 public class Transaction<T> {
 
     private final T originalState;

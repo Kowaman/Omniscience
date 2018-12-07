@@ -26,7 +26,6 @@ public final class Omniscience extends JavaPlugin {
     @TODO Save inventory related events
     @TODO implement unimplemented config options
     @TODO investigate async rollback options
-    @TODO world edit selection
     @TODO send message about what someone is searching when they use the tool
 
     @TODO Implement DynamoDB
@@ -100,6 +99,10 @@ public final class Omniscience extends JavaPlugin {
 
     public static StorageHandler getStorageHandler() {
         return INSTANCE.getStorageHandler();
+    }
+
+    public static void onWorldEditStatusChange(boolean status) {
+        INSTANCE.onWorldEditStatusChange(status);
     }
 
     public static void addLastActionResults(UUID id, List<ActionResult> results) {

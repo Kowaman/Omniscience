@@ -6,6 +6,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * This idea is largely attributed to Sponge. They tend do this system really well in terms of MongoDB/NoSQL solutions.
+ * <p>
+ * A DataKey is essentially the location of data in a {@link DataWrapper}. If a Key is "name", then it'll get the value at "name" in the wrapper.
+ * If a key is "name.first" then it'll go and grab the {@link DataWrapper} that is stored in "name" and then it'll find the value for "first" in that nested wrapper.
+ * This can go to extreme depths.
+ * </p>
+ */
 public final class DataKey {
 
     private final ImmutableList<String> parts;

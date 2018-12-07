@@ -15,6 +15,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static net.lordofthecraft.omniscience.api.data.DataKey.of;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
+/**
+ * A storage location for data. We do not care about what this data is. This method is oblivious to what it's storing or what it's storing data for. It's simply a holder.
+ *
+ * @author 501warhead
+ */
 public final class DataWrapper {
     private final Map<String, Object> data = Maps.newLinkedHashMap();
     private final DataKey key;

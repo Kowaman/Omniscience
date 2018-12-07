@@ -238,6 +238,57 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
+
+        public OEntry opened(Container container) {
+            this.eventName = name("open");
+            wrapper.set(TARGET, container.getType().name());
+            writeLocationData(container.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry closed(Container container) {
+            this.eventName = name("close");
+            wrapper.set(TARGET, container.getType().name());
+            writeLocationData(container.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry use(Block block) {
+            this.eventName = name("use");
+            wrapper.set(TARGET, block.getType().name());
+            writeLocationData(block.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        //TODO we should really say /what/ they put the item into.
+        public OEntry deposited(Container container, ItemStack itemStack, int itemSlot) {
+            this.eventName = name("deposit");
+            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
+            wrapper.set(ITEM_SLOT, itemSlot);
+            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            writeLocationData(container.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        //TODO we should really say /what/ they took the item from
+        public OEntry withdrew(Container container, ItemStack itemStack, int itemSlot) {
+            this.eventName = name("withdraw");
+            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
+            wrapper.set(ITEM_SLOT, itemSlot);
+            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            writeLocationData(container.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry ignited(Block block) {
+            this.eventName = name("ignite");
+            wrapper.set(TARGET, block.getType().name());
+            writeLocationData(block.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
         protected void writeExtraStateData(DataKey keyToWrite, BlockState state) {
             if (state instanceof Sign) {
                 wrapper.set(keyToWrite.then(SIGN_TEXT), ((Sign) state).getLines());
@@ -284,6 +335,10 @@ public final class OEntry {
             return new PlayerEventBuilder(new SourceBuilder(player));
         }
 
+        public PlayerEventBuilder player(HumanEntity player) {
+            return new PlayerEventBuilder(new SourceBuilder(player));
+        }
+
         public EventBuilder entity(Entity entity) {
             return new EventBuilder(new SourceBuilder(entity));
         }
@@ -315,37 +370,12 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry opened(Container container) {
-            this.eventName = name("open");
-            wrapper.set(TARGET, container.getType().name());
-            writeLocationData(container.getLocation());
-            return new OEntry(sourceBuilder, this);
-        }
-
-        public OEntry closed(Container container) {
-            this.eventName = name("close");
-            wrapper.set(TARGET, container.getType().name());
-            writeLocationData(container.getLocation());
-            return new OEntry(sourceBuilder, this);
-        }
-
-        //TODO we should really say /what/ they put the item into.
-        public OEntry deposited(Container container, ItemStack itemStack, int itemSlot) {
-            this.eventName = name("deposit");
+        public OEntry cloned(ItemStack itemStack) {
+            this.eventName = name("clone");
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
-            wrapper.set(ITEM_SLOT, itemSlot);
-            writeLocationData(container.getLocation());
-            return new OEntry(sourceBuilder, this);
-        }
-
-        //TODO we should really say /what/ they took the item from
-        public OEntry withdrew(Container container, ItemStack itemStack, int itemSlot) {
-            this.eventName = name("withdraw");
-            wrapper.set(TARGET, itemStack.getType().name());
-            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
-            wrapper.set(ITEM_SLOT, itemSlot);
-            writeLocationData(container.getLocation());
+            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
         }
 

@@ -119,7 +119,9 @@ final class OmniCore implements IOmniscience {
         pm.registerEvents(new ChatListener(), plugin);
         pm.registerEvents(new PlayerListener(), plugin);
         pm.registerEvents(new EntityListener(), plugin);
-        if (plugin.getConfig().getBoolean("integration.craftBookSigns")
+        pm.registerEvents(new ContainerListener(), plugin);
+        pm.registerEvents(new PluginInteractionListener(), plugin);
+        if (OmniConfig.INSTANCE.doCraftBookInteraction()
                 && Bukkit.getServer().getPluginManager().isPluginEnabled("CraftBook")) {
             pm.registerEvents(new CraftBookSignListener(), plugin);
         }
@@ -144,6 +146,23 @@ final class OmniCore implements IOmniscience {
         if (OmniConfig.INSTANCE.areDefaultsEnabled()) {
             flagHandlerList.add(new FlagIgnoreDefault());
         }
+        if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
+            onWorldEditStatusChange(true);
+        }
+    }
+
+    void onWorldEditStatusChange(boolean status) {
+        if (status && OmniConfig.INSTANCE.doWorldEditInteraction()) {
+            if (flagHandlerList.stream().noneMatch(fh -> fh instanceof FlagWorldEditSel)) {
+                flagHandlerList.add(new FlagWorldEditSel(Bukkit.getPluginManager().getPlugin("WorldEdit")));
+            }
+        } else {
+            flagHandlerList.removeIf(fh -> fh instanceof FlagWorldEditSel);
+        }
+    }
+
+    void onCraftBookStatusChange(boolean status) {
+        //TODO turn off craft book related events if craftbook isnt on the server
     }
 
     private void registerDisplayHandlers() {
