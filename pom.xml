@@ -17,6 +17,13 @@
     </properties>
     <url>https://lotc.co/</url>
 
+	<distributionManagement>
+        <repository>
+            <id>lotc-release</id>
+            <url>https://repo.lordofthecraft.net/artifactory/lotc-releases/</url>
+        </repository>
+    </distributionManagement>
+	
     <build>
         <finalName>${project.artifactId}</finalName>
         <defaultGoal>clean package install</defaultGoal>
