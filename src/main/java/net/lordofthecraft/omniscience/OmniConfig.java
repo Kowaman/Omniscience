@@ -5,6 +5,7 @@ import net.lordofthecraft.omniscience.io.dynamo.DynamoStorageHandler;
 import net.lordofthecraft.omniscience.io.mongo.MongoStorageHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
 /**
@@ -65,6 +66,11 @@ public enum OmniConfig {
         this.worldEditInteraction = configuration.getBoolean("integration.worldEdit");
         this.faweInteraction = configuration.getBoolean("integration.fastAsyncWorldEdit");
         this.craftBookInteraction = configuration.getBoolean("integration.craftbookSigns");
+
+        ConfigurationSection section = configuration.getConfigurationSection("events");
+        for (String key : section.getKeys(false)) {
+            OmniEventRegistrar.INSTANCE.addEvent(key, section.getBoolean(key));
+        }
 
         String wandMaterialName = configuration.getString("wand.material");
 

@@ -1,6 +1,7 @@
 package net.lordofthecraft.omniscience.listener;
 
 import net.lordofthecraft.omniscience.api.entry.OEntry;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.data.type.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,7 +14,7 @@ public class CraftBookSignListener implements Listener {
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.hasBlock()
                 && event.getClickedBlock().getBlockData() instanceof Sign) {
-            OEntry.create().player(event.getPlayer()).signInteract(event.getClickedBlock().getLocation(), (Sign) event.getClickedBlock().getBlockData()).save();
+            OEntry.create().player((OfflinePlayer) event.getPlayer()).signInteract(event.getClickedBlock().getLocation(), (Sign) event.getClickedBlock().getBlockData()).save();
         }
     }
 }

@@ -14,14 +14,11 @@ public enum OmniEventRegistrar {
         return eventMapping.keySet();
     }
 
-    public void addEvent(String name, boolean enabled) {
-        eventMapping.put(name, enabled);
+    public boolean isEventRegistered(String event) {
+        return eventMapping.containsKey(event);
     }
 
-    public String setEventName(String name) {
-        if (!eventMapping.containsKey(name)) {
-            eventMapping.put(name, true);
-        }
-        return name;
+    void addEvent(String name, boolean enabled) {
+        eventMapping.put(name, enabled);
     }
 }

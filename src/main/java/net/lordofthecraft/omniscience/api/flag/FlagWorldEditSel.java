@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionSelector;
@@ -72,8 +72,8 @@ public class FlagWorldEditSel extends BaseFlagHandler {
     private SearchConditionGroup fromSelection(Region selection, World world) {
         SearchConditionGroup group = new SearchConditionGroup(SearchConditionGroup.Operator.AND);
 
-        Vector maxPoint = selection.getMaximumPoint();
-        Vector minPoint = selection.getMinimumPoint();
+        BlockVector3 maxPoint = selection.getMaximumPoint();
+        BlockVector3 minPoint = selection.getMinimumPoint();
 
         Range<Integer> xRange = Range.open(maxPoint.getBlockX(), minPoint.getBlockX());
         group.add(FieldCondition.of(LOCATION.then(X), xRange));

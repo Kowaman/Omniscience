@@ -10,6 +10,7 @@ import java.io.StringBufferInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.UUID;
 
 /**
  * A class I basically stitched together from Sporadic's code. - 501warhead
@@ -28,6 +29,7 @@ public final class ReflectionHandler {
     private static Method saveToJson;
     private static Constructor<?> nbtReadLimiter;
     private static Method saveEntityToJson;
+    private static Method setCompoundUUID;
 
     static {
         try {
@@ -40,11 +42,28 @@ public final class ReflectionHandler {
             nbtCompoundLoadFromString = NBTTagCompound.getMethod("load", DataInput.class, int.class, NBTReadLimiter);
             nbtReadLimiter = NBTReadLimiter.getConstructor(long.class);
             for (Method method : NMSEntity.getMethods()) {
+
                 for (Type type : method.getGenericParameterTypes()) {
                     if (type.getTypeName().equalsIgnoreCase(NBTTagCompound.getTypeName())
                             && method.getReturnType().equals(Void.TYPE)) {
                         //TODO if we decide to load from nms/nbt - we need to change the uuid to a new random one.
                         loadEntityFromNBT = method;
+                    }
+                }
+            }
+
+            for (Method method : NBTTagCompound.getMethods()) {
+                boolean stringMatch = false;
+                for (Type type : method.getGenericParameterTypes()) {
+                    if (type.getTypeName().equalsIgnoreCase(String.class.getTypeName())
+                            && !stringMatch) {
+                        stringMatch = true;
+                    }
+                    if (stringMatch
+                            && type.getTypeName().equalsIgnoreCase(UUID.class.getTypeName())
+                            && method.getReturnType().equals(Void.TYPE)) {
+                        setCompoundUUID = method;
+                        break;
                     }
                 }
             }
@@ -101,7 +120,10 @@ public final class ReflectionHandler {
             nbtCompoundLoadFromString.invoke(compound, input, (long) nbt.length(), readLimiter);
             System.out.println("Loaded compound: " + compound);
             Object nmsEntity = getMinecraftEntity(entity);
+            System.out.println("Compound before uuidset: " + compound);
             //TODO we need to make sure the UUID is changed over
+            setCompoundUUID.invoke(compound, "UUID", UUID.randomUUID());
+            System.out.println("Compound after uuidset: " + compound);
             loadEntityFromNBT.invoke(nmsEntity, compound);
         } catch (Throwable t) {
             t.printStackTrace();

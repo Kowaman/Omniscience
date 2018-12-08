@@ -105,8 +105,7 @@ public final class DataWrapper {
             return Optional.empty();
         }
         DataWrapper subWrapper = oSubWrapper.get();
-        Optional<Object> objectOpt = subWrapper.get(key.popFirst());
-        return objectOpt;
+        return subWrapper.get(key.popFirst());
     }
 
     public DataWrapper set(DataKey path, Object value) {

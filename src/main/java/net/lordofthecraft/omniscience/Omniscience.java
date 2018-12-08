@@ -25,10 +25,11 @@ public final class Omniscience extends JavaPlugin {
     @TODO Ensure rollbacks work
     @TODO Save inventory related events
     @TODO implement unimplemented config options
-    @TODO investigate async rollback options
     @TODO send message about what someone is searching when they use the tool
 
     @TODO Implement DynamoDB
+
+    @TODO Implement /omni undo of custom rollbacks
      */
 
     private static OmniCore INSTANCE;
@@ -111,6 +112,37 @@ public final class Omniscience extends JavaPlugin {
 
     public static Optional<List<ActionResult>> getLastActionResults(UUID id) {
         return INSTANCE.getLastActionResults(id);
+    }
+
+    /**
+     * Register an event with a specific class that will be instantiated whenever the event is loaded from the database
+     *
+     * @param event The string name of the event
+     * @param clazz The class that will be instantiated whenever we load an event of the specified name
+     */
+    public static void registerEvent(String event, Class<? extends DataEntry> clazz) {
+        INSTANCE.registerEvent(event, clazz);
+    }
+
+    /**
+     * Register an event with the syste,
+     *
+     * @param event The string name of the event
+     */
+    public static void registerEvent(String event) {
+        INSTANCE.registerEvent(event);
+    }
+
+    public static void registerDisplayHandler(DisplayHandler handler) {
+        INSTANCE.registerDisplayHandler(handler);
+    }
+
+    public static void registerFlagHandler(FlagHandler handler) {
+        INSTANCE.registerFlagHandler(handler);
+    }
+
+    public static void registerParameterHandler(ParameterHandler parameterHandler) {
+        INSTANCE.registerParameterHandler(parameterHandler);
     }
 
     @Override

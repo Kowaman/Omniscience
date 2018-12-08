@@ -170,14 +170,6 @@ final class OmniCore implements IOmniscience {
         displayHandlerList.add(new ItemDisplayHandler());
     }
 
-    public void registerParameter(ParameterHandler handler) {
-        parameterHandlerList.add(handler);
-    }
-
-    public void registerEvent(String name, Class<? extends DataEntry> clazz) {
-        eventMap.put(name, clazz);
-    }
-
     public StorageHandler getStorageHandler() {
         return storageHandler;
     }
@@ -220,6 +212,27 @@ final class OmniCore implements IOmniscience {
 
     Optional<List<ActionResult>> getLastActionResults(UUID id) {
         return Optional.ofNullable(lastActionResults.get(id));
+    }
+
+    void registerEvent(String event, Class<? extends DataEntry> clazz) {
+        eventMap.put(event, clazz);
+        registerEvent(event);
+    }
+
+    void registerEvent(String event) {
+        OmniEventRegistrar.INSTANCE.addEvent(event, true);
+    }
+
+    void registerDisplayHandler(DisplayHandler handler) {
+        displayHandlerList.add(handler);
+    }
+
+    void registerFlagHandler(FlagHandler handler) {
+        flagHandlerList.add(handler);
+    }
+
+    void registerParameterHandler(ParameterHandler handler) {
+        parameterHandlerList.add(handler);
     }
 
     @Override

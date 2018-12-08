@@ -2,6 +2,7 @@ package net.lordofthecraft.omniscience.api.parameter;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import net.lordofthecraft.omniscience.OmniEventRegistrar;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.query.FieldCondition;
@@ -48,7 +49,7 @@ public class EventParameter extends BaseParameterHandler {
         }
         String[] values = partial.split(",");
         String target = values[values.length - 1];
-        return Optional.of(Omniscience.getEvents().stream()
+        return Optional.of(OmniEventRegistrar.INSTANCE.getEventNames().stream()
                 .filter(event -> event.startsWith(target))
                 .map(val -> {
                     StringBuilder builder = new StringBuilder();

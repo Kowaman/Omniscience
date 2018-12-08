@@ -2,6 +2,7 @@ package net.lordofthecraft.omniscience.listener;
 
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -18,11 +19,11 @@ public class PlayerListener implements Listener {
         if (e.getPlayer().hasPermission("omniscience.commands.search.autotool")) {
             Omniscience.wandActivateFor(e.getPlayer());
         }
-        OEntry.create().player(e.getPlayer()).joined(e.getRealAddress().getHostAddress()).save();
+        OEntry.create().player((OfflinePlayer) e.getPlayer()).joined(e.getRealAddress().getHostAddress()).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent e) {
-        OEntry.create().player(e.getPlayer()).quit().save();
+        OEntry.create().player((OfflinePlayer) e.getPlayer()).quit().save();
     }
 }

@@ -35,6 +35,9 @@ public final class OEntry {
     }
 
     public void save() {
+        if (!OmniEventRegistrar.INSTANCE.isEventRegistered(eventBuilder.getEventName())) {
+            throw new IllegalArgumentException(eventBuilder.getEventName() + " is not registered with Omniscience. This must be done to continue.");
+        }
         eventBuilder.getWrapper().set(EVENT_NAME, eventBuilder.getEventName());
         eventBuilder.getWrapper().set(CREATED, new Date());
 
@@ -72,7 +75,7 @@ public final class OEntry {
     public static class SourceBuilder {
         private final Object source;
 
-        SourceBuilder(Object source) {
+        protected SourceBuilder(Object source) {
             this.source = source;
         }
 
@@ -81,17 +84,17 @@ public final class OEntry {
         }
     }
 
-    private static String name(String name) {
-        return OmniEventRegistrar.INSTANCE.setEventName(name);
-    }
-
     public static class EventBuilder {
-        final SourceBuilder sourceBuilder;
-        String eventName;
-        DataWrapper wrapper = DataWrapper.createNew();
+        protected final SourceBuilder sourceBuilder;
+        protected String eventName;
+        protected DataWrapper wrapper = DataWrapper.createNew();
 
-        EventBuilder(SourceBuilder sourceBuilder) {
+        protected EventBuilder(SourceBuilder sourceBuilder) {
             this.sourceBuilder = sourceBuilder;
+        }
+
+        protected OEntry createOEntry(SourceBuilder builder) {
+            return new OEntry(builder, this);
         }
 
         public DataWrapper getWrapper() {
@@ -240,21 +243,21 @@ public final class OEntry {
 
 
         public OEntry opened(Container container) {
-            this.eventName = name("open");
+            this.eventName = "open";
             wrapper.set(TARGET, container.getType().name());
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry closed(Container container) {
-            this.eventName = name("close");
+            this.eventName = "close";
             wrapper.set(TARGET, container.getType().name());
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry use(Block block) {
-            this.eventName = name("use");
+            this.eventName = "use";
             wrapper.set(TARGET, block.getType().name());
             writeLocationData(block.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -262,7 +265,7 @@ public final class OEntry {
 
         //TODO we should really say /what/ they put the item into.
         public OEntry deposited(Container container, ItemStack itemStack, int itemSlot) {
-            this.eventName = name("deposit");
+            this.eventName = "deposit";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
             wrapper.set(ITEM_SLOT, itemSlot);
@@ -273,7 +276,7 @@ public final class OEntry {
 
         //TODO we should really say /what/ they took the item from
         public OEntry withdrew(Container container, ItemStack itemStack, int itemSlot) {
-            this.eventName = name("withdraw");
+            this.eventName = "withdraw";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
             wrapper.set(ITEM_SLOT, itemSlot);
@@ -283,9 +286,26 @@ public final class OEntry {
         }
 
         public OEntry ignited(Block block) {
-            this.eventName = name("ignite");
+            this.eventName = "ignite";
             wrapper.set(TARGET, block.getType().name());
             writeLocationData(block.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry custom(String eventName, DataWrapper wrapperData) {
+            this.eventName = eventName;
+            wrapperData.getKeys(false).forEach(key -> {
+                wrapper.set(key, wrapperData.get(key));
+            });
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry customWithLocation(String eventName, DataWrapper wrapperData, Location location) {
+            this.eventName = eventName;
+            wrapperData.getKeys(false).forEach(key -> {
+                wrapper.set(key, wrapperData.get(key));
+            });
+            writeLocationData(location);
             return new OEntry(sourceBuilder, this);
         }
 
@@ -354,7 +374,7 @@ public final class OEntry {
 
     public static class PlayerEventBuilder extends EventBuilder {
 
-        PlayerEventBuilder(SourceBuilder sourceBuilder) {
+        protected PlayerEventBuilder(SourceBuilder sourceBuilder) {
             super(sourceBuilder);
         }
 
@@ -363,7 +383,7 @@ public final class OEntry {
         }
 
         public OEntry signInteract(Location location, org.bukkit.block.data.type.Sign sign) {
-            this.eventName = name("useSign");
+            this.eventName = "useSign";
             wrapper.set(TARGET, sign.getMaterial().name());
             wrapper.set(ORIGINAL_BLOCK, sign.getAsString());
             writeLocationData(location);
@@ -371,7 +391,7 @@ public final class OEntry {
         }
 
         public OEntry cloned(ItemStack itemStack) {
-            this.eventName = name("clone");
+            this.eventName = "clone";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
             wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
@@ -380,14 +400,14 @@ public final class OEntry {
         }
 
         public OEntry quit() {
-            this.eventName = name("quit");
+            this.eventName = "quit";
             wrapper.set(TARGET, player().getAddress().getHostName());
             writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry joined(String host) {
-            this.eventName = name("join");
+            this.eventName = "join";
             wrapper.set(TARGET, host);
             writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
