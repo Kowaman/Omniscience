@@ -23,9 +23,8 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
 
         BlockData originalData = DataHelper.getBlockDataFromWrapper(original)
                 .orElseThrow(() -> skipped(SkipReason.INVALID));
-        Location location = DataHelper.getLocationFromDataWrapper(
-                data.getWrapper(DataKeys.LOCATION).orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION)
-                )).orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
+        Location location = DataHelper.getLocationFromDataWrapper(data)
+                .orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
 
         BlockState beforeState = location.getBlock().getState();
 

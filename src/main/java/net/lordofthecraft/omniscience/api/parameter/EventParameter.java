@@ -3,7 +3,6 @@ package net.lordofthecraft.omniscience.api.parameter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.lordofthecraft.omniscience.OmniEventRegistrar;
-import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.query.FieldCondition;
 import net.lordofthecraft.omniscience.api.query.MatchRule;
@@ -45,7 +44,7 @@ public class EventParameter extends BaseParameterHandler {
     @Override
     public Optional<List<String>> suggestTabCompletion(String partial) {
         if (partial == null || partial.isEmpty()) {
-            return Optional.of(Lists.newArrayList(Omniscience.getEvents()));
+            return Optional.of(Lists.newArrayList(OmniEventRegistrar.INSTANCE.getEventNames()));
         }
         String[] values = partial.split(",");
         String target = values[values.length - 1];

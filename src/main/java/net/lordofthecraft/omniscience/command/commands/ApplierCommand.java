@@ -126,10 +126,17 @@ public class ApplierCommand extends SimpleCommand {
 
                             final String messageTemplate;
                             if (skippedCount > 0) {
-                                messageTemplate = "TODO rollback success with skipped";
+                                messageTemplate = String.format(" %s reversals. %s skipped", appliedCount, skippedCount);
+                                for (ActionResult result : actionResults) {
+                                    if (!result.applied()) {
+                                        sender.sendMessage(Formatter.bonus("Skip Reason: " + result.getReason()));
+                                    }
+                                }
                             } else {
-                                messageTemplate = "TODO rollback success";
+                                messageTemplate = String.format(" %s reversals", appliedCount);
                             }
+
+                            sender.sendMessage(Formatter.success(messageTemplate));
 
                             if (sender instanceof Player) {
                                 Omniscience.addLastActionResults(((Player) sender).getUniqueId(), actionResults);

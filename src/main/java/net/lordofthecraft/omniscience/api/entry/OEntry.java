@@ -230,7 +230,7 @@ public final class OEntry {
         }
 
         public OEntry kill(Entity killed) {
-            this.eventName = "kill";
+            this.eventName = "death";
             wrapper.set(TARGET, killed.getType().name());
             if (killed instanceof Player) {
                 wrapper.set(TARGET, killed.getName());

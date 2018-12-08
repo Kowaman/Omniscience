@@ -1,7 +1,6 @@
 package net.lordofthecraft.omniscience.api.entry;
 
 import net.lordofthecraft.omniscience.api.data.DataKeys;
-import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.util.DataHelper;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
@@ -22,12 +21,9 @@ public class EntityEntry extends DataEntryComplete implements Actionable {
 
         //Fetch the type of entity that this is
         EntityType type = EntityType.valueOf(entityType);
-        //Parse the location this entity was in (this will be overwritten later by nbt data but is needed for the process)
-        DataWrapper locationWrapper = data.getWrapper(DataKeys.LOCATION)
-                .orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
 
         //Create a new entity based on the entity type of this event
-        Entity baseEntity = DataHelper.getLocationFromDataWrapper(locationWrapper)
+        Entity baseEntity = DataHelper.getLocationFromDataWrapper(data)
                 .map(loc -> {
                     World world = loc.getWorld();
                     return world.spawnEntity(loc, type);
@@ -42,7 +38,7 @@ public class EntityEntry extends DataEntryComplete implements Actionable {
     }
 
     @Override
-    public ActionResult restore() throws Exception {
+    public ActionResult restore() {
         return ActionResult.skipped(SkipReason.UNIMPLEMENTED);
     }
 }

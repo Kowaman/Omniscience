@@ -109,6 +109,8 @@ events:
   break: true
   # Record when a block is placed
   place: true
+  # Record when a block is decayed, (e.g. leaves)
+  decay: true
   # Record when a block is grown
   grow: true
   # Record when a block is formed (e.g. ice)
@@ -127,6 +129,25 @@ events:
   join: true
   # Record when an entity dies
   death: true
+  # Record when an entity hits or is hit by a player
+  hit: true
+  # Record when an entity shoots or is shot by a player
+  shot: true
+  # Record when a container is opened by a player
+  open: true
+  # Record when a container is closed by a player
+  close: true
+  # Record when a usable block is used by a player (door, lever, pressure plate, etc.)
+  use: true
+  # Record when a player deposits an item into a container
+  deposit: true
+  # Record when a player withdraws an item from a container
+  withdraw: true
+  # Record when a source ignites a block
+  ignite: true
+  # Record a unique event when a player clones items while in creative mode. Useful for crumb trails
+  clone: true
+  useSign: true
 
 ##################################################################
 ###                     Plugin Integration                     ###
