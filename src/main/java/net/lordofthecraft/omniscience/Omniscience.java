@@ -20,11 +20,11 @@ import java.util.UUID;
 public final class Omniscience extends JavaPlugin {
     /*
     @TODO Implement events being turned on/off
-    @TODO Fix up query search autocomplete to allow e: to specify all available events.
+    @TODO work out rollback logic into greater detail
+    @TODO make sure tile entities and the like are restored properly when rollbacks happen
+    @TODO ItemFrame / Armor Stand logging
     @TODO figure out why timestamp parameter isn't working
-    @TODO Ensure rollbacks work
     @TODO Save inventory related events
-    @TODO implement unimplemented config options
     @TODO send message about what someone is searching when they use the tool
 
     @TODO Implement DynamoDB

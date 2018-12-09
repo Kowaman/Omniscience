@@ -12,6 +12,7 @@ public class EntityEntry extends DataEntryComplete implements Actionable {
 
     @Override
     public ActionResult rollback() throws Exception {
+        System.out.println("entityData: " + data.get(DataKeys.ENTITY));
         //Get the nbt data that was stored for this entry
         String entityData = data.getString(DataKeys.ENTITY)
                 .orElseThrow(() -> skipped(SkipReason.INVALID));
@@ -21,6 +22,10 @@ public class EntityEntry extends DataEntryComplete implements Actionable {
 
         //Fetch the type of entity that this is
         EntityType type = EntityType.valueOf(entityType);
+        //Don't run for players...
+        if (type == EntityType.PLAYER) {
+            return ActionResult.skipped(SkipReason.INVALID);
+        }
 
         //Create a new entity based on the entity type of this event
         Entity baseEntity = DataHelper.getLocationFromDataWrapper(data)

@@ -236,7 +236,7 @@ public final class OEntry {
                 wrapper.set(TARGET, killed.getName());
             }
             wrapper.set(ENTITY_TYPE, killed.getType().name());
-            wrapper.set(ENTITY, ReflectionHandler.getEntityJson(killed));
+            wrapper.set(ENTITY, ReflectionHandler.getEntityAsBytes(killed));
             writeLocationData(killed.getLocation());
             return new OEntry(sourceBuilder, this);
         }

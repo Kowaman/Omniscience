@@ -4,11 +4,15 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
+import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Entity;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -21,6 +25,10 @@ import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
  * @author 501warhead
  */
 public final class DataWrapper {
+
+    private static final String[] listPairings = {"([{", ")]}"};
+    private static final Pattern listPattern = Pattern.compile("^([\\(\\[\\{]?)(.+?)([\\)\\]\\}]?)$");
+
     private final Map<String, Object> data = Maps.newLinkedHashMap();
     private final DataKey key;
     private final DataWrapper parent;
@@ -51,7 +59,7 @@ public final class DataWrapper {
     public static DataWrapper ofEntity(Entity entity) {
         DataWrapper wrapper = new DataWrapper();
         //TODO flesh out
-        wrapper.set(ENTITY, ReflectionHandler.getEntityJson(entity));
+        wrapper.set(ENTITY, ReflectionHandler.getEntityAsBytes(entity));
         wrapper.set(ENTITY_TYPE, entity.getType().name());
         return wrapper;
     }
@@ -108,35 +116,21 @@ public final class DataWrapper {
         return subWrapper.get(key.popFirst());
     }
 
-    public DataWrapper set(DataKey path, Object value) {
-        checkNotNull(path, "key");
-        checkNotNull(value, "value");
-
-        List<String> parts = path.getParts();
-        String key = parts.get(0);
-        if (parts.size() > 1) {
-            DataKey subQuery = of(key);
-            Optional<DataWrapper> oSubWrapper = this.getUnsafeWrapper(subQuery);
-            DataWrapper subWrapper;
-            if (!oSubWrapper.isPresent()) {
-                this.createWrapper(subQuery);
-                subWrapper = (DataWrapper) this.data.get(key);
-            } else {
-                subWrapper = oSubWrapper.get();
-            }
-            subWrapper.set(path.popFirst(), value);
-            return this;
+    public static Optional<Byte> asByte(Object obj) {
+        if (obj == null) {
+            // fail fast
+            return Optional.empty();
         }
-        if (value instanceof DataWrapper) {
-            checkArgument(value != this, "Cannot set a DataWrapper to itself");
-
-            copyDataWrapper(path, (DataWrapper) value);
-        } else if (value instanceof Map) {
-            setMap(key, (Map) value);
-        } else {
-            this.data.put(key, value);
+        if (obj instanceof Number) {
+            return Optional.of(((Number) obj).byteValue());
         }
-        return this;
+
+        try {
+            return Optional.ofNullable(Byte.parseByte(sanitiseNumber(obj)));
+        } catch (NumberFormatException | NullPointerException e) {
+            // do nothing
+        }
+        return Optional.empty();
     }
 
     private void setMap(String key, Map<?, ?> value) {
@@ -241,6 +235,34 @@ public final class DataWrapper {
         return get(key).map(obj -> (Integer) obj);
     }
 
+    private static String sanitiseNumber(Object obj) {
+        String string = obj.toString().trim();
+        if (string.length() < 1) {
+            return "0";
+        }
+
+        Matcher candidate = listPattern.matcher(string);
+        if (listBracketsMatch(candidate)) {
+            string = candidate.group(2).trim();
+        }
+
+        int decimal = string.indexOf('.');
+        int comma = string.indexOf(',', decimal);
+        if (decimal > -1 && comma > -1) {
+            return sanitiseNumber(string.substring(0, comma));
+        }
+
+        if (string.indexOf('-', 1) != -1) {
+            return "0";
+        }
+
+        return string.replace(",", "").split(" ")[0];
+    }
+
+    private static boolean listBracketsMatch(Matcher candidate) {
+        return candidate.matches() && listPairings[0].indexOf(candidate.group(1)) == listPairings[1].indexOf(candidate.group(3));
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(data, key);
@@ -262,5 +284,62 @@ public final class DataWrapper {
             helper.add("key", this.key);
         }
         return helper.add("data", this.data).toString();
+    }
+
+    public DataWrapper set(DataKey path, Object value) {
+        checkNotNull(path, "key");
+        checkNotNull(value, "value");
+
+        List<String> parts = path.getParts();
+        String key = parts.get(0);
+        if (parts.size() > 1) {
+            DataKey subQuery = of(key);
+            Optional<DataWrapper> oSubWrapper = this.getUnsafeWrapper(subQuery);
+            DataWrapper subWrapper;
+            if (!oSubWrapper.isPresent()) {
+                this.createWrapper(subQuery);
+                subWrapper = (DataWrapper) this.data.get(key);
+            } else {
+                subWrapper = oSubWrapper.get();
+            }
+            subWrapper.set(path.popFirst(), value);
+            return this;
+        }
+        if (value instanceof DataWrapper) {
+            checkArgument(value != this, "Cannot set a DataWrapper to itself");
+
+            copyDataWrapper(path, (DataWrapper) value);
+        } else if (value instanceof Map) {
+            setMap(key, (Map) value);
+        } else if (value.getClass().isArray()) {
+            if (value instanceof byte[]) {
+                this.data.put(key, ArrayUtils.clone((byte[]) value));
+            }
+        } else {
+            this.data.put(key, value);
+        }
+        return this;
+    }
+
+    private Optional<List<?>> getUnsafeList(DataKey key) {
+        return get(key)
+                .filter(obj -> obj instanceof List<?> || obj instanceof Object[])
+                .map(obj -> {
+                            if (obj instanceof List<?>) {
+                                return (List<?>) obj;
+                            }
+                            return Arrays.asList((Object[]) obj);
+                        }
+                );
+    }
+
+    public Optional<List<Byte>> getByteList(DataKey key) {
+        return getUnsafeList(key).map(list ->
+                list.stream()
+                        .map(DataWrapper::asByte)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toList())
+        );
     }
 }

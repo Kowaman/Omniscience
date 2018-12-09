@@ -1,12 +1,14 @@
 package net.lordofthecraft.omniscience.api.entry;
 
-import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.util.DataHelper;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.BlockData;
+
+import java.util.Optional;
 
 import static net.lordofthecraft.omniscience.api.data.DataKeys.NEW_BLOCK;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.ORIGINAL_BLOCK;
@@ -37,16 +39,18 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
 
     @Override
     public ActionResult restore() throws Exception {
-        DataWrapper finalState = data.getWrapper(NEW_BLOCK)
-                .orElseThrow(() -> skipped(SkipReason.INVALID));
+        Location location = DataHelper.getLocationFromDataWrapper(data)
+                .orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
+        Optional<DataWrapper> oFinalState = data.getWrapper(NEW_BLOCK);
+        BlockState beforeState = location.getBlock().getState();
+        if (!oFinalState.isPresent()) {
+            location.getBlock().setBlockData(Material.AIR.createBlockData());
+            return ActionResult.success(new Transaction<>(beforeState, location.getBlock().getState()));
+        }
+        DataWrapper finalState = oFinalState.get();
 
         BlockData finalData = DataHelper.getBlockDataFromWrapper(finalState)
                 .orElseThrow(() -> skipped(SkipReason.INVALID));
-        Location location = DataHelper.getLocationFromDataWrapper(
-                data.getWrapper(DataKeys.LOCATION).orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION)
-                )).orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
-
-        BlockState beforeState = location.getBlock().getState();
 
         location.getBlock().setBlockData(finalData);
 

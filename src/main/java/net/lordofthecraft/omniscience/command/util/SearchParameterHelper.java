@@ -37,11 +37,13 @@ public final class SearchParameterHelper {
 
             } else if (partial.contains(":")) { //This means that they are typing a parameter and are ready to recieve some suggestions for how to fill it out
                 String[] splitPartial = partial.split(":");
-                Optional<ParameterHandler> oHandler = Omniscience.getParameterHandler(splitPartial[0]);
-                oHandler.ifPresent(handler -> handler.suggestTabCompletion(splitPartial.length > 1 ? splitPartial[1] : null)
-                        .ifPresent(completionResults -> {
-                            completionResults.forEach(res -> results.add(splitPartial[0] + ":" + res));
-                        }));
+                if (splitPartial.length > 0) {
+                    Optional<ParameterHandler> oHandler = Omniscience.getParameterHandler(splitPartial[0]);
+                    oHandler.ifPresent(handler -> handler.suggestTabCompletion(splitPartial.length > 1 ? splitPartial[1] : null)
+                            .ifPresent(completionResults -> {
+                                completionResults.forEach(res -> results.add(splitPartial[0] + ":" + res));
+                            }));
+                }
             }
         } else {
             Stream<String> flags = Omniscience.getFlagHandlers()

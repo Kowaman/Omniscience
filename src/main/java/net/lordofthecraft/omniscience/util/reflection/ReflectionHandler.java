@@ -1,12 +1,15 @@
 package net.lordofthecraft.omniscience.util.reflection;
 
+import org.bson.internal.Base64;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 
-import java.io.DataInput;
-import java.io.DataInputStream;
-import java.io.StringBufferInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -25,11 +28,13 @@ public final class ReflectionHandler {
     private static Method getNMSEntity;
     private static Method loadEntityFromNBT;
     private static Constructor<?> compoundConstructor;
-    private static Method nbtCompoundLoadFromString;
     private static Method saveToJson;
-    private static Constructor<?> nbtReadLimiter;
     private static Method saveEntityToJson;
     private static Method setCompoundUUID;
+    private static Method setCompoundFloat;
+
+    private static Method streamToolsLoadCompoundFromInput;
+    private static Method streamToolsWriteCompoundToOutput;
 
     static {
         try {
@@ -38,16 +43,14 @@ public final class ReflectionHandler {
             Class<?> NMSEntity = Class.forName(PATH + "Entity");
             Class<?> craftBukkitEntity = Class.forName(CRAFTBUKKIT_PATH + "entity.CraftEntity");
             Class<?> craftBukkitItemStack = Class.forName(CRAFTBUKKIT_PATH + "inventory.CraftItemStack");
-            Class<?> NBTReadLimiter = Class.forName(PATH + "NBTReadLimiter");
-            nbtCompoundLoadFromString = NBTTagCompound.getMethod("load", DataInput.class, int.class, NBTReadLimiter);
-            nbtReadLimiter = NBTReadLimiter.getConstructor(long.class);
+            Class<?> NBTCompressedStreamTools = Class.forName(PATH + "NBTCompressedStreamTools");
+            setCompoundFloat = NBTTagCompound.getMethod("setFloat", String.class, float.class);
             for (Method method : NMSEntity.getMethods()) {
-
                 for (Type type : method.getGenericParameterTypes()) {
                     if (type.getTypeName().equalsIgnoreCase(NBTTagCompound.getTypeName())
                             && method.getReturnType().equals(Void.TYPE)) {
-                        //TODO if we decide to load from nms/nbt - we need to change the uuid to a new random one.
                         loadEntityFromNBT = method;
+                        break;
                     }
                 }
             }
@@ -64,6 +67,22 @@ public final class ReflectionHandler {
                             && method.getReturnType().equals(Void.TYPE)) {
                         setCompoundUUID = method;
                         break;
+                    }
+                }
+            }
+
+            for (Method method : NBTCompressedStreamTools.getMethods()) {
+                Type[] parameterTypes = method.getGenericParameterTypes();
+                if (method.getReturnType().equals(Void.TYPE)) {
+                    if (parameterTypes.length == 2
+                            && parameterTypes[0].getTypeName().equals(NBTTagCompound.getTypeName())
+                            && parameterTypes[1].getTypeName().equals(OutputStream.class.getTypeName())) {
+                        streamToolsWriteCompoundToOutput = method;
+                    }
+                } else if (method.getReturnType().equals(NBTTagCompound)) {
+                    if (parameterTypes.length == 1
+                            && parameterTypes[0].getTypeName().equals(InputStream.class.getTypeName())) {
+                        streamToolsLoadCompoundFromInput = method;
                     }
                 }
             }
@@ -92,13 +111,18 @@ public final class ReflectionHandler {
         return null;
     }
 
-    public static String getEntityJson(Entity entity) {
+    public static String getEntityAsBytes(Entity entity) {
         try {
             Object nmsEntity = getMinecraftEntity(entity);
             Object compound = compoundConstructor.newInstance();
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
             saveEntityToJson.invoke(nmsEntity, compound);
-            return compound.toString();
+            streamToolsWriteCompoundToOutput.invoke(null, compound, stream);
+            byte[] val = stream.toByteArray();
+            stream.close();
+
+            return Base64.encode(val);
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -107,23 +131,22 @@ public final class ReflectionHandler {
 
     /**
      * This method will load entity data that has been stored in nbt into the entity. This will create a LITERAL COPY OF THE SAVED ENTITY. Basically, everything will be the exact same.
+     * Except for UUID and health. UUID is because same uuid entities cause fucking problems. Health because otherwise the entity is fuckin dead
      *
      * @param entity A base entity to overwrite. As we're loading entity data, you're gonna have to give us an entity to brainwash.
      * @param nbt    The nbt string to parse and load into the entity.
      */
     public static void loadEntityFromNBT(Entity entity, String nbt) {
         try {
-            Object readLimiter = nbtReadLimiter.newInstance((long) nbt.length());
-            Object compound = compoundConstructor.newInstance();
-            DataInput input = new DataInputStream(new StringBufferInputStream(nbt));
+            ByteArrayInputStream stream = new ByteArrayInputStream(Base64.decode(nbt));
+            Object compound = streamToolsLoadCompoundFromInput.invoke(null, (InputStream) stream);
+            stream.close();
+            if (entity instanceof LivingEntity) {
+                setCompoundFloat.invoke(compound, "Health", (float) ((LivingEntity) entity).getMaxHealth());
+            }
 
-            nbtCompoundLoadFromString.invoke(compound, input, (long) nbt.length(), readLimiter);
-            System.out.println("Loaded compound: " + compound);
             Object nmsEntity = getMinecraftEntity(entity);
-            System.out.println("Compound before uuidset: " + compound);
-            //TODO we need to make sure the UUID is changed over
-            setCompoundUUID.invoke(compound, "UUID", UUID.randomUUID());
-            System.out.println("Compound after uuidset: " + compound);
+            setCompoundUUID.invoke(compound, "UUID", entity.getUniqueId());
             loadEntityFromNBT.invoke(nmsEntity, compound);
         } catch (Throwable t) {
             t.printStackTrace();
