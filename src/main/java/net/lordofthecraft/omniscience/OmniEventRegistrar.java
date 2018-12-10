@@ -8,10 +8,7 @@ import net.lordofthecraft.omniscience.listener.chat.EventCommandListener;
 import net.lordofthecraft.omniscience.listener.chat.EventSayListener;
 import net.lordofthecraft.omniscience.listener.entity.EventDeathListener;
 import net.lordofthecraft.omniscience.listener.entity.EventHitListener;
-import net.lordofthecraft.omniscience.listener.item.EventContainerListener;
-import net.lordofthecraft.omniscience.listener.item.EventDropListener;
-import net.lordofthecraft.omniscience.listener.item.EventInventoryListener;
-import net.lordofthecraft.omniscience.listener.item.EventPickupListener;
+import net.lordofthecraft.omniscience.listener.item.*;
 import net.lordofthecraft.omniscience.listener.player.EventJoinListener;
 import net.lordofthecraft.omniscience.listener.player.EventQuitListener;
 import org.bukkit.plugin.PluginManager;
@@ -47,6 +44,7 @@ public enum OmniEventRegistrar {
         //Item
         listeners.add(new EventContainerListener());
         listeners.add(new EventDropListener());
+        listeners.add(new EventFrameListener());
         listeners.add(new EventInventoryListener());
         listeners.add(new EventPickupListener());
 

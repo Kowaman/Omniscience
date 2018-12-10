@@ -241,6 +241,25 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
+        public OEntry removedFromItemFrame(ItemFrame frame, ItemStack itemStack) {
+            this.eventName = "frame-withdraw";
+            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(DISPLAY_METHOD, "item");
+            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
+            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            writeLocationData(frame.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry putIntoItemFrame(ItemFrame frame, ItemStack itemStack) {
+            this.eventName = "frame-deposit";
+            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(DISPLAY_METHOD, "item");
+            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
+            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            writeLocationData(frame.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
 
         public OEntry opened(Container container) {
             this.eventName = "open";
