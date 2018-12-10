@@ -9,6 +9,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionSelector;
+import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.query.*;
 import net.lordofthecraft.omniscience.util.Formatter;
 import org.bukkit.World;
@@ -58,6 +59,7 @@ public class FlagWorldEditSel extends BaseFlagHandler {
                 Region region = selector.getRegion();
                 if (region instanceof CuboidRegion) {
                     query.addCondition(fromSelection(region, player.getWorld()));
+                    session.isIgnoredDefault(Omniscience.getParameterHandler("r").orElse(null));
                 } else {
                     player.sendMessage(Formatter.error("Cannot use the flag " + flag + " with a non-cuboid region. Please make a cuboid selection."));
                 }
