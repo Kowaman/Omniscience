@@ -148,6 +148,10 @@ events:
   # Record a unique event when a player clones items while in creative mode. Useful for crumb trails
   clone: true
   useSign: true
+  # Record when an item frame is used to store an item
+  frame-withdraw: true
+  # Record when an item frame has it's item taken out
+  frame-deposit: true
 
 ##################################################################
 ###                     Plugin Integration                     ###
