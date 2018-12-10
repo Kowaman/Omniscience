@@ -16,7 +16,9 @@ import net.lordofthecraft.omniscience.command.OmniscienceTabCompleter;
 import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
 import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.io.StorageHandler;
-import net.lordofthecraft.omniscience.listener.*;
+import net.lordofthecraft.omniscience.listener.CraftBookSignListener;
+import net.lordofthecraft.omniscience.listener.PluginInteractionListener;
+import net.lordofthecraft.omniscience.listener.WandInteractListener;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -114,17 +116,12 @@ final class OmniCore implements IOmniscience {
     private void registerEventHandlers(Omniscience plugin) {
         PluginManager pm = plugin.getServer().getPluginManager();
         pm.registerEvents(new WandInteractListener(), plugin);
-        pm.registerEvents(new BlockChangeListener(), plugin);
-        pm.registerEvents(new ItemListener(), plugin);
-        pm.registerEvents(new ChatListener(), plugin);
-        pm.registerEvents(new PlayerListener(), plugin);
-        pm.registerEvents(new EntityListener(), plugin);
-        pm.registerEvents(new ContainerListener(), plugin);
         pm.registerEvents(new PluginInteractionListener(), plugin);
         if (OmniConfig.INSTANCE.doCraftBookInteraction()
                 && Bukkit.getServer().getPluginManager().isPluginEnabled("CraftBook")) {
             pm.registerEvents(new CraftBookSignListener(), plugin);
         }
+        OmniEventRegistrar.INSTANCE.enableEvents(pm, plugin);
     }
 
     private void registerParameters() {

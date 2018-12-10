@@ -1,31 +1,19 @@
-package net.lordofthecraft.omniscience.listener;
+package net.lordofthecraft.omniscience.listener.item;
 
+import com.google.common.collect.ImmutableList;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
+import net.lordofthecraft.omniscience.listener.OmniListener;
 import org.bukkit.block.Container;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-public class ContainerListener implements Listener {
+public class EventInventoryListener extends OmniListener {
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onInventoryOpen(InventoryOpenEvent event) {
-        if (event.getInventory().getHolder() instanceof Container) {
-            OEntry.create().source(event.getPlayer()).opened((Container) event.getInventory().getHolder()).save();
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getInventory().getHolder() instanceof Container) {
-            OEntry.create().source(event.getPlayer()).closed((Container) event.getInventory().getHolder()).save();
-        }
+    public EventInventoryListener() {
+        super(ImmutableList.of("withdraw", "deposit", "clone"));
     }
 
     /**
@@ -40,19 +28,20 @@ public class ContainerListener implements Listener {
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent e) {
-        if (e.getAction() == InventoryAction.CLONE_STACK) {
+        debugEvent(e);
+        if (isEnabled("clone") && e.getAction() == InventoryAction.CLONE_STACK) {
             ItemStack cloned = e.getCurrentItem();
             OEntry.create().player(e.getWhoClicked()).cloned(cloned).save();
             return;
         }
-        if (e.getInventory().getHolder() instanceof Container) {
+        if (e.getInventory().getHolder() instanceof Container && (w() || d())) {
             Container container = (Container) e.getInventory().getHolder();
             boolean inInventory = e.getRawSlot() < e.getInventory().getSize();
             switch (e.getAction()) {
                 case NOTHING:
                     return;
                 case PICKUP_ALL:
-                    if (inInventory) {
+                    if (inInventory && w()) {
                         ItemStack is = e.getCurrentItem();
                         int clicked = e.getSlot();
                         OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
@@ -66,14 +55,14 @@ public class ContainerListener implements Listener {
                 case PLACE_SOME:
                     break;
                 case PLACE_ALL:
-                    if (inInventory) {
+                    if (inInventory && d()) {
                         ItemStack is = e.getCursor();
                         int clicked = e.getSlot();
                         OEntry.create().player(e.getWhoClicked()).deposited(container, is, clicked).save();
                     }
                     break;
                 case PLACE_ONE:
-                    if (inInventory) {
+                    if (inInventory && d()) {
 
                     }
                     break;
@@ -82,8 +71,12 @@ public class ContainerListener implements Listener {
                         ItemStack cursor = e.getCursor();
                         ItemStack toSwap = e.getCurrentItem();
                         int clicked = e.getSlot();
-                        OEntry.create().player(e.getWhoClicked()).deposited(container, cursor, clicked).save();
-                        OEntry.create().player(e.getWhoClicked()).withdrew(container, toSwap, clicked).save();
+                        if (d()) {
+                            OEntry.create().player(e.getWhoClicked()).deposited(container, cursor, clicked).save();
+                        }
+                        if (w()) {
+                            OEntry.create().player(e.getWhoClicked()).withdrew(container, toSwap, clicked).save();
+                        }
                     }
                     break;
                 case DROP_ALL_CURSOR:
@@ -94,13 +87,17 @@ public class ContainerListener implements Listener {
                     break;
                 case MOVE_TO_OTHER_INVENTORY:
                     if (inInventory) {
-                        ItemStack is = e.getCurrentItem();
-                        int clicked = e.getSlot();
-                        OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
+                        if (w()) {
+                            ItemStack is = e.getCurrentItem();
+                            int clicked = e.getSlot();
+                            OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
+                        }
                     } else {
-                        ItemStack is = e.getCurrentItem();
-                        int clicked = e.getWhoClicked().getInventory().firstEmpty();
-                        OEntry.create().player(e.getWhoClicked()).deposited(container, is, clicked).save();
+                        if (d()) {
+                            ItemStack is = e.getCurrentItem();
+                            int clicked = e.getWhoClicked().getInventory().firstEmpty();
+                            OEntry.create().player(e.getWhoClicked()).deposited(container, is, clicked).save();
+                        }
                     }
                     break;
                 case HOTBAR_MOVE_AND_READD:
@@ -109,18 +106,36 @@ public class ContainerListener implements Listener {
                     break;
                 case CLONE_STACK:
                     //NO:OP
-                    break;
+                    return;
                 case COLLECT_TO_CURSOR:
                     //Oh dear sweet mother of fucking god I forgot this was a thing NO GOD NO NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+
                     break;
                 case UNKNOWN:
                     break;
             }
         }
-
     }
 
-    private int getNextFreeSlot(Inventory inventory) {
-        return inventory.firstEmpty();
+    private boolean w() {
+        return isEnabled("withdraw");
+    }
+
+    private boolean d() {
+        return isEnabled("deposit");
+    }
+
+    private void debugEvent(InventoryClickEvent e) {
+        System.out.println("====== INVENTORY CLICK EVENT DEBUG ======");
+        System.out.println("Action: " + e.getAction());
+        System.out.println("Click: " + e.getClick());
+        System.out.println("Current Item: " + e.getCurrentItem());
+        System.out.println("Cursor Item: " + e.getCursor());
+        System.out.println("Hotbar button: " + e.getHotbarButton());
+        System.out.println("Slot: " + e.getSlot());
+        System.out.println("Slot Type: " + e.getSlotType());
+        System.out.println("Raw Slot: " + e.getRawSlot());
+        System.out.println("Inventory Clicked: " + e.getInventory());
+        System.out.println("Inventory in general: " + e.getInventory());
     }
 }

@@ -1,18 +1,17 @@
-package net.lordofthecraft.omniscience.listener;
+package net.lordofthecraft.omniscience.listener.chat;
 
+import com.google.common.collect.ImmutableList;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
+import net.lordofthecraft.omniscience.listener.OmniListener;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
-public final class ChatListener implements Listener {
+public class EventCommandListener extends OmniListener {
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
-        OEntry.create().source(event.getPlayer()).said(event.getMessage()).save();
+    public EventCommandListener() {
+        super(ImmutableList.of("command"));
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
