@@ -49,11 +49,11 @@ public final class OEntry {
         } else if (sourceBuilder.getSource() instanceof Entity) {
             causeId = ((Entity) sourceBuilder.getSource()).getType().name();
         } else if (sourceBuilder.getSource() instanceof Plugin) {
-            causeId = "pl@" + ((Plugin) sourceBuilder.getSource()).getName();
+            causeId = "pl@" + ((Plugin) sourceBuilder.getSource()).getName().replace(' ', '_');
         } else if (sourceBuilder.getSource() instanceof ConsoleCommandSender) {
             causeId = "console";
         } else if (sourceBuilder.getSource() instanceof RemoteConsoleCommandSender) {
-            causeId = "remote console";
+            causeId = "remote_console";
         } else if (sourceBuilder.getSource() instanceof BlockCommandSender) {
             BlockCommandSender sender = (BlockCommandSender) sourceBuilder.getSource();
             CommandBlock commandBlock = (CommandBlock) sender.getBlock().getState();
@@ -61,7 +61,7 @@ public final class OEntry {
             eventBuilder.getWrapper().set(Y, commandBlock.getY());
             eventBuilder.getWrapper().set(Z, commandBlock.getZ());
             eventBuilder.getWrapper().set(WORLD, commandBlock.getWorld().getUID().toString());
-            causeId = "command block";
+            causeId = "command_block";
             if (commandBlock.getName() != null) {
                 causeId = causeId + " (" + commandBlock.getName() + ")";
             }
@@ -270,6 +270,7 @@ public final class OEntry {
             wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
             wrapper.set(ITEM_SLOT, itemSlot);
             wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            wrapper.set(DISPLAY_METHOD, "item");
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
         }
@@ -281,6 +282,7 @@ public final class OEntry {
             wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
             wrapper.set(ITEM_SLOT, itemSlot);
             wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            wrapper.set(DISPLAY_METHOD, "item");
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
         }
@@ -382,10 +384,11 @@ public final class OEntry {
             return (Player) sourceBuilder.getSource();
         }
 
-        public OEntry signInteract(Location location, org.bukkit.block.data.type.Sign sign) {
+        public OEntry signInteract(Location location, Sign sign) {
             this.eventName = "useSign";
-            wrapper.set(TARGET, sign.getMaterial().name());
-            wrapper.set(ORIGINAL_BLOCK, sign.getAsString());
+            wrapper.set(TARGET, sign.getType().name());
+            wrapper.set(ORIGINAL_BLOCK, sign.getBlockData().getAsString());
+            wrapper.set(SIGN_TEXT, sign.getLines());
             writeLocationData(location);
             return new OEntry(sourceBuilder, this);
         }
@@ -395,6 +398,7 @@ public final class OEntry {
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
             wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            wrapper.set(DISPLAY_METHOD, "item");
             writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
         }
