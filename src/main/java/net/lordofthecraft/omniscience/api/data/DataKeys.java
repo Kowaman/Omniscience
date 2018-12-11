@@ -21,7 +21,6 @@ public final class DataKeys {
     public static final DataKey MATERIAL_TYPE = DataKey.of("MaterialType");
     public static final DataKey ENTITY_TYPE = DataKey.of("EntityType");
     public static final DataKey ITEMSTACK = DataKey.of("ItemStack");
-    public static final DataKey ITEMDATA = DataKey.of("ItemData");
     public static final DataKey ORIGINAL_BLOCK = DataKey.of("OriginalBlock");
     public static final DataKey NEW_BLOCK = DataKey.of("NewBlock");
     public static final DataKey IPADDRESS = DataKey.of("IpAddress");
@@ -32,6 +31,7 @@ public final class DataKeys {
     public static final DataKey SIGN_TEXT = DataKey.of("SignText");
     public static final DataKey INVENTORY = DataKey.of("Inventory");
     public static final DataKey ITEM_SLOT = DataKey.of("ItemSlot");
+    public static final DataKey CONFIG_CLASS = DataKey.of("ConfigClass");
 
     //META TAGS
     public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");

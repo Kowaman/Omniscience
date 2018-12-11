@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience.api.data;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import net.lordofthecraft.omniscience.util.DataHelper;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.block.BlockState;
@@ -67,6 +68,7 @@ public final class DataWrapper {
     public static DataWrapper ofConfig(ConfigurationSerializable configurationSerializable) {
         DataWrapper wrapper = new DataWrapper();
         Map<String, Object> data = configurationSerializable.serialize();
+        wrapper.set(CONFIG_CLASS, configurationSerializable.getClass().getTypeName());
         data.forEach((key, value) -> {
             DataKey dataKey = DataKey.of(key);
             if (value instanceof ConfigurationSerializable) {
@@ -165,6 +167,17 @@ public final class DataWrapper {
         return this;
     }
 
+    public DataWrapper copy() {
+        DataWrapper wrapper = new DataWrapper();
+        getKeys(false)
+                .forEach(key ->
+                        get(key).ifPresent(
+                                val -> wrapper.set(key, val)
+                        )
+                );
+        return wrapper;
+    }
+
     public DataWrapper createWrapper(DataKey path) {
         List<String> queryParts = path.getParts();
 
@@ -233,6 +246,10 @@ public final class DataWrapper {
 
     public Optional<Integer> getInt(DataKey key) {
         return get(key).map(obj -> (Integer) obj);
+    }
+
+    public <T extends ConfigurationSerializable> Optional<T> getConfigSerializable(DataKey key) {
+        return getWrapper(key).map(DataHelper::unwrapConfigSerializable);
     }
 
     private static String sanitiseNumber(Object obj) {
@@ -309,6 +326,8 @@ public final class DataWrapper {
             checkArgument(value != this, "Cannot set a DataWrapper to itself");
 
             copyDataWrapper(path, (DataWrapper) value);
+        } else if (value instanceof ConfigurationSerializable) {
+            copyDataWrapper(path, ofConfig((ConfigurationSerializable) value));
         } else if (value instanceof Map) {
             setMap(key, (Map) value);
         } else if (value.getClass().isArray()) {
