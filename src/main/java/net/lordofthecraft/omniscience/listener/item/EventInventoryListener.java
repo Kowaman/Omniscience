@@ -8,7 +8,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Map;
 
 public class EventInventoryListener extends OmniListener {
 
@@ -48,11 +51,66 @@ public class EventInventoryListener extends OmniListener {
                     }
                     break;
                 case PICKUP_SOME:
+                    if (inInventory && w()) {
+                        ItemStack cursor = e.getCursor().clone();
+                        int clicked = e.getSlot();
+                        ItemStack is = e.getCurrentItem().clone();
+                        if (cursor != null && is != null && cursor.getType().equals(is.getType())) {
+                            int neededForMax = cursor.getType().getMaxStackSize() - cursor.getAmount();
+                            int withdrew = is.getAmount() < neededForMax ? is.getAmount() : neededForMax;
+                            is.setAmount(withdrew);
+                            OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
+                        }
+                    }
+                    break;
                 case PICKUP_HALF:
+                    if (inInventory && w()) {
+                        int clicked = e.getSlot();
+                        ItemStack is = e.getCurrentItem().clone();
+                        if (is != null) {
+                            final int amount;
+                            boolean uneven = false;
+                            if (is.getAmount() == 1 || is.getAmount() == 2) {
+                                amount = 1;
+                            } else {
+                                if (is.getAmount() % 2 == 1) {
+                                    uneven = true;
+                                    amount = (is.getAmount() - 1) / 2;
+                                } else {
+                                    amount = is.getAmount() / 2;
+                                }
+                            }
+                            //TODO find out which side gets the extra item
+                            is.setAmount(uneven ? amount + 1 : amount);
+                            OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
+                        }
+                    }
+                    break;
                 case PICKUP_ONE:
-                    //WHAT THE HELL DO I DO FOR SPLIT STACKS? AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+                    if (inInventory && w()) {
+                        int clicked = e.getSlot();
+                        ItemStack is = e.getCurrentItem().clone();
+                        //TODO we need to verify that this isnt called when the itemstack in the players hand is @ max capacity
+                        if (is != null) {
+                            is.setAmount(1);
+                            OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
+                        }
+                    }
                     break;
                 case PLACE_SOME:
+                    if (inInventory && d()) {
+                        ItemStack cursor = e.getCursor().clone();
+                        int clicked = e.getSlot();
+                        ItemStack is = e.getCurrentItem().clone();
+                        if (cursor != null && is != null && cursor.getType().equals(is.getType())) {
+                            int neededForMax = is.getType().getMaxStackSize() - is.getAmount();
+                            int deposited = cursor.getAmount() < neededForMax ? cursor.getAmount() : neededForMax;
+                            cursor.setAmount(deposited);
+                            //TODO This will work for showing how many of an item someone placed into a container but the rollback may be fucky.
+                            // E.g. if I put 13 into an inventory to make 64, it might just roll it back to 13.
+                            OEntry.create().player(e.getWhoClicked()).deposited(container, cursor, clicked).save();
+                        }
+                    }
                     break;
                 case PLACE_ALL:
                     if (inInventory && d()) {
@@ -63,7 +121,21 @@ public class EventInventoryListener extends OmniListener {
                     break;
                 case PLACE_ONE:
                     if (inInventory && d()) {
-
+                        ItemStack cursor = e.getCursor().clone();
+                        int clicked = e.getSlot();
+                        ItemStack is = e.getCurrentItem().clone();
+                        if (cursor != null) {
+                            if (is != null && is.getType().equals(cursor.getType())) {
+                                if (is.getType().getMaxStackSize() - is.getAmount() >= 1) {
+                                    cursor.setAmount(1);
+                                    OEntry.create().source(e.getWhoClicked()).deposited(container, cursor, clicked).save();
+                                    return;
+                                }
+                            } else {
+                                cursor.setAmount(1);
+                                OEntry.create().player(e.getWhoClicked()).deposited(container, cursor, clicked).save();
+                            }
+                        }
                     }
                     break;
                 case SWAP_WITH_CURSOR:
@@ -86,11 +158,30 @@ public class EventInventoryListener extends OmniListener {
                 case DROP_ONE_SLOT:
                     break;
                 case MOVE_TO_OTHER_INVENTORY:
-                    if (inInventory) {
+                    if (inInventory) { // Make sure there's room in our inventory for this
+                        //TODO move to other inventory math is fucking awful. this todo is to make it not awful when I'm feeling up to it
                         if (w()) {
-                            ItemStack is = e.getCurrentItem();
-                            int clicked = e.getSlot();
-                            OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
+                            ItemStack is = e.getCurrentItem().clone();
+                            Inventory tar = e.getWhoClicked().getInventory();
+                            if (tar.all(e.getCurrentItem()).size() > 0) {
+                                Map<Integer, ? extends ItemStack> items = tar.all(e.getCurrentItem());
+                                int leftOver = is.getAmount();
+                                for (Map.Entry<Integer, ? extends ItemStack> entry : items.entrySet()) {
+                                    ItemStack invItem = entry.getValue();
+                                    int diff = invItem.getType().getMaxStackSize() - invItem.getAmount();
+                                    if (diff > 0) {
+                                        leftOver -= diff;
+                                        if (leftOver <= 0) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (leftOver <= 0) {
+                                }
+                            } else if (tar.firstEmpty() != -1) {
+
+                            }
+
                         }
                     } else {
                         if (d()) {
