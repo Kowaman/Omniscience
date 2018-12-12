@@ -8,6 +8,7 @@ import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
 
 import java.util.*;
@@ -68,7 +69,7 @@ public final class DataWrapper {
     public static DataWrapper ofConfig(ConfigurationSerializable configurationSerializable) {
         DataWrapper wrapper = new DataWrapper();
         Map<String, Object> data = configurationSerializable.serialize();
-        wrapper.set(CONFIG_CLASS, configurationSerializable.getClass().getTypeName());
+        wrapper.set(CONFIG_CLASS, ConfigurationSerialization.getAlias(configurationSerializable.getClass()));
         data.forEach((key, value) -> {
             DataKey dataKey = DataKey.of(key);
             if (value instanceof ConfigurationSerializable) {

@@ -31,7 +31,7 @@ public final class DataKeys {
     public static final DataKey SIGN_TEXT = DataKey.of("SignText");
     public static final DataKey INVENTORY = DataKey.of("Inventory");
     public static final DataKey ITEM_SLOT = DataKey.of("ItemSlot");
-    public static final DataKey CONFIG_CLASS = DataKey.of("ConfigClass");
+    public static final DataKey CONFIG_CLASS = DataKey.of("ClassName");
 
     //META TAGS
     public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");

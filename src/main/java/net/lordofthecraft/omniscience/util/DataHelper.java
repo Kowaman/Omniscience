@@ -73,9 +73,6 @@ public final class DataHelper {
         String fullClassName = oClassName.get();
         try {
             Class clazz = Class.forName(fullClassName);
-            if (!ConfigurationSerializable.class.isAssignableFrom(clazz)) {
-                return null;
-            }
             DataWrapper localWrapper = wrapper.copy().remove(CONFIG_CLASS);
             Map<String, Object> configMap = Maps.newHashMap();
             localWrapper.getKeys(false)
