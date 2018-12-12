@@ -23,6 +23,12 @@ public class EventPlaceListener extends OmniListener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockMultiPlace(BlockMultiPlaceEvent event) {
         //TODO absolutely verify this works
-        event.getReplacedBlockStates().forEach(state -> OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(state.getBlock().getLocation(), state, state.getBlock().getState())).save());
+        OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(event.getBlockReplacedState().getLocation(), event.getBlockReplacedState(), event.getBlock().getState())).save();
+        event.getReplacedBlockStates().stream()
+                .distinct()
+                .filter(state -> state.getLocation() != event.getBlockReplacedState().getLocation())
+                .forEach(state ->
+                        OEntry.create().source(event.getPlayer()).placedBlock(BlockTransaction.from(state.getBlock().getLocation(), state, state.getBlock().getState())).save()
+                );
     }
 }
