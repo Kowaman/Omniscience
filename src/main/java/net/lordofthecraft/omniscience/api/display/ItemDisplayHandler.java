@@ -3,7 +3,6 @@ package net.lordofthecraft.omniscience.api.display;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
-import net.lordofthecraft.omniscience.util.DataHelper;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -31,17 +30,14 @@ public class ItemDisplayHandler extends SimpleDisplayHandler {
 
     @Override
     public Optional<TextComponent> buildTargetSpecificHoverData(DataEntry entry, String target, QuerySession session) {
-        Optional<String> oConfig = entry.data.getString(DataKeys.ITEMDATA);
-        if (oConfig.isPresent()) {
-            Optional<ItemStack> oItem = DataHelper.loadFromString(oConfig.get());
-            if (oItem.isPresent()) {
-                ItemStack is = oItem.get();
-                TextComponent component = new TextComponent(target);
-                ComponentBuilder hover = new ComponentBuilder("");
-                hover.append(ReflectionHandler.getItemJson(is));
-                component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, hover.create()));
-                return Optional.of(component);
-            }
+        Optional<ItemStack> oItemStack = entry.data.getConfigSerializable(DataKeys.ITEMSTACK);
+        if (oItemStack.isPresent()) {
+            ItemStack is = oItemStack.get();
+            TextComponent component = new TextComponent(target);
+            ComponentBuilder hover = new ComponentBuilder("");
+            hover.append(ReflectionHandler.getItemJson(is));
+            component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, hover.create()));
+            return Optional.of(component);
         }
         return Optional.empty();
     }

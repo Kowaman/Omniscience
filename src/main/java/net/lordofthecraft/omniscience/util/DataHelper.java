@@ -1,5 +1,6 @@
 package net.lordofthecraft.omniscience.util;
 
+import com.google.common.collect.Maps;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -12,9 +13,11 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,6 +63,33 @@ public final class DataHelper {
             return Optional.of(location);
         }
         return Optional.empty();
+    }
+
+    public static <T extends ConfigurationSerializable> T unwrapConfigSerializable(DataWrapper wrapper) {
+        Optional<String> oClassName = wrapper.getString(CONFIG_CLASS);
+        if (!oClassName.isPresent()) {
+            return null;
+        }
+        String fullClassName = oClassName.get();
+        try {
+            Class clazz = Class.forName(fullClassName);
+            DataWrapper localWrapper = wrapper.copy().remove(CONFIG_CLASS);
+            Map<String, Object> configMap = Maps.newHashMap();
+            localWrapper.getKeys(false)
+                    .forEach(key -> localWrapper.get(key)
+                            .ifPresent(val -> {
+                                if (val instanceof DataWrapper) {
+                                    configMap.put(key.toString(), unwrapConfigSerializable((DataWrapper) val));
+                                } else {
+                                    configMap.put(key.toString(), val);
+                                }
+                            }));
+            ConfigurationSerializable config = ConfigurationSerialization.deserializeObject(configMap, clazz);
+            return (T) config;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static String convertConfigurationSerializable(ConfigurationSerializable configurationSerializable) {

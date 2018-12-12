@@ -167,10 +167,9 @@ public final class OEntry {
 
         public OEntry dropped(Item item) {
             this.eventName = "drop";
-            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(item.getItemStack()));
+            wrapper.set(ITEMSTACK, item.getItemStack());
             wrapper.set(QUANTITY, item.getItemStack().getAmount());
             wrapper.set(TARGET, item.getItemStack().getType().name());
-            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(item.getItemStack()));
             wrapper.set(DISPLAY_METHOD, "item");
             writeLocationData(item.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -178,10 +177,9 @@ public final class OEntry {
 
         public OEntry pickup(Item item) {
             this.eventName = "pickup";
-            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(item.getItemStack()));
+            wrapper.set(ITEMSTACK, item.getItemStack());
             wrapper.set(QUANTITY, item.getItemStack().getAmount());
             wrapper.set(TARGET, item.getItemStack().getType().name());
-            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(item.getItemStack()));
             wrapper.set(DISPLAY_METHOD, "item");
             writeLocationData(item.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -245,8 +243,7 @@ public final class OEntry {
             this.eventName = "frame-withdraw";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
-            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
-            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            wrapper.set(ITEMSTACK, itemStack);
             writeLocationData(frame.getLocation());
             return new OEntry(sourceBuilder, this);
         }
@@ -255,8 +252,7 @@ public final class OEntry {
             this.eventName = "frame-deposit";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
-            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
-            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            wrapper.set(ITEMSTACK, itemStack);
             writeLocationData(frame.getLocation());
             return new OEntry(sourceBuilder, this);
         }
@@ -286,9 +282,8 @@ public final class OEntry {
         public OEntry deposited(Container container, ItemStack itemStack, int itemSlot) {
             this.eventName = "deposit";
             wrapper.set(TARGET, itemStack.getType().name());
-            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
             wrapper.set(ITEM_SLOT, itemSlot);
-            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            wrapper.set(ITEMSTACK, itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -298,9 +293,8 @@ public final class OEntry {
         public OEntry withdrew(Container container, ItemStack itemStack, int itemSlot) {
             this.eventName = "withdraw";
             wrapper.set(TARGET, itemStack.getType().name());
-            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
             wrapper.set(ITEM_SLOT, itemSlot);
-            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            wrapper.set(ITEMSTACK, itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -415,8 +409,7 @@ public final class OEntry {
         public OEntry cloned(ItemStack itemStack) {
             this.eventName = "clone";
             wrapper.set(TARGET, itemStack.getType().name());
-            wrapper.set(ITEMDATA, DataHelper.convertConfigurationSerializable(itemStack));
-            wrapper.set(ITEMSTACK, DataWrapper.ofConfig(itemStack));
+            wrapper.set(ITEMSTACK, itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
             writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
