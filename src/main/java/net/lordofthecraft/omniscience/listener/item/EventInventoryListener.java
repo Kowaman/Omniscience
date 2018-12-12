@@ -80,7 +80,6 @@ public class EventInventoryListener extends OmniListener {
                                     amount = is.getAmount() / 2;
                                 }
                             }
-                            //TODO find out which side gets the extra item
                             is.setAmount(uneven ? amount + 1 : amount);
                             OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
                         }
