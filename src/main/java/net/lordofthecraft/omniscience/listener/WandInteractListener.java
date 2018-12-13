@@ -49,9 +49,9 @@ public final class WandInteractListener implements Listener {
         session.newQuery().addCondition(SearchConditionGroup.from(event.getClickedBlock().getLocation()));
         Block b = event.getClickedBlock();
 
-        event.getPlayer().sendMessage(Formatter.prefix() + ChatColor.WHITE + "--- Inspecting "
+        event.getPlayer().sendMessage(Formatter.prefix() + ChatColor.GREEN + "--- "
                 + ChatColor.AQUA + b.getType().name()
-                + ChatColor.WHITE + " at " + ChatColor.GREEN + b.getX() + " " + b.getY() + " " + b.getZ() + ChatColor.WHITE + " ---");
+                + ChatColor.WHITE + " at " + ChatColor.GREEN + b.getX() + " " + b.getY() + " " + b.getZ() + ChatColor.GREEN + " ---");
 
         Async.lookup(session, new SearchCallback(session));
     }
@@ -68,11 +68,11 @@ public final class WandInteractListener implements Listener {
         QuerySession session = new QuerySession(event.getPlayer());
         session.addFlag(Flag.NO_GROUP);
         session.newQuery().addCondition(SearchConditionGroup.from(event.getBlockPlaced().getLocation()));
-        Block b = event.getBlockPlaced();
+        Block b = event.getBlock();
 
-        event.getPlayer().sendMessage(Formatter.prefix() + ChatColor.WHITE + "--- Inspecting "
+        event.getPlayer().sendMessage(Formatter.prefix() + ChatColor.GREEN + "--- "
                 + ChatColor.AQUA + b.getType().name()
-                + ChatColor.WHITE + " at " + ChatColor.GREEN + b.getX() + " " + b.getY() + " " + b.getZ() + ChatColor.WHITE + " ---");
+                + ChatColor.WHITE + " at " + ChatColor.GREEN + b.getX() + " " + b.getY() + " " + b.getZ() + ChatColor.GREEN + " ---");
 
         Async.lookup(session, new SearchCallback(session));
     }
