@@ -1,6 +1,7 @@
 package net.lordofthecraft.omniscience.listener.item;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
 import net.lordofthecraft.omniscience.listener.OmniListener;
@@ -10,9 +11,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class EventInventoryListener extends OmniListener {
 
@@ -158,53 +161,154 @@ public class EventInventoryListener extends OmniListener {
                 case DROP_ONE_SLOT:
                     break;
                 case MOVE_TO_OTHER_INVENTORY:
-                    if (inInventory) { // Make sure there's room in our inventory for this
-                        //TODO move to other inventory math is fucking awful. this todo is to make it not awful when I'm feeling up to it
-                        if (w()) {
-                            ItemStack is = e.getCurrentItem().clone();
-                            Inventory tar = e.getWhoClicked().getInventory();
-                            if (tar.all(e.getCurrentItem()).size() > 0) {
-                                Map<Integer, ? extends ItemStack> items = tar.all(e.getCurrentItem());
-                                int leftOver = is.getAmount();
-                                for (Map.Entry<Integer, ? extends ItemStack> entry : items.entrySet()) {
-                                    ItemStack invItem = entry.getValue();
-                                    int diff = invItem.getType().getMaxStackSize() - invItem.getAmount();
-                                    if (diff > 0) {
-                                        leftOver -= diff;
-                                        if (leftOver <= 0) {
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (leftOver <= 0) {
-                                }
-                            } else if (tar.firstEmpty() != -1) {
+                    //TODO move to other inventory math is fucking awful. this todo is to make it not awful when I'm feeling up to it
+                    if ((inInventory && !w()) || (!inInventory && !d())) {
+                        return;
+                    }
+                    ItemStack is = e.getCurrentItem().clone();
+                    Inventory tar = inInventory ? e.getWhoClicked().getInventory() : e.getInventory();
+                    int leftOver = is.getAmount();
+                    if (tar.all(e.getCurrentItem()).size() > 0) {
+                        Map<Integer, ? extends ItemStack> items = tar.all(e.getCurrentItem());
+                        Map<Integer, ItemStack> changedItems = Maps.newHashMap();
 
+                        for (Map.Entry<Integer, ? extends ItemStack> entry : items.entrySet()) {
+                            ItemStack invItem = entry.getValue().clone();
+                            int diff = invItem.getType().getMaxStackSize() - invItem.getAmount();
+                            // Item amount = 16
+                            // 64 - 61 = 3: diff is 3.
+                            // 16 - 3 = 13, aka amt - diff = leftover
+                            // 3 items were placed into the inventory at this location
+                            if (diff > 0) {
+                                if (leftOver - diff <= 0) {
+                                    invItem.setAmount(leftOver);
+                                    leftOver -= diff;
+                                    changedItems.put(entry.getKey(), invItem);
+                                    break;
+                                } else {
+                                    invItem.setAmount(diff);
+                                    leftOver -= diff;
+                                    changedItems.put(entry.getKey(), invItem);
+                                }
                             }
-
                         }
-                    } else {
-                        if (d()) {
-                            ItemStack is = e.getCurrentItem();
-                            int clicked = e.getWhoClicked().getInventory().firstEmpty();
-                            OEntry.create().player(e.getWhoClicked()).deposited(container, is, clicked).save();
+                        if (inInventory && w()) {
+                            changedItems.forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).withdrew(container, value, key).save());
+                        } else if (!inInventory && d()) {
+                            changedItems.forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).deposited(container, value, key).save());
+                        }
+                    }
+                    if (tar.firstEmpty() != -1 && leftOver > 0) {
+                        is.setAmount(leftOver > is.getType().getMaxStackSize() ? is.getType().getMaxStackSize() : leftOver);
+                        if (inInventory && w()) {
+                            OEntry.create().player(e.getWhoClicked()).withdrew(container, is, tar.firstEmpty()).save();
+                        } else if (!inInventory && d()) {
+                            OEntry.create().player(e.getWhoClicked()).deposited(container, is, tar.firstEmpty()).save();
                         }
                     }
                     break;
                 case HOTBAR_MOVE_AND_READD:
                     break;
                 case HOTBAR_SWAP:
+                    if (inInventory) {
+                        int slot = e.getHotbarButton() - 1;
+                        ItemStack item = e.getWhoClicked().getInventory().getItem(slot).clone();
+                        ItemStack toSwap = e.getCurrentItem().clone();
+                        if (w() && toSwap != null) {
+                            OEntry.create().player(e.getWhoClicked()).withdrew(container, toSwap, e.getSlot()).save();
+                        }
+                        if (d() && item != null) {
+                            OEntry.create().player(e.getWhoClicked()).deposited(container, item, e.getSlot()).save();
+                        }
+                    }
                     break;
                 case CLONE_STACK:
                     //NO:OP
                     return;
                 case COLLECT_TO_CURSOR:
-                    //Oh dear sweet mother of fucking god I forgot this was a thing NO GOD NO NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-
+                    InventoryView view = e.getView();
+                    ItemStack targetItem = e.getCurrentItem().clone();
+                    int currentAmount = targetItem.getAmount();
+                    int spaceLeft = targetItem.getType().getMaxStackSize() - currentAmount;
+                    Map<Integer, ? extends ItemStack> containerInventory = view.getTopInventory().all(targetItem);
+                    Map<Integer, ? extends ItemStack> playerInventory = view.getBottomInventory().all(targetItem);
+                    Map<ItemWrapper, ItemStack> changedItems = Maps.newHashMap();
+                    for (Map.Entry<Integer, ? extends ItemStack> entry : containerInventory.entrySet()) {
+                        ItemStack invItem = entry.getValue().clone();
+                        int itemAmount = invItem.getAmount();
+                        if (spaceLeft - itemAmount <= 0) {
+                            changedItems.put(new ItemWrapper(true, entry.getKey()), invItem);
+                            spaceLeft -= itemAmount;
+                            break;
+                        } else {
+                            spaceLeft -= itemAmount;
+                            changedItems.put(new ItemWrapper(true, entry.getKey()), invItem);
+                        }
+                    }
+                    if (spaceLeft > 0) {
+                        for (Map.Entry<Integer, ? extends ItemStack> entry : playerInventory.entrySet()) {
+                            ItemStack invItem = entry.getValue().clone();
+                            int itemAmount = invItem.getAmount();
+                            if (spaceLeft - itemAmount <= 0) {
+                                changedItems.put(new ItemWrapper(false, entry.getKey()), invItem);
+                                spaceLeft -= itemAmount;
+                                break;
+                            } else {
+                                spaceLeft -= itemAmount;
+                                changedItems.put(new ItemWrapper(false, entry.getKey()), invItem);
+                            }
+                        }
+                    }
+                    for (Map.Entry<ItemWrapper, ItemStack> item : changedItems.entrySet()) {
+                        if (item.getKey().top && w()) {
+                            OEntry.create().player(e.getWhoClicked()).withdrew(container, item.getValue(), item.getKey().slot).save();
+                        }
+                        //TODO I think you can put all the items in another inventory with another method? that's important.
+                    }
                     break;
                 case UNKNOWN:
                     break;
             }
+        }
+    }
+
+    private class ItemWrapper {
+        private final boolean top;
+        private final int slot;
+
+        ItemWrapper(boolean top, int slot) {
+            this.top = top;
+            this.slot = slot;
+        }
+
+        public boolean isTop() {
+            return top;
+        }
+
+        public int getSlot() {
+            return slot;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ItemWrapper that = (ItemWrapper) o;
+            return top == that.top &&
+                    slot == that.slot;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(top, slot);
+        }
+
+        @Override
+        public String toString() {
+            return "ItemWrapper{" +
+                    "top=" + top +
+                    ", slot=" + slot +
+                    '}';
         }
     }
 
