@@ -59,8 +59,8 @@ public class EventInventoryListener extends OmniListener {
                         ItemStack cursor = e.getCursor().clone();
                         int clicked = e.getSlot();
                         ItemStack is = e.getCurrentItem().clone();
-                        if (cursor != null && is != null && cursor.getType().equals(is.getType())) {
-                            int neededForMax = cursor.getType().getMaxStackSize() - cursor.getAmount();
+                        if (cursor != null && is != null && cursor.isSimilar(is)) {
+                            int neededForMax = cursor.getMaxStackSize() - cursor.getAmount();
                             int withdrew = is.getAmount() < neededForMax ? is.getAmount() : neededForMax;
                             is.setAmount(withdrew);
                             OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
@@ -105,8 +105,8 @@ public class EventInventoryListener extends OmniListener {
                         ItemStack cursor = e.getCursor().clone();
                         int clicked = e.getSlot();
                         ItemStack is = e.getCurrentItem().clone();
-                        if (cursor != null && is != null && cursor.getType().equals(is.getType())) {
-                            int neededForMax = is.getType().getMaxStackSize() - is.getAmount();
+                        if (cursor != null && is != null && cursor.isSimilar(is)) {
+                            int neededForMax = is.getMaxStackSize() - is.getAmount();
                             int deposited = cursor.getAmount() < neededForMax ? cursor.getAmount() : neededForMax;
                             cursor.setAmount(deposited);
                             //TODO This will work for showing how many of an item someone placed into a container but the rollback may be fucky.
@@ -128,8 +128,8 @@ public class EventInventoryListener extends OmniListener {
                         int clicked = e.getSlot();
                         ItemStack is = e.getCurrentItem().clone();
                         if (cursor != null) {
-                            if (is != null && is.getType().equals(cursor.getType())) {
-                                if (is.getType().getMaxStackSize() - is.getAmount() >= 1) {
+                            if (is != null && is.isSimilar(cursor)) {
+                                if (is.getMaxStackSize() - is.getAmount() >= 1) {
                                     cursor.setAmount(1);
                                     OEntry.create().source(e.getWhoClicked()).deposited(container, cursor, clicked).save();
                                     return;
@@ -156,9 +156,14 @@ public class EventInventoryListener extends OmniListener {
                     break;
                 case DROP_ALL_CURSOR:
                 case DROP_ONE_CURSOR:
+                    //NO:OP
                     break;
                 case DROP_ALL_SLOT:
                 case DROP_ONE_SLOT:
+                    if (inInventory) {
+                        ItemStack item = e.getCurrentItem().clone();
+                        OEntry.create().player(e.getWhoClicked()).withdrew(container, item, e.getSlot()).save();
+                    }
                     break;
                 case MOVE_TO_OTHER_INVENTORY:
                     //TODO move to other inventory math is fucking awful. this todo is to make it not awful when I'm feeling up to it
@@ -174,7 +179,7 @@ public class EventInventoryListener extends OmniListener {
 
                         for (Map.Entry<Integer, ? extends ItemStack> entry : items.entrySet()) {
                             ItemStack invItem = entry.getValue().clone();
-                            int diff = invItem.getType().getMaxStackSize() - invItem.getAmount();
+                            int diff = invItem.getMaxStackSize() - invItem.getAmount();
                             // Item amount = 16
                             // 64 - 61 = 3: diff is 3.
                             // 16 - 3 = 13, aka amt - diff = leftover
@@ -199,7 +204,7 @@ public class EventInventoryListener extends OmniListener {
                         }
                     }
                     if (tar.firstEmpty() != -1 && leftOver > 0) {
-                        is.setAmount(leftOver > is.getType().getMaxStackSize() ? is.getType().getMaxStackSize() : leftOver);
+                        is.setAmount(leftOver > is.getMaxStackSize() ? is.getMaxStackSize() : leftOver);
                         if (inInventory && w()) {
                             OEntry.create().player(e.getWhoClicked()).withdrew(container, is, tar.firstEmpty()).save();
                         } else if (!inInventory && d()) {
@@ -208,6 +213,29 @@ public class EventInventoryListener extends OmniListener {
                     }
                     break;
                 case HOTBAR_MOVE_AND_READD:
+                    if (inInventory) {
+                        int slot = e.getHotbarButton() - 1;
+                        ItemStack item = e.getWhoClicked().getInventory().getItem(slot).clone();
+                        ItemStack current = e.getCurrentItem().clone();
+                        if (d()
+                                && item.isSimilar(current)
+                                && current.getAmount() < current.getMaxStackSize()) {
+                            int toCap = current.getMaxStackSize() - current.getAmount();
+                            if (toCap < item.getAmount()) {
+                                item.setAmount(toCap);
+                            }
+                            OEntry.create().player(e.getWhoClicked()).deposited(container, item, e.getSlot()).save();
+                        } else if (d() && current == null) {
+                            OEntry.create().player(e.getWhoClicked()).deposited(container, item, e.getSlot()).save();
+                        } else if (!current.isSimilar(item)) {
+                            if (w()) {
+                                OEntry.create().player(e.getWhoClicked()).withdrew(container, current, e.getSlot()).save();
+                            }
+                            if (d() && item != null) {
+                                OEntry.create().player(e.getWhoClicked()).deposited(container, item, e.getSlot()).save();
+                            }
+                        }
+                    }
                     break;
                 case HOTBAR_SWAP:
                     if (inInventory) {
@@ -229,10 +257,11 @@ public class EventInventoryListener extends OmniListener {
                     InventoryView view = e.getView();
                     ItemStack targetItem = e.getCurrentItem().clone();
                     int currentAmount = targetItem.getAmount();
-                    int spaceLeft = targetItem.getType().getMaxStackSize() - currentAmount;
+                    int spaceLeft = targetItem.getMaxStackSize() - currentAmount;
                     Map<Integer, ? extends ItemStack> containerInventory = view.getTopInventory().all(targetItem);
                     Map<Integer, ? extends ItemStack> playerInventory = view.getBottomInventory().all(targetItem);
                     Map<ItemWrapper, ItemStack> changedItems = Maps.newHashMap();
+                    //TODO Jade says that this is taken from your inventory first but I think it might be based on the inventory the item is in
                     for (Map.Entry<Integer, ? extends ItemStack> entry : containerInventory.entrySet()) {
                         ItemStack invItem = entry.getValue().clone();
                         int itemAmount = invItem.getAmount();
