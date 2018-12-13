@@ -18,9 +18,11 @@ display:
   format: d/M/yy hh:mm:ss
   simpleFormat: d/M/yy
 
+# The material used for looking up records, must be a block
 wand:
   material: redstone_lamp
 
+# Enables Debug messages
 debug: false
 
 ##################################################################
