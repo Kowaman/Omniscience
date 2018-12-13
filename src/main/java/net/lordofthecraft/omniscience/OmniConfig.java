@@ -22,6 +22,8 @@ public enum OmniConfig {
     private String databaseName;
     private DatabaseType dbType;
 
+    private boolean debugEnabled;
+
     private boolean defaultsEnabled;
     private int defaultRadius;
     private String defaultSearchTime;
@@ -48,6 +50,8 @@ public enum OmniConfig {
         if (dbType == null) {
             dbType = DatabaseType.valueOf(configuration.getString("database.type").toUpperCase());
         }
+        this.debugEnabled = configuration.getBoolean("debug");
+
         this.databaseName = configuration.getString("database.name");
         this.tableName = configuration.getString("database.dataTableName");
         this.defaultsEnabled = configuration.getBoolean("defaults.enabled");
@@ -234,6 +238,13 @@ public enum OmniConfig {
      */
     public Material getWandMaterial() {
         return wandMaterial;
+    }
+
+    /**
+     * @return Whether debug messages are enabled
+     */
+    public boolean isDebugEnabled() {
+        return debugEnabled;
     }
 
     enum DatabaseType {
