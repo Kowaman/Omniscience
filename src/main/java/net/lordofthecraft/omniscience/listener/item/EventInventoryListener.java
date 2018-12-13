@@ -1,6 +1,7 @@
 package net.lordofthecraft.omniscience.listener.item;
 
 import com.google.common.collect.ImmutableList;
+import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
 import net.lordofthecraft.omniscience.listener.OmniListener;
 import org.bukkit.block.Container;
@@ -216,16 +217,16 @@ public class EventInventoryListener extends OmniListener {
     }
 
     private void debugEvent(InventoryClickEvent e) {
-        System.out.println("====== INVENTORY CLICK EVENT DEBUG ======");
-        System.out.println("Action: " + e.getAction());
-        System.out.println("Click: " + e.getClick());
-        System.out.println("Current Item: " + e.getCurrentItem());
-        System.out.println("Cursor Item: " + e.getCursor());
-        System.out.println("Hotbar button: " + e.getHotbarButton());
-        System.out.println("Slot: " + e.getSlot());
-        System.out.println("Slot Type: " + e.getSlotType());
-        System.out.println("Raw Slot: " + e.getRawSlot());
-        System.out.println("Inventory Clicked: " + e.getInventory());
-        System.out.println("Inventory in general: " + e.getInventory());
+        Omniscience.logDebug("====== INVENTORY CLICK EVENT DEBUG ======");
+        Omniscience.logDebug("Action: " + e.getAction());
+        Omniscience.logDebug("Click: " + e.getClick());
+        Omniscience.logDebug("Current Item: " + e.getCurrentItem());
+        Omniscience.logDebug("Cursor Item: " + e.getCursor());
+        Omniscience.logDebug("Hotbar button: " + e.getHotbarButton());
+        Omniscience.logDebug("Slot: " + e.getSlot());
+        Omniscience.logDebug("Slot Type: " + e.getSlotType());
+        Omniscience.logDebug("Raw Slot: " + e.getRawSlot());
+        Omniscience.logDebug("Inventory Clicked: " + e.getInventory());
+        Omniscience.logDebug("Inventory in general: " + e.getInventory());
     }
 }
