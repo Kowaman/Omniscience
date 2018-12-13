@@ -145,6 +145,10 @@ public final class Omniscience extends JavaPlugin {
         INSTANCE.registerParameterHandler(parameterHandler);
     }
 
+    public static void logDebug(String message) {
+        if (OmniConfig.INSTANCE.isDebugEnabled()) PLUGIN_INSTANCE.getLogger().info(message);
+    }
+
     @Override
     public void onEnable() {
         // Plugin startup logic
