@@ -2,6 +2,7 @@ package net.lordofthecraft.omniscience.util.reflection;
 
 import org.bson.internal.Base64;
 import org.bukkit.Bukkit;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -142,7 +143,7 @@ public final class ReflectionHandler {
             Object compound = streamToolsLoadCompoundFromInput.invoke(null, (InputStream) stream);
             stream.close();
             if (entity instanceof LivingEntity) {
-                setCompoundFloat.invoke(compound, "Health", (float) ((LivingEntity) entity).getMaxHealth());
+                setCompoundFloat.invoke(compound, "Health", (float) ((LivingEntity) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
             }
 
             Object nmsEntity = getMinecraftEntity(entity);

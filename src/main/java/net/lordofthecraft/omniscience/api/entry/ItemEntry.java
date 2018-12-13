@@ -23,9 +23,7 @@ public class ItemEntry extends DataEntryComplete implements Actionable {
         int slotAffected = data.getInt(DataKeys.ITEM_SLOT)
                 .orElseThrow(() -> skipped(SkipReason.INVALID));
 
-        ItemStack item = DataHelper.loadFromString(
-                data.getString(DataKeys.ITEMDATA).orElseThrow(() -> skipped(SkipReason.INVALID))
-        ).orElseThrow(() -> skipped(SkipReason.INVALID));
+        ItemStack item = (ItemStack) data.getConfigSerializable(DataKeys.ITEMSTACK).orElseThrow(() -> skipped(SkipReason.INVALID));
 
         Container container = (Container) location.getBlock().getState();
 
