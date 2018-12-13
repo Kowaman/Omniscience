@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -298,6 +299,14 @@ public class EventInventoryListener extends OmniListener {
                 case UNKNOWN:
                     break;
             }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onInventoryDrag(InventoryDragEvent e) {
+        if (e.getInventory().getHolder() instanceof Container) {
+            Container container = (Container) e.getInventory().getHolder();
+            e.getNewItems().forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).deposited(container, value, key).save());
         }
     }
 
