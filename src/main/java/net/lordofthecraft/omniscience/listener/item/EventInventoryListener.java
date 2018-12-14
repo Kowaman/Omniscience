@@ -45,6 +45,7 @@ public class EventInventoryListener extends OmniListener {
         if (e.getInventory().getHolder() instanceof Container && (w() || d())) {
             Container container = (Container) e.getInventory().getHolder();
             boolean inInventory = e.getRawSlot() < e.getInventory().getSize();
+            Omniscience.logDebug("inInventory? " + inInventory);
             switch (e.getAction()) {
                 case NOTHING:
                     return;
@@ -72,7 +73,7 @@ public class EventInventoryListener extends OmniListener {
                     if (inInventory && w()) {
                         int clicked = e.getSlot();
                         ItemStack is = e.getCurrentItem().clone();
-                        if (is != null) {
+                        if (is != null && !is.getType().name().contains("AIR")) {
                             final int amount;
                             boolean uneven = false;
                             if (is.getAmount() == 1 || is.getAmount() == 2) {
@@ -95,7 +96,7 @@ public class EventInventoryListener extends OmniListener {
                         int clicked = e.getSlot();
                         ItemStack is = e.getCurrentItem().clone();
                         //TODO we need to verify that this isnt called when the itemstack in the players hand is @ max capacity
-                        if (is != null) {
+                        if (is != null && !is.getType().name().contains("AIR")) {
                             is.setAmount(1);
                             OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked).save();
                         }
@@ -167,7 +168,7 @@ public class EventInventoryListener extends OmniListener {
                     }
                     break;
                 case MOVE_TO_OTHER_INVENTORY:
-                    //TODO move to other inventory math is fucking awful. this todo is to make it not awful when I'm feeling up to it
+                    //TODO Doesn't fire when inventory is full but stacks are mergable
                     if ((inInventory && !w()) || (!inInventory && !d())) {
                         return;
                     }
@@ -198,6 +199,7 @@ public class EventInventoryListener extends OmniListener {
                                 }
                             }
                         }
+                        Omniscience.logDebug("Changed Items: " + changedItems);
                         if (inInventory && w()) {
                             changedItems.forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).withdrew(container, value, key).save());
                         } else if (!inInventory && d()) {
@@ -232,7 +234,7 @@ public class EventInventoryListener extends OmniListener {
                             if (w()) {
                                 OEntry.create().player(e.getWhoClicked()).withdrew(container, current, e.getSlot()).save();
                             }
-                            if (d() && item != null) {
+                            if (d() && item != null && !item.getType().name().contains("AIR")) {
                                 OEntry.create().player(e.getWhoClicked()).deposited(container, item, e.getSlot()).save();
                             }
                         }
@@ -243,10 +245,10 @@ public class EventInventoryListener extends OmniListener {
                         int slot = e.getHotbarButton() - 1;
                         ItemStack item = e.getWhoClicked().getInventory().getItem(slot).clone();
                         ItemStack toSwap = e.getCurrentItem().clone();
-                        if (w() && toSwap != null) {
+                        if (w() && toSwap != null && !toSwap.getType().name().contains("AIR")) {
                             OEntry.create().player(e.getWhoClicked()).withdrew(container, toSwap, e.getSlot()).save();
                         }
-                        if (d() && item != null) {
+                        if (d() && item != null && !item.getType().name().contains("AIR")) {
                             OEntry.create().player(e.getWhoClicked()).deposited(container, item, e.getSlot()).save();
                         }
                     }
@@ -255,14 +257,14 @@ public class EventInventoryListener extends OmniListener {
                     //NO:OP
                     return;
                 case COLLECT_TO_CURSOR:
+                    //TODO doesn't fire at all when collecting items that are in the container
                     InventoryView view = e.getView();
                     ItemStack targetItem = e.getCurrentItem().clone();
                     int currentAmount = targetItem.getAmount();
                     int spaceLeft = targetItem.getMaxStackSize() - currentAmount;
-                    Map<Integer, ? extends ItemStack> containerInventory = view.getTopInventory().all(targetItem);
-                    Map<Integer, ? extends ItemStack> playerInventory = view.getBottomInventory().all(targetItem);
+                    Map<Integer, ? extends ItemStack> containerInventory = container.getInventory().all(targetItem);
+                    Map<Integer, ? extends ItemStack> playerInventory = e.getWhoClicked().getInventory().all(targetItem);
                     Map<ItemWrapper, ItemStack> changedItems = Maps.newHashMap();
-                    //TODO Jade says that this is taken from your inventory first but I think it might be based on the inventory the item is in
                     for (Map.Entry<Integer, ? extends ItemStack> entry : containerInventory.entrySet()) {
                         ItemStack invItem = entry.getValue().clone();
                         int itemAmount = invItem.getAmount();
@@ -289,6 +291,7 @@ public class EventInventoryListener extends OmniListener {
                             }
                         }
                     }
+                    Omniscience.logDebug("ChangedItems: " + changedItems);
                     for (Map.Entry<ItemWrapper, ItemStack> item : changedItems.entrySet()) {
                         if (item.getKey().top && w()) {
                             OEntry.create().player(e.getWhoClicked()).withdrew(container, item.getValue(), item.getKey().slot).save();
@@ -304,9 +307,14 @@ public class EventInventoryListener extends OmniListener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryDrag(InventoryDragEvent e) {
+        //TODO new items are the items AFTER placement. May cause rollback issues.
         if (e.getInventory().getHolder() instanceof Container) {
             Container container = (Container) e.getInventory().getHolder();
-            e.getNewItems().forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).deposited(container, value, key).save());
+            e.getNewItems().forEach((key, value) -> {
+                if (key < container.getInventory().getSize()) {
+                    OEntry.create().player(e.getWhoClicked()).deposited(container, value, key).save();
+                }
+            });
         }
     }
 
