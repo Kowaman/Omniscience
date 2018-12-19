@@ -137,6 +137,8 @@ events:
   hit: true
   # Record when an entity shoots or is shot by a player
   shot: true
+  # Record when an entity is named with a name tag
+  named: true
   # Record when a container is opened by a player
   open: true
   # Record when a container is closed by a player

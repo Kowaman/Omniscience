@@ -1,9 +1,12 @@
 package net.lordofthecraft.omniscience.api.entry;
 
+import static net.lordofthecraft.omniscience.api.data.DataKeys.AFTER;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.BEFORE;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.CAUSE;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.CREATED;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.DISPLAY_METHOD;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.ENTITY;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.ENTITY_ID;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.ENTITY_TYPE;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.EVENT_NAME;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.INVENTORY;
@@ -11,6 +14,7 @@ import static net.lordofthecraft.omniscience.api.data.DataKeys.ITEMSTACK;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.ITEM_SLOT;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.LOCATION;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.MESSAGE;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.NAME;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.NEW_BLOCK;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.ORIGINAL_BLOCK;
 import static net.lordofthecraft.omniscience.api.data.DataKeys.PLAYER_ID;
@@ -337,6 +341,22 @@ public final class OEntry {
             writeLocationData(block.getLocation());
             return new OEntry(sourceBuilder, this);
         }
+
+        public OEntry named(Entity entity, String originalName, String newName) {
+            this.eventName = "named";
+            wrapper.set(TARGET, (originalName == null
+                                ? entity.getType().name()
+                                : originalName + " (" + entity.getType().name() +  ")") + " to " + (newName== null ? "" : newName));
+            wrapper.set(ENTITY_TYPE, entity.getType().name());
+            wrapper.set(ENTITY_ID, entity.getUniqueId());
+            writeLocationData(entity.getLocation());
+
+            if (originalName != null) wrapper.set(NAME.then(BEFORE), originalName);
+            wrapper.set(NAME.then(AFTER), newName== null ? "" : newName);
+
+            return new OEntry(sourceBuilder, this);
+        }
+
 
         public OEntry custom(String eventName, DataWrapper wrapperData) {
             this.eventName = eventName;

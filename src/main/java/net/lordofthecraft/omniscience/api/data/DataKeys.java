@@ -20,6 +20,7 @@ public final class DataKeys {
     public static final DataKey BLOCK_DATA = DataKey.of("BlockData");
     public static final DataKey MATERIAL_TYPE = DataKey.of("MaterialType");
     public static final DataKey ENTITY_TYPE = DataKey.of("EntityType");
+    public static final DataKey ENTITY_ID = DataKey.of("EntityID");
     public static final DataKey ITEMSTACK = DataKey.of("ItemStack");
     public static final DataKey ORIGINAL_BLOCK = DataKey.of("OriginalBlock");
     public static final DataKey NEW_BLOCK = DataKey.of("NewBlock");
@@ -32,6 +33,9 @@ public final class DataKeys {
     public static final DataKey INVENTORY = DataKey.of("Inventory");
     public static final DataKey ITEM_SLOT = DataKey.of("ItemSlot");
     public static final DataKey CONFIG_CLASS = DataKey.of("ClassName");
+    public static final DataKey NAME = DataKey.of("Name");
+    public static final DataKey BEFORE = DataKey.of("Before");
+    public static final DataKey AFTER = DataKey.of("After");
 
     //META TAGS
     public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");
