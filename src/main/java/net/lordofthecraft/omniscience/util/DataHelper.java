@@ -1,6 +1,18 @@
 package net.lordofthecraft.omniscience.util;
 
+import static net.lordofthecraft.omniscience.api.data.DataKeys.BLOCK_DATA;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.CONFIG_CLASS;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.LOCATION;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.SIGN_TEXT;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.WORLD;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.X;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.Y;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.Z;
+
 import com.google.common.collect.Maps;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -16,12 +28,6 @@ import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
 public final class DataHelper {
 
@@ -63,6 +69,14 @@ public final class DataHelper {
             return Optional.of(location);
         }
         return Optional.empty();
+    }
+
+    public static Optional<String[]> getSignTextFromWrapper(DataWrapper wrapper) {
+        if (!wrapper.get(SIGN_TEXT).isPresent()) {
+            return Optional.empty();
+        }
+        Optional<String> oString = wrapper.getString(SIGN_TEXT);
+        return oString.map(SerializeHelper::deserializeStringArray);
     }
 
     public static <T extends ConfigurationSerializable> T unwrapConfigSerializable(DataWrapper wrapper) {
