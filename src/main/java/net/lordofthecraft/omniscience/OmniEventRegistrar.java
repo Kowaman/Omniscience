@@ -8,6 +8,7 @@ import net.lordofthecraft.omniscience.listener.chat.EventCommandListener;
 import net.lordofthecraft.omniscience.listener.chat.EventSayListener;
 import net.lordofthecraft.omniscience.listener.entity.EventDeathListener;
 import net.lordofthecraft.omniscience.listener.entity.EventHitListener;
+import net.lordofthecraft.omniscience.listener.entity.EventInteractAtEntity;
 import net.lordofthecraft.omniscience.listener.item.*;
 import net.lordofthecraft.omniscience.listener.player.EventJoinListener;
 import net.lordofthecraft.omniscience.listener.player.EventQuitListener;
@@ -40,6 +41,7 @@ public enum OmniEventRegistrar {
         //Entity
         listeners.add(new EventDeathListener());
         listeners.add(new EventHitListener());
+        listeners.add(new EventInteractAtEntity());
 
         //Item
         listeners.add(new EventContainerListener());
