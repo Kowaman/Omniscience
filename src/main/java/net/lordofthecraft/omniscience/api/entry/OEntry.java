@@ -1,60 +1,26 @@
 package net.lordofthecraft.omniscience.api.entry;
 
-import static net.lordofthecraft.omniscience.api.data.DataKeys.AFTER;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.BEFORE;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.CAUSE;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.CREATED;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.DISPLAY_METHOD;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.ENTITY;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.ENTITY_ID;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.ENTITY_TYPE;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.EVENT_NAME;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.INVENTORY;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.ITEMSTACK;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.ITEM_SLOT;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.LOCATION;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.MESSAGE;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.NAME;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.NEW_BLOCK;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.ORIGINAL_BLOCK;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.PLAYER_ID;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.QUANTITY;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.SIGN_TEXT;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.TARGET;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.WORLD;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.X;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.Y;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.Z;
-
-import java.util.Date;
 import net.lordofthecraft.omniscience.OmniEventRegistrar;
-import net.lordofthecraft.omniscience.api.data.BlockTransaction;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
+import net.lordofthecraft.omniscience.api.data.LocationTransaction;
 import net.lordofthecraft.omniscience.util.DataHelper;
 import net.lordofthecraft.omniscience.util.SerializeHelper;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Banner;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.CommandBlock;
-import org.bukkit.block.Container;
-import org.bukkit.block.Sign;
+import org.bukkit.block.*;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.ItemFrame;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Date;
+
+import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
 public final class OEntry {
     private final SourceBuilder sourceBuilder;
@@ -140,14 +106,14 @@ public final class OEntry {
             return eventName;
         }
 
-        public OEntry brokeBlock(BlockTransaction blockTransaction) {
+        public OEntry brokeBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "break";
-            blockTransaction.getBefore().ifPresent(block -> {
+            blockTransaction.getOriginalState().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(ORIGINAL_BLOCK, block);
             });
-            blockTransaction.getAfter().ifPresent(block -> {
+            blockTransaction.getFinalState().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(NEW_BLOCK, block);
             });
@@ -155,13 +121,13 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry placedBlock(BlockTransaction blockTransaction) {
+        public OEntry placedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "place";
-            blockTransaction.getBefore().ifPresent(block -> {
+            blockTransaction.getOriginalState().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(ORIGINAL_BLOCK, block);
             });
-            blockTransaction.getAfter().ifPresent(block -> {
+            blockTransaction.getFinalState().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(NEW_BLOCK, block);
@@ -170,14 +136,14 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry decayedBlock(BlockTransaction blockTransaction) {
+        public OEntry decayedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "decay";
-            blockTransaction.getBefore().ifPresent(block -> {
+            blockTransaction.getOriginalState().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(ORIGINAL_BLOCK, block);
             });
-            blockTransaction.getAfter().ifPresent(block -> {
+            blockTransaction.getFinalState().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(NEW_BLOCK, block);
             });
@@ -185,13 +151,13 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry formedBlock(BlockTransaction blockTransaction) {
+        public OEntry formedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "form";
-            blockTransaction.getBefore().ifPresent(block -> {
+            blockTransaction.getOriginalState().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(ORIGINAL_BLOCK, block);
             });
-            blockTransaction.getAfter().ifPresent(block -> {
+            blockTransaction.getFinalState().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(NEW_BLOCK, block);
