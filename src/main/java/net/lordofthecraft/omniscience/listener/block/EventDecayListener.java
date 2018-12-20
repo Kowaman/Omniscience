@@ -1,7 +1,7 @@
 package net.lordofthecraft.omniscience.listener.block;
 
 import com.google.common.collect.ImmutableList;
-import net.lordofthecraft.omniscience.api.data.BlockTransaction;
+import net.lordofthecraft.omniscience.api.data.LocationTransaction;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
 import net.lordofthecraft.omniscience.listener.OmniListener;
 import org.bukkit.event.EventHandler;
@@ -17,11 +17,11 @@ public class EventDecayListener extends OmniListener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onLeavesDecay(LeavesDecayEvent event) {
-        OEntry.create().environment().decayedBlock(BlockTransaction.from(event.getBlock().getLocation(), event.getBlock().getState(), null)).save();
+        OEntry.create().environment().decayedBlock(new LocationTransaction<>(event.getBlock().getLocation(), event.getBlock().getState(), null)).save();
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockFade(BlockFadeEvent event) {
-        OEntry.create().environment().decayedBlock(BlockTransaction.from(event.getBlock().getLocation(), event.getBlock().getState(), event.getNewState())).save();
+        OEntry.create().environment().decayedBlock(new LocationTransaction<>(event.getBlock().getLocation(), event.getBlock().getState(), event.getNewState())).save();
     }
 }

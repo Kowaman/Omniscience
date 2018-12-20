@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience.api.data;
 import com.google.common.base.MoreObjects;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A record that essentially shows the progress of something over time. It includes an original, pre-change version and a final, post-change version.
@@ -19,12 +20,12 @@ public class Transaction<T> {
         this.finalState = finalState;
     }
 
-    public T getOriginalState() {
-        return originalState;
+    public Optional<T> getOriginalState() {
+        return Optional.ofNullable(originalState);
     }
 
-    public T getFinalState() {
-        return finalState;
+    public Optional<T> getFinalState() {
+        return Optional.ofNullable(finalState);
     }
 
     @Override
