@@ -30,8 +30,7 @@ public class OmniscienceCommand implements CommandExecutor {
                 new ApplierCommand(QuerySession.Sort.NEWEST_FIRST), //Rollback
                 new ApplierCommand(QuerySession.Sort.OLDEST_FIRST), //Restore
                 new UndoCommand(),
-                new ToolCommand(),
-                new ColorCommand()
+                new ToolCommand()
         );
     }
 
