@@ -14,6 +14,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityBreakDoorEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.metadata.MetadataValue;
 
@@ -33,8 +34,6 @@ public class EventBreakListener extends OmniListener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockExplode(BlockExplodeEvent event) {
-        Omniscience.logDebug("Triggering block explode event now");
-        event.blockList().forEach(bl -> Omniscience.logDebug("Exploded block:" + bl.getBlockData().getAsString()));
         if (event.getBlock().hasMetadata("player-source")) {
             List<MetadataValue> metadataValues = event.getBlock().getMetadata("player-source");
             for (MetadataValue value : metadataValues) {
@@ -48,9 +47,12 @@ public class EventBreakListener extends OmniListener {
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onEntityBreakDoor(EntityBreakDoorEvent e) {
+        OEntry.create().source(e.getEntity()).brokeBlock(new LocationTransaction<>(e.getBlock().getLocation(), e.getBlock().getState(), null)).save();
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityExplode(EntityExplodeEvent event) {
-        Omniscience.logDebug("Triggering entity explode event now");
-        event.blockList().forEach(bl -> Omniscience.logDebug("Exploded block:" + bl.getBlockData().getAsString()));
         if (event.getEntity().hasMetadata("player-source")) {
             List<MetadataValue> metadataValues = event.getEntity().getMetadata("player-source");
             for (MetadataValue value : metadataValues) {
