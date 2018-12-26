@@ -311,14 +311,14 @@ public final class OEntry {
         public OEntry named(Entity entity, String originalName, String newName) {
             this.eventName = "named";
             wrapper.set(TARGET, (originalName == null
-                                ? entity.getType().name()
-                                : originalName + " (" + entity.getType().name() +  ")") + " to " + (newName== null ? "" : newName));
+                    ? entity.getType().name()
+                    : originalName + " (" + entity.getType().name() + ")") + " to " + (newName == null ? "" : newName));
             wrapper.set(ENTITY_TYPE, entity.getType().name());
             wrapper.set(ENTITY_ID, entity.getUniqueId());
             writeLocationData(entity.getLocation());
 
             if (originalName != null) wrapper.set(NAME.then(BEFORE), originalName);
-            wrapper.set(NAME.then(AFTER), newName== null ? "" : newName);
+            wrapper.set(NAME.then(AFTER), newName == null ? "" : newName);
 
             return new OEntry(sourceBuilder, this);
         }

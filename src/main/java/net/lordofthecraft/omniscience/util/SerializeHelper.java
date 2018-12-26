@@ -1,10 +1,6 @@
 package net.lordofthecraft.omniscience.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.Base64;
 
 public class SerializeHelper {
@@ -13,6 +9,7 @@ public class SerializeHelper {
 
     /**
      * Serializes a string array to base64
+     *
      * @param data array being serialized
      * @return string array encoded in base64
      */
@@ -28,6 +25,7 @@ public class SerializeHelper {
 
     /**
      * Deserializes a base64 sequence to a string array
+     *
      * @param data string being deserialized
      * @return String array
      */

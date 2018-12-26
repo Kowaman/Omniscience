@@ -56,8 +56,8 @@ public class EventBreakListener extends OmniListener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityExplode(EntityExplodeEvent event) {
         event.blockList()
-             .stream()
-             .filter(block -> block.getType() == Material.CAVE_AIR)
+                .stream()
+                .filter(block -> block.getType() == Material.CAVE_AIR)
                 .forEach(block -> OEntry.create().source(event.getEntity()).brokeBlock(new LocationTransaction<>(block.getLocation(), block.getState(), null)).save());
     }
 }
