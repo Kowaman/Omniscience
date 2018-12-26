@@ -20,6 +20,9 @@ public class EventIgniteListener extends OmniListener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockIgnite(BlockIgniteEvent event) {
+        if (event.getBlock() == null || event.getBlock().getType().name().contains("AIR")) {
+            return;
+        }
         //TODO we need to track this... but it's complex.
         if (event.getPlayer() != null) {
             OEntry.create().source(event.getPlayer()).ignited(event.getBlock()).save();
