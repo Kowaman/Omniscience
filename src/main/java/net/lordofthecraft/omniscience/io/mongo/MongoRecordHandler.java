@@ -98,7 +98,7 @@ public class MongoRecordHandler implements RecordHandler {
             pipeline.add(limit);
 
             aggregated = collection.aggregate(pipeline);
-            Omniscience.getPluginInstance().getLogger().info("MongoDB Query: " + pipeline);
+            Omniscience.logDebug("MongoDB Query: " + pipeline);
         } else {
             List<Document> pipeline = Lists.newArrayList();
             pipeline.add(matcher);
@@ -106,7 +106,7 @@ public class MongoRecordHandler implements RecordHandler {
             pipeline.add(limit);
 
             aggregated = collection.aggregate(pipeline);
-            Omniscience.getPluginInstance().getLogger().info("MongoDB Query: " + pipeline);
+            Omniscience.logDebug("MongoDB Query: " + pipeline);
         }
 
         try (MongoCursor<Document> cursor = aggregated.iterator()) {

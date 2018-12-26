@@ -18,8 +18,12 @@ display:
   format: d/M/yy hh:mm:ss
   simpleFormat: d/M/yy
 
+# The material used for looking up records, must be a block
 wand:
   material: redstone_lamp
+
+# Enables Debug messages
+debug: false
 
 ##################################################################
 ###                       Server Config                        ###
@@ -133,6 +137,8 @@ events:
   hit: true
   # Record when an entity shoots or is shot by a player
   shot: true
+  # Record when an entity is named with a name tag
+  named: true
   # Record when a container is opened by a player
   open: true
   # Record when a container is closed by a player

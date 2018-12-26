@@ -65,6 +65,14 @@ public final class DataHelper {
         return Optional.empty();
     }
 
+    public static Optional<String[]> getSignTextFromWrapper(DataWrapper wrapper) {
+        if (!wrapper.get(SIGN_TEXT).isPresent()) {
+            return Optional.empty();
+        }
+        Optional<String> oString = wrapper.getString(SIGN_TEXT);
+        return oString.map(SerializeHelper::deserializeStringArray);
+    }
+
     public static <T extends ConfigurationSerializable> T unwrapConfigSerializable(DataWrapper wrapper) {
         Optional<String> oClassName = wrapper.getString(CONFIG_CLASS);
         if (!oClassName.isPresent()) {

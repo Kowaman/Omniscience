@@ -12,7 +12,6 @@ public class EntityEntry extends DataEntryComplete implements Actionable {
 
     @Override
     public ActionResult rollback() throws Exception {
-        System.out.println("entityData: " + data.get(DataKeys.ENTITY));
         //Get the nbt data that was stored for this entry
         String entityData = data.getString(DataKeys.ENTITY)
                 .orElseThrow(() -> skipped(SkipReason.INVALID));
