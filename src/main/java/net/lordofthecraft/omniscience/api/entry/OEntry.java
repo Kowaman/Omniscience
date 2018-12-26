@@ -376,6 +376,10 @@ public final class OEntry {
                 return new EventBuilder(new SourceBuilder(projectile.getShooter()));
             }
 
+            if (source instanceof Entity) {
+                return new EventBuilder(new SourceBuilder(source));
+            }
+
             if (source instanceof JavaPlugin) {
                 return new EventBuilder(new SourceBuilder(source));
             }
