@@ -8,9 +8,7 @@ import net.lordofthecraft.omniscience.listener.OmniListener;
 import org.bukkit.block.Container;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -161,45 +159,51 @@ public class EventInventoryListener extends OmniListener {
                     //NO:OP
                     break;
                 case DROP_ALL_SLOT:
-                case DROP_ONE_SLOT:
                     if (inInventory) {
                         ItemStack item = e.getCurrentItem().clone();
                         OEntry.create().player(e.getWhoClicked()).withdrew(container, item, e.getSlot()).save();
                     }
                     break;
+                case DROP_ONE_SLOT:
+                    if (inInventory) {
+                        ItemStack item = e.getCurrentItem().clone();
+                        item.setAmount(1);
+                        OEntry.create().player(e.getWhoClicked()).withdrew(container, item, e.getSlot()).save();
+                    }
+                    break;
                 case MOVE_TO_OTHER_INVENTORY:
-                    //TODO Doesn't fire when inventory is full but stacks are mergable
                     if ((inInventory && !w()) || (!inInventory && !d())) {
                         return;
                     }
                     ItemStack is = e.getCurrentItem().clone();
                     Inventory tar = inInventory ? e.getWhoClicked().getInventory() : e.getInventory();
                     int leftOver = is.getAmount();
-                    if (tar.all(e.getCurrentItem()).size() > 0) {
-                        Map<Integer, ? extends ItemStack> items = tar.all(e.getCurrentItem());
+                    if (tar.all(e.getCurrentItem().getType()).size() > 0) {
+                        Map<Integer, ? extends ItemStack> items = tar.all(e.getCurrentItem().getType());
                         Map<Integer, ItemStack> changedItems = Maps.newHashMap();
 
                         for (Map.Entry<Integer, ? extends ItemStack> entry : items.entrySet()) {
                             ItemStack invItem = entry.getValue().clone();
-                            int diff = invItem.getMaxStackSize() - invItem.getAmount();
-                            // Item amount = 16
-                            // 64 - 61 = 3: diff is 3.
-                            // 16 - 3 = 13, aka amt - diff = leftover
-                            // 3 items were placed into the inventory at this location
-                            if (diff > 0) {
-                                if (leftOver - diff <= 0) {
-                                    invItem.setAmount(leftOver);
-                                    leftOver -= diff;
-                                    changedItems.put(entry.getKey(), invItem);
-                                    break;
-                                } else {
-                                    invItem.setAmount(diff);
-                                    leftOver -= diff;
-                                    changedItems.put(entry.getKey(), invItem);
+                            if (is.isSimilar(invItem)) {
+                                int diff = invItem.getMaxStackSize() - invItem.getAmount();
+                                // Item amount = 16
+                                // 64 - 61 = 3: diff is 3.
+                                // 16 - 3 = 13, aka amt - diff = leftover
+                                // 3 items were placed into the inventory at this location
+                                if (diff > 0) {
+                                    if (leftOver - diff <= 0) {
+                                        invItem.setAmount(leftOver);
+                                        leftOver -= diff;
+                                        changedItems.put(entry.getKey(), invItem);
+                                        break;
+                                    } else {
+                                        invItem.setAmount(diff);
+                                        leftOver -= diff;
+                                        changedItems.put(entry.getKey(), invItem);
+                                    }
                                 }
                             }
                         }
-                        Omniscience.logDebug("Changed Items: " + changedItems);
                         if (inInventory && w()) {
                             changedItems.forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).withdrew(container, value, key).save());
                         } else if (!inInventory && d()) {
@@ -291,12 +295,10 @@ public class EventInventoryListener extends OmniListener {
                             }
                         }
                     }
-                    Omniscience.logDebug("ChangedItems: " + changedItems);
                     for (Map.Entry<ItemWrapper, ItemStack> item : changedItems.entrySet()) {
                         if (item.getKey().top && w()) {
                             OEntry.create().player(e.getWhoClicked()).withdrew(container, item.getValue(), item.getKey().slot).save();
                         }
-                        //TODO I think you can put all the items in another inventory with another method? that's important.
                     }
                     break;
                 case UNKNOWN:
@@ -316,6 +318,16 @@ public class EventInventoryListener extends OmniListener {
                 }
             });
         }
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onInventoryMoveItem(InventoryMoveItemEvent e) {
+        Omniscience.logDebug("Reached inventory move item event. Item: " + e.getItem());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onInventoryInteract(InventoryInteractEvent e) {
+        Omniscience.logDebug("Reached inventory interact event for " + e.getWhoClicked().getName());
     }
 
     private class ItemWrapper {
