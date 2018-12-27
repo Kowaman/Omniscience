@@ -17,7 +17,7 @@ public class MessageParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w,:-]+");
 
     public MessageParameter() {
-        super(ImmutableList.of("msg", "m", "text", "t", "message"));
+        super(ImmutableList.of("msg", "m", "text", "message"));
     }
 
     @Override

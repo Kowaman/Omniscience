@@ -92,6 +92,14 @@ public final class DataHelper {
         }
     }
 
+    public static Optional<String[]> getSignTextFromWrapper(DataWrapper wrapper) {
+        if (!wrapper.get(SIGN_TEXT).isPresent()) {
+            return Optional.empty();
+        }
+        Optional<String> oString = wrapper.getString(SIGN_TEXT);
+        return oString.map(SerializeHelper::deserializeStringArray);
+    }
+
     public static String convertConfigurationSerializable(ConfigurationSerializable configurationSerializable) {
         YamlConfiguration configuration = new YamlConfiguration();
         configuration.set("configdata", configurationSerializable);

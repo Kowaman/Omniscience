@@ -1,10 +1,11 @@
 package net.lordofthecraft.omniscience.api.entry;
 
 import net.lordofthecraft.omniscience.OmniEventRegistrar;
-import net.lordofthecraft.omniscience.api.data.BlockTransaction;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
+import net.lordofthecraft.omniscience.api.data.LocationTransaction;
 import net.lordofthecraft.omniscience.util.DataHelper;
+import net.lordofthecraft.omniscience.util.SerializeHelper;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -105,14 +106,14 @@ public final class OEntry {
             return eventName;
         }
 
-        public OEntry brokeBlock(BlockTransaction blockTransaction) {
+        public OEntry brokeBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "break";
-            blockTransaction.getBefore().ifPresent(block -> {
+            blockTransaction.getOriginalState().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(ORIGINAL_BLOCK, block);
             });
-            blockTransaction.getAfter().ifPresent(block -> {
+            blockTransaction.getFinalState().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(NEW_BLOCK, block);
             });
@@ -120,13 +121,13 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry placedBlock(BlockTransaction blockTransaction) {
+        public OEntry placedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "place";
-            blockTransaction.getBefore().ifPresent(block -> {
+            blockTransaction.getOriginalState().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(ORIGINAL_BLOCK, block);
             });
-            blockTransaction.getAfter().ifPresent(block -> {
+            blockTransaction.getFinalState().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(NEW_BLOCK, block);
@@ -135,14 +136,14 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry decayedBlock(BlockTransaction blockTransaction) {
+        public OEntry decayedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "decay";
-            blockTransaction.getBefore().ifPresent(block -> {
+            blockTransaction.getOriginalState().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(ORIGINAL_BLOCK, block);
             });
-            blockTransaction.getAfter().ifPresent(block -> {
+            blockTransaction.getFinalState().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(NEW_BLOCK, block);
             });
@@ -150,13 +151,13 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry formedBlock(BlockTransaction blockTransaction) {
+        public OEntry formedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "form";
-            blockTransaction.getBefore().ifPresent(block -> {
+            blockTransaction.getOriginalState().ifPresent(block -> {
                 wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(ORIGINAL_BLOCK, block);
             });
-            blockTransaction.getAfter().ifPresent(block -> {
+            blockTransaction.getFinalState().ifPresent(block -> {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(NEW_BLOCK, block);
@@ -307,6 +308,22 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
+        public OEntry named(Entity entity, String originalName, String newName) {
+            this.eventName = "named";
+            wrapper.set(TARGET, (originalName == null
+                    ? entity.getType().name()
+                    : originalName + " (" + entity.getType().name() + ")") + " to " + (newName == null ? "" : newName));
+            wrapper.set(ENTITY_TYPE, entity.getType().name());
+            wrapper.set(ENTITY_ID, entity.getUniqueId());
+            writeLocationData(entity.getLocation());
+
+            if (originalName != null) wrapper.set(NAME.then(BEFORE), originalName);
+            wrapper.set(NAME.then(AFTER), newName == null ? "" : newName);
+
+            return new OEntry(sourceBuilder, this);
+        }
+
+
         public OEntry custom(String eventName, DataWrapper wrapperData) {
             this.eventName = eventName;
             wrapperData.getKeys(false).forEach(key -> {
@@ -326,7 +343,7 @@ public final class OEntry {
 
         protected void writeExtraStateData(DataKey keyToWrite, BlockState state) {
             if (state instanceof Sign) {
-                wrapper.set(keyToWrite.then(SIGN_TEXT), ((Sign) state).getLines());
+                wrapper.set(keyToWrite.then(SIGN_TEXT), SerializeHelper.serializeStringArray(((Sign) state).getLines()));
             } else if (state instanceof Container) {
                 wrapper.set(keyToWrite.then(INVENTORY), DataHelper.convertItemList(((Container) state).getInventory().getContents())); //TODO let's implement this inventory saving
             } else if (state instanceof Banner) {
@@ -357,6 +374,10 @@ public final class OEntry {
             if (source instanceof Projectile) {
                 Projectile projectile = (Projectile) source;
                 return new EventBuilder(new SourceBuilder(projectile.getShooter()));
+            }
+
+            if (source instanceof Entity) {
+                return new EventBuilder(new SourceBuilder(source));
             }
 
             if (source instanceof JavaPlugin) {
@@ -401,7 +422,7 @@ public final class OEntry {
             this.eventName = "useSign";
             wrapper.set(TARGET, sign.getType().name());
             wrapper.set(ORIGINAL_BLOCK, sign.getBlockData().getAsString());
-            wrapper.set(SIGN_TEXT, sign.getLines());
+            wrapper.set(SIGN_TEXT, SerializeHelper.serializeStringArray(sign.getLines()));
             writeLocationData(location);
             return new OEntry(sourceBuilder, this);
         }
