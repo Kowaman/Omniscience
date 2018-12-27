@@ -100,33 +100,6 @@ public final class DataHelper {
         return oString.map(SerializeHelper::deserializeStringArray);
     }
 
-    public static <T extends ConfigurationSerializable> T unwrapConfigSerializable(DataWrapper wrapper) {
-        Optional<String> oClassName = wrapper.getString(CONFIG_CLASS);
-        if (!oClassName.isPresent()) {
-            return null;
-        }
-        String fullClassName = oClassName.get();
-        try {
-            Class clazz = Class.forName(fullClassName);
-            DataWrapper localWrapper = wrapper.copy().remove(CONFIG_CLASS);
-            Map<String, Object> configMap = Maps.newHashMap();
-            localWrapper.getKeys(false)
-                    .forEach(key -> localWrapper.get(key)
-                            .ifPresent(val -> {
-                                if (val instanceof DataWrapper) {
-                                    configMap.put(key.toString(), unwrapConfigSerializable((DataWrapper) val));
-                                } else {
-                                    configMap.put(key.toString(), val);
-                                }
-                            }));
-            ConfigurationSerializable config = ConfigurationSerialization.deserializeObject(configMap, clazz);
-            return (T) config;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     public static String convertConfigurationSerializable(ConfigurationSerializable configurationSerializable) {
         YamlConfiguration configuration = new YamlConfiguration();
         configuration.set("configdata", configurationSerializable);
