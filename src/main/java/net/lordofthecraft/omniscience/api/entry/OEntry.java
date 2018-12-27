@@ -4,6 +4,7 @@ import net.lordofthecraft.omniscience.OmniEventRegistrar;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.data.LocationTransaction;
+import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.util.DataHelper;
 import net.lordofthecraft.omniscience.util.SerializeHelper;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
@@ -280,23 +281,33 @@ public final class OEntry {
         }
 
         //TODO we should really say /what/ they put the item into.
-        public OEntry deposited(Container container, ItemStack itemStack, int itemSlot) {
+        public OEntry deposited(Container container, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
             this.eventName = "deposit";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(ITEM_SLOT, itemSlot);
+            //Set the itemstack with the quantity that was actually deposited into the container
             wrapper.set(ITEMSTACK, itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
+            //Store the itemstack that was in this slot before the item was deposited, if any
+            transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
+            //Store the itemstack that is now in this slot after items were deposited
+            transaction.getFinalState().ifPresent(is -> wrapper.set(AFTER.then(ITEMSTACK), is));
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         //TODO we should really say /what/ they took the item from
-        public OEntry withdrew(Container container, ItemStack itemStack, int itemSlot) {
+        public OEntry withdrew(Container container, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
             this.eventName = "withdraw";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(ITEM_SLOT, itemSlot);
+            //Set the itemstack with the quantity that was actually withdrawn from the container
             wrapper.set(ITEMSTACK, itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
+            //Store the itemstack that was in this slot before the items were withdrawn
+            transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
+            //Store the itemstack that is now in this slot after the withdraw, if any
+            transaction.getFinalState().ifPresent(is -> wrapper.set(AFTER.then(ITEMSTACK), is));
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
         }
