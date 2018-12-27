@@ -65,6 +65,33 @@ public final class DataHelper {
         return Optional.empty();
     }
 
+    public static <T extends ConfigurationSerializable> T unwrapConfigSerializable(DataWrapper wrapper) {
+        Optional<String> oClassName = wrapper.getString(CONFIG_CLASS);
+        if (!oClassName.isPresent()) {
+            return null;
+        }
+        String fullClassName = oClassName.get();
+        try {
+            Class clazz = Class.forName(fullClassName);
+            DataWrapper localWrapper = wrapper.copy().remove(CONFIG_CLASS);
+            Map<String, Object> configMap = Maps.newHashMap();
+            localWrapper.getKeys(false)
+                    .forEach(key -> localWrapper.get(key)
+                            .ifPresent(val -> {
+                                if (val instanceof DataWrapper) {
+                                    configMap.put(key.toString(), unwrapConfigSerializable((DataWrapper) val));
+                                } else {
+                                    configMap.put(key.toString(), val);
+                                }
+                            }));
+            ConfigurationSerializable config = ConfigurationSerialization.deserializeObject(configMap, clazz);
+            return (T) config;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static Optional<String[]> getSignTextFromWrapper(DataWrapper wrapper) {
         if (!wrapper.get(SIGN_TEXT).isPresent()) {
             return Optional.empty();
