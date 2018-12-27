@@ -109,8 +109,8 @@ final class OmniCore implements IOmniscience {
         registerEvent("grow", BlockEntry.class);
         registerEvent("form", BlockEntry.class);
         registerEvent("death", EntityEntry.class);
-        registerEvent("withdraw", ItemWithdrawEntry.class);
-        registerEvent("deposit", ItemDepositEntry.class);
+        registerEvent("withdraw", ContainerEntry.class);
+        registerEvent("deposit", ContainerEntry.class);
     }
 
     private void registerEventHandlers(Omniscience plugin) {
