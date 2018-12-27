@@ -148,4 +148,8 @@ public final class DataHelper {
         }
         return builder.append(")").color(ChatColor.GRAY).create();
     }
+
+    public static String writeLocationToString(Location location) {
+        return "(X: " + location.getBlockX() + ", Y: " + location.getBlockY() + ", Z: " + location.getBlockZ() + ")";
+    }
 }

@@ -58,6 +58,14 @@ public abstract class DataEntry {
                 return "quit from";
             case "join":
                 return "joined from";
+            case "withdraw":
+                return "withdrew";
+            case "deposit":
+                return "deposited";
+            case "open":
+                return "opened";
+            case "close":
+                return "closed";
             default:
                 return word;
         }
