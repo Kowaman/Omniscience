@@ -280,14 +280,14 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        //TODO we should really say /what/ they put the item into.
         public OEntry deposited(Container container, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
             this.eventName = "deposit";
-            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(TARGET, itemStack.getType().name() + " into " + container.getBlock().getType().name());
             wrapper.set(ITEM_SLOT, itemSlot);
             //Set the itemstack with the quantity that was actually deposited into the container
             wrapper.set(ITEMSTACK, itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
+            wrapper.set(QUANTITY, itemStack.getAmount());
             //Store the itemstack that was in this slot before the item was deposited, if any
             transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
             //Store the itemstack that is now in this slot after items were deposited
@@ -296,14 +296,14 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        //TODO we should really say /what/ they took the item from
         public OEntry withdrew(Container container, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
             this.eventName = "withdraw";
-            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(TARGET, itemStack.getType().name() + " from " + container.getBlock().getType().name());
             wrapper.set(ITEM_SLOT, itemSlot);
             //Set the itemstack with the quantity that was actually withdrawn from the container
             wrapper.set(ITEMSTACK, itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
+            wrapper.set(QUANTITY, itemStack.getAmount());
             //Store the itemstack that was in this slot before the items were withdrawn
             transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
             //Store the itemstack that is now in this slot after the withdraw, if any

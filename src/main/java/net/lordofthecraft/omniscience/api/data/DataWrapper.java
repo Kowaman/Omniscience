@@ -68,23 +68,21 @@ public final class DataWrapper {
         return wrapper;
     }
 
-    private DataWrapper ofConfig(ConfigurationSerializable configurationSerializable) {
-        DataWrapper wrapper = new DataWrapper();
-        Map<String, Object> data = configurationSerializable.serialize();
-        wrapper.set(CONFIG_CLASS, ConfigurationSerialization.getAlias(configurationSerializable.getClass()));
-        data.forEach((key, value) -> {
-            DataKey dataKey = DataKey.of(key);
-            if (value instanceof ConfigurationSerializable) {
-                wrapper.set(dataKey, ofConfig((ConfigurationSerializable) value));
-            } else if (value instanceof Collection) {
-                wrapper.set(dataKey, ensureSerialization((Collection) value));
-            } else if (value instanceof Map) {
-                wrapper.set(dataKey, ensureSerialization((Map<?, ?>) value));
-            } else {
-                wrapper.set(dataKey, value);
-            }
-        });
-        return wrapper;
+    private static Optional<Byte> asByte(Object obj) {
+        if (obj == null) {
+            // fail fast
+            return Optional.empty();
+        }
+        if (obj instanceof Number) {
+            return Optional.of(((Number) obj).byteValue());
+        }
+
+        try {
+            return Optional.ofNullable(Byte.parseByte(sanitiseNumber(obj)));
+        } catch (NumberFormatException | NullPointerException e) {
+            // do nothing
+        }
+        return Optional.empty();
     }
 
     public DataKey getKey() {
@@ -125,23 +123,6 @@ public final class DataWrapper {
         return subWrapper.get(key.popFirst());
     }
 
-    private static Optional<Byte> asByte(Object obj) {
-        if (obj == null) {
-            // fail fast
-            return Optional.empty();
-        }
-        if (obj instanceof Number) {
-            return Optional.of(((Number) obj).byteValue());
-        }
-
-        try {
-            return Optional.ofNullable(Byte.parseByte(sanitiseNumber(obj)));
-        } catch (NumberFormatException | NullPointerException e) {
-            // do nothing
-        }
-        return Optional.empty();
-    }
-
     private static Optional<String> asString(Object obj) {
         if (obj instanceof String) {
             return Optional.of((String) obj);
@@ -161,6 +142,25 @@ public final class DataWrapper {
             return Optional.empty();
         }
         return Optional.of(clazz.cast(config));
+    }
+
+    private DataWrapper ofConfig(ConfigurationSerializable configurationSerializable) {
+        DataWrapper wrapper = new DataWrapper();
+        Map<String, Object> data = configurationSerializable.serialize();
+        wrapper.set(CONFIG_CLASS, ConfigurationSerialization.getAlias(configurationSerializable.getClass()));
+        data.forEach((key, value) -> {
+            DataKey dataKey = DataKey.of(key);
+            if (value instanceof ConfigurationSerializable) {
+                wrapper.set(dataKey, ofConfig((ConfigurationSerializable) value));
+            } else if (value instanceof Collection) {
+                wrapper.set(dataKey, ensureSerialization((Collection) value));
+            } else if (value instanceof Map) {
+                wrapper.set(dataKey, ensureSerialization((Map<?, ?>) value));
+            } else {
+                wrapper.set(dataKey, value);
+            }
+        });
+        return wrapper;
     }
 
     private void setMap(String key, Map<?, ?> value) {
