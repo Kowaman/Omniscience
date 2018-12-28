@@ -37,7 +37,6 @@ public class EventInventoryListener extends OmniListener {
      */
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent e) {
-        debugEvent(e);
         if (isEnabled("clone") && e.getAction() == InventoryAction.CLONE_STACK) {
             ItemStack cloned = e.getCurrentItem();
             OEntry.create().player(e.getWhoClicked()).cloned(cloned).save();
@@ -46,7 +45,6 @@ public class EventInventoryListener extends OmniListener {
         if (e.getInventory().getHolder() instanceof Container && (w() || d())) {
             Container container = (Container) e.getInventory().getHolder();
             boolean inInventory = e.getRawSlot() < e.getInventory().getSize();
-            Omniscience.logDebug("inInventory? " + inInventory);
             switch (e.getAction()) {
                 case NOTHING:
                     return;
@@ -384,8 +382,8 @@ public class EventInventoryListener extends OmniListener {
     }
 
     private class ItemWrapper {
-        private final boolean top;
         private final int slot;
+        private final boolean top;
 
         ItemWrapper(boolean top, int slot) {
             this.top = top;
@@ -401,17 +399,17 @@ public class EventInventoryListener extends OmniListener {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(top, slot);
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             ItemWrapper that = (ItemWrapper) o;
             return top == that.top &&
                     slot == that.slot;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(top, slot);
         }
 
         @Override

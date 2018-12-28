@@ -39,7 +39,11 @@ public class EventPlaceListener extends OmniListener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onSignChange(SignChangeEvent event) {
-        OEntry.create().source(event.getPlayer()).placedBlock(new LocationTransaction<>(event.getBlock().getLocation(), null, event.getBlock().getState())).save();
+        Sign sign = (Sign) event.getBlock().getState();
+        for (int i = 0; i <= 3; i++) {
+            sign.setLine(i, event.getLine(i));
+        }
+        OEntry.create().source(event.getPlayer()).placedBlock(new LocationTransaction<>(event.getBlock().getLocation(), null, sign)).save();
     }
 
     private boolean blockLocationsAreEqual(Location locA, Location locB) {

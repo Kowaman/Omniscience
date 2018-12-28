@@ -1,6 +1,9 @@
 package net.lordofthecraft.omniscience.util;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -10,13 +13,10 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.entity.Entity;
-import org.bukkit.inventory.ItemStack;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,7 +72,7 @@ public final class DataHelper {
         }
         String fullClassName = oClassName.get();
         try {
-            Class clazz = Class.forName(fullClassName);
+            Class clazz = ConfigurationSerialization.getClassByAlias(fullClassName);
             DataWrapper localWrapper = wrapper.copy().remove(CONFIG_CLASS);
             Map<String, Object> configMap = Maps.newHashMap();
             localWrapper.getKeys(false)
@@ -80,6 +80,10 @@ public final class DataHelper {
                             .ifPresent(val -> {
                                 if (val instanceof DataWrapper) {
                                     configMap.put(key.toString(), unwrapConfigSerializable((DataWrapper) val));
+                                } else if (val instanceof Collection) {
+                                    configMap.put(key.toString(), unwrapAsNeeded((Collection) val));
+                                } else if (val instanceof Map) {
+                                    configMap.put(key.toString(), unwrapAsNeeded((Map<?, ?>) val));
                                 } else {
                                     configMap.put(key.toString(), val);
                                 }
@@ -92,51 +96,61 @@ public final class DataHelper {
         }
     }
 
-    public static Optional<String[]> getSignTextFromWrapper(DataWrapper wrapper) {
-        if (!wrapper.get(SIGN_TEXT).isPresent()) {
-            return Optional.empty();
+    private static Collection<?> unwrapAsNeeded(Collection<?> collection) {
+        ImmutableList.Builder<Object> listBuilder = ImmutableList.builder();
+
+        for (Object value : collection) {
+            if (value instanceof DataWrapper) {
+                ConfigurationSerializable config = unwrapConfigSerializable((DataWrapper) value);
+                if (config != null) {
+                    listBuilder.add(config);
+                } else {
+                    Omniscience.getPluginInstance().getLogger().warning("Failed to deserialize the object: " + value);
+                }
+            } else if (value instanceof Collection) {
+                listBuilder.add(unwrapAsNeeded((Collection) value));
+            } else if (value instanceof Map) {
+                listBuilder.add(unwrapAsNeeded((Map<?, ?>) value));
+            } else {
+                listBuilder.add(value);
+            }
         }
-        Optional<String> oString = wrapper.getString(SIGN_TEXT);
-        return oString.map(SerializeHelper::deserializeStringArray);
+
+        return listBuilder.build();
     }
 
-    public static String convertConfigurationSerializable(ConfigurationSerializable configurationSerializable) {
-        YamlConfiguration configuration = new YamlConfiguration();
-        configuration.set("configdata", configurationSerializable);
-        return configuration.saveToString();
+    private static Map<?, ?> unwrapAsNeeded(Map<?, ?> map) {
+        ImmutableMap.Builder<Object, Object> mapBuilder = ImmutableMap.builder();
+
+        map.forEach((key, value) -> {
+            if (value instanceof Map) {
+                mapBuilder.put(key, unwrapAsNeeded((Map) value));
+            } else if (value instanceof DataWrapper) {
+                ConfigurationSerializable config = unwrapConfigSerializable((DataWrapper) value);
+                if (config != null) {
+                    mapBuilder.put(key, config);
+                } else {
+                    Omniscience.getPluginInstance().getLogger().warning("Failed to deserialize the object: " + value);
+                }
+            } else if (value instanceof Collection) {
+                mapBuilder.put(key, unwrapAsNeeded((Collection) value));
+            } else {
+                mapBuilder.put(key, value);
+            }
+        });
+
+        return mapBuilder.build();
     }
 
-    public static String convertItemList(ItemStack[] items) {
-        YamlConfiguration configuration = new YamlConfiguration();
-        configuration.set("configdata", items);
-        return configuration.saveToString();
-    }
-
-    public static Optional<ItemStack[]> convertConfigItems(String config) {
-        YamlConfiguration configuration = new YamlConfiguration();
-        try {
-            configuration.loadFromString(config);
-            return Optional.ofNullable((ItemStack[]) configuration.get("configdata"));
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
+    public static Map<Integer, ConfigurationSerializable> convertArrayToMap(ConfigurationSerializable[] configurationSerializables) {
+        Map<Integer, ConfigurationSerializable> configurationSerializableMap = Maps.newHashMap();
+        for (int i = 0; i < configurationSerializables.length; i++) {
+            ConfigurationSerializable item = configurationSerializables[i];
+            if (item != null) {
+                configurationSerializableMap.put(i, item);
+            }
         }
-        return Optional.empty();
-    }
-
-    public static Optional<ItemStack> loadFromString(String config) {
-        YamlConfiguration configuration = new YamlConfiguration();
-        try {
-            configuration.loadFromString(config);
-            return Optional.of(configuration.getSerializable("configdata", ItemStack.class));
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
-        return Optional.empty();
-    }
-
-    public static Optional<Entity> getEntityFromWrapper(DataWrapper wrapper) throws IllegalAccessException {
-        //TODO there's no way this can return a raw entity. Likely will need to do something special for this method.
-        throw new IllegalAccessException("this method is not yet implemented");
+        return configurationSerializableMap;
     }
 
     public static BaseComponent[] buildLocation(Location location, boolean clickable) {

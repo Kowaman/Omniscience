@@ -1,6 +1,8 @@
 package net.lordofthecraft.omniscience.api.data;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import net.lordofthecraft.omniscience.util.DataHelper;
@@ -66,7 +68,7 @@ public final class DataWrapper {
         return wrapper;
     }
 
-    public static DataWrapper ofConfig(ConfigurationSerializable configurationSerializable) {
+    private DataWrapper ofConfig(ConfigurationSerializable configurationSerializable) {
         DataWrapper wrapper = new DataWrapper();
         Map<String, Object> data = configurationSerializable.serialize();
         wrapper.set(CONFIG_CLASS, ConfigurationSerialization.getAlias(configurationSerializable.getClass()));
@@ -74,6 +76,10 @@ public final class DataWrapper {
             DataKey dataKey = DataKey.of(key);
             if (value instanceof ConfigurationSerializable) {
                 wrapper.set(dataKey, ofConfig((ConfigurationSerializable) value));
+            } else if (value instanceof Collection) {
+                wrapper.set(dataKey, ensureSerialization((Collection) value));
+            } else if (value instanceof Map) {
+                wrapper.set(dataKey, ensureSerialization((Map<?, ?>) value));
             } else {
                 wrapper.set(dataKey, value);
             }
@@ -119,7 +125,7 @@ public final class DataWrapper {
         return subWrapper.get(key.popFirst());
     }
 
-    public static Optional<Byte> asByte(Object obj) {
+    private static Optional<Byte> asByte(Object obj) {
         if (obj == null) {
             // fail fast
             return Optional.empty();
@@ -134,6 +140,27 @@ public final class DataWrapper {
             // do nothing
         }
         return Optional.empty();
+    }
+
+    private static Optional<String> asString(Object obj) {
+        if (obj instanceof String) {
+            return Optional.of((String) obj);
+        } else if (obj == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(obj.toString());
+        }
+    }
+
+    private static <T extends ConfigurationSerializable> Optional<T> asSerializable(Object obj, Class<T> clazz) {
+        if (!(obj instanceof DataWrapper)) {
+            return Optional.empty();
+        }
+        ConfigurationSerializable config = DataHelper.unwrapConfigSerializable((DataWrapper) obj);
+        if (!clazz.isInstance(config)) {
+            return Optional.empty();
+        }
+        return Optional.of(clazz.cast(config));
     }
 
     private void setMap(String key, Map<?, ?> value) {
@@ -207,6 +234,46 @@ public final class DataWrapper {
         return get(key).filter(obj -> obj instanceof DataWrapper).map(obj -> (DataWrapper) obj);
     }
 
+    public Optional<? extends Map<?, ?>> getMap(DataKey key) {
+        Optional<Object> val = get(key);
+        if (val.isPresent()) {
+            if (val.get() instanceof DataWrapper) {
+                ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+                ((DataWrapper) val.get()).getValues(false).forEach(
+                        (iKey, value) -> builder.put(iKey.asString('.'), ensureMappingOf(value))
+                );
+                return Optional.of(builder.build());
+            } else if (val.get() instanceof Map) {
+                return Optional.of((Map<?, ?>) ensureMappingOf(val.get()));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Object ensureMappingOf(Object object) {
+        if (object instanceof DataWrapper) {
+            final ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+            ((DataWrapper) object).getValues(false).forEach((key, value) -> {
+                builder.put(key.asString('.'), ensureMappingOf(value));
+            });
+            return builder.build();
+        } else if (object instanceof Map) {
+            final ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
+            ((Map<?, ?>) object).forEach((key, value) -> {
+                builder.put(key.toString(), ensureMappingOf(value));
+            });
+            return builder.build();
+        } else if (object instanceof Collection) {
+            final ImmutableList.Builder<Object> builder = ImmutableList.builder();
+            for (Object entry : (Collection) object) {
+                builder.add(ensureMappingOf(entry));
+            }
+            return builder.build();
+        } else {
+            return object;
+        }
+    }
+
     private Optional<DataWrapper> getUnsafeWrapper(DataKey key) {
         return get(key).filter(obj -> obj instanceof DataWrapper).map(obj -> (DataWrapper) obj);
     }
@@ -232,6 +299,19 @@ public final class DataWrapper {
                         builder.add(of(entry.getKey()).then(key));
                     }
                 }
+            }
+        }
+        return builder.build();
+    }
+
+    public Map<DataKey, Object> getValues(boolean deep) {
+        ImmutableMap.Builder<DataKey, Object> builder = ImmutableMap.builder();
+        for (DataKey key : getKeys(deep)) {
+            Object value = get(key).get();
+            if (value instanceof DataWrapper) {
+                builder.put(key, ((DataWrapper) value).getValues(deep));
+            } else {
+                builder.put(key, get(key).get());
             }
         }
         return builder.build();
@@ -331,14 +411,78 @@ public final class DataWrapper {
             copyDataWrapper(path, ofConfig((ConfigurationSerializable) value));
         } else if (value instanceof Map) {
             setMap(key, (Map) value);
+        } else if (value instanceof Collection) {
+            setCollection(key, (Collection) value);
         } else if (value.getClass().isArray()) {
             if (value instanceof byte[]) {
                 this.data.put(key, ArrayUtils.clone((byte[]) value));
+            } else if (value instanceof short[]) {
+                this.data.put(key, ArrayUtils.clone((short[]) value));
+            } else if (value instanceof int[]) {
+                this.data.put(key, ArrayUtils.clone((int[]) value));
+            } else if (value instanceof long[]) {
+                this.data.put(key, ArrayUtils.clone((long[]) value));
+            } else if (value instanceof float[]) {
+                this.data.put(key, ArrayUtils.clone((float[]) value));
+            } else if (value instanceof double[]) {
+                this.data.put(key, ArrayUtils.clone((double[]) value));
+            } else if (value instanceof boolean[]) {
+                this.data.put(key, ArrayUtils.clone((boolean[]) value));
+            } else {
+                this.data.put(key, ArrayUtils.clone((Object[]) value));
             }
         } else {
             this.data.put(key, value);
         }
         return this;
+    }
+
+    private void setCollection(String key, Collection<?> value) {
+        ImmutableList.Builder<Object> builder = ImmutableList.builder();
+
+        for (Object object : value) {
+            if (object instanceof ConfigurationSerializable) {
+                builder.add(ofConfig((ConfigurationSerializable) object));
+            } else if (object instanceof Map) {
+                builder.add(ensureSerialization((Map) object));
+            } else if (object instanceof Collection) {
+                builder.add(ensureSerialization((Collection) object));
+            } else {
+                builder.add(object);
+            }
+        }
+
+        this.data.put(key, builder.build());
+    }
+
+    private ImmutableList<Object> ensureSerialization(Collection<?> collection) {
+        ImmutableList.Builder<Object> objectBuilder = ImmutableList.builder();
+        collection.forEach(obj -> {
+            if (obj instanceof Collection) {
+                objectBuilder.add(ensureSerialization((Collection) obj));
+            } else if (obj instanceof ConfigurationSerializable) {
+                objectBuilder.add(ofConfig((ConfigurationSerializable) obj));
+            } else {
+                objectBuilder.add(obj);
+            }
+        });
+        return objectBuilder.build();
+    }
+
+    private ImmutableMap<?, ?> ensureSerialization(Map<?, ?> map) {
+        ImmutableMap.Builder<Object, Object> builder = ImmutableMap.builder();
+        map.forEach((key, value) -> {
+            if (value instanceof Map) {
+                builder.put(key, ensureSerialization((Map) value));
+            } else if (value instanceof ConfigurationSerializable) {
+                builder.put(key, ofConfig((ConfigurationSerializable) value));
+            } else if (value instanceof Collection) {
+                builder.put(key, ensureSerialization((Collection) value));
+            } else {
+                builder.put(key, value);
+            }
+        });
+        return builder.build();
     }
 
     private Optional<List<?>> getUnsafeList(DataKey key) {
@@ -361,5 +505,23 @@ public final class DataWrapper {
                         .map(Optional::get)
                         .collect(Collectors.toList())
         );
+    }
+
+    public Optional<List<String>> getStringList(DataKey key) {
+        return getUnsafeList(key).map(list ->
+                list.stream()
+                        .map(DataWrapper::asString)
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    public <T extends ConfigurationSerializable> Optional<List<T>> getSerializableList(DataKey key, Class<T> clazz) {
+        return getUnsafeList(key).map(list -> list.stream()
+                .map(obj -> asSerializable(obj, clazz))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList()));
     }
 }

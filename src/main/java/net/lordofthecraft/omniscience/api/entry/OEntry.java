@@ -1,12 +1,12 @@
 package net.lordofthecraft.omniscience.api.entry;
 
+import com.google.common.collect.Lists;
 import net.lordofthecraft.omniscience.OmniEventRegistrar;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.data.LocationTransaction;
 import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.util.DataHelper;
-import net.lordofthecraft.omniscience.util.SerializeHelper;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
@@ -354,11 +354,15 @@ public final class OEntry {
 
         protected void writeExtraStateData(DataKey keyToWrite, BlockState state) {
             if (state instanceof Sign) {
-                wrapper.set(keyToWrite.then(SIGN_TEXT), SerializeHelper.serializeStringArray(((Sign) state).getLines()));
+                wrapper.set(keyToWrite.then(SIGN_TEXT), Lists.newArrayList(((Sign) state).getLines()));
             } else if (state instanceof Container) {
-                wrapper.set(keyToWrite.then(INVENTORY), DataHelper.convertItemList(((Container) state).getInventory().getContents())); //TODO let's implement this inventory saving
+                wrapper.set(keyToWrite.then(INVENTORY), DataHelper.convertArrayToMap(((Container) state).getInventory().getContents()));
             } else if (state instanceof Banner) {
-                //TODO save banner data?
+                wrapper.set(keyToWrite.then(BANNER_PATTERNS), ((Banner) state).getPatterns());
+            } else if (state instanceof Jukebox) {
+                if (((Jukebox) state).getRecord() != null) {
+                    wrapper.set(keyToWrite.then(RECORD), ((Jukebox) state).getRecord());
+                }
             }
         }
 
@@ -433,7 +437,7 @@ public final class OEntry {
             this.eventName = "useSign";
             wrapper.set(TARGET, sign.getType().name());
             wrapper.set(ORIGINAL_BLOCK, sign.getBlockData().getAsString());
-            wrapper.set(SIGN_TEXT, SerializeHelper.serializeStringArray(sign.getLines()));
+            wrapper.set(SIGN_TEXT, Lists.newArrayList(sign.getLines()));
             writeLocationData(location);
             return new OEntry(sourceBuilder, this);
         }

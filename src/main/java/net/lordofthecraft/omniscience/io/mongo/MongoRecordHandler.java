@@ -1,5 +1,7 @@
 package net.lordofthecraft.omniscience.io.mongo;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.mongodb.client.AggregateIterable;
@@ -200,11 +202,51 @@ public class MongoRecordHandler implements RecordHandler {
 
             if (object instanceof Document) {
                 wrapper.set(dataKey, documentToDataWrapper((Document) object));
+            } else if (object instanceof Collection) {
+                wrapper.set(dataKey, ensureCorrectDataTypes((Collection) object));
+            } else if (object instanceof Map) {
+                wrapper.set(dataKey, ensureCorrectDataTypes((Map<?, ?>) object));
             } else {
                 wrapper.set(dataKey, object);
             }
         }
         return wrapper;
+    }
+
+    private Collection<?> ensureCorrectDataTypes(Collection<?> collection) {
+        ImmutableList.Builder<Object> listBuilder = ImmutableList.builder();
+
+        for (Object value : collection) {
+            if (value instanceof Document) {
+                listBuilder.add(documentToDataWrapper((Document) value));
+            } else if (value instanceof Collection) {
+                listBuilder.add(ensureCorrectDataTypes((Collection) value));
+            } else if (value instanceof Map) {
+                listBuilder.add(ensureCorrectDataTypes((Map<?, ?>) value));
+            } else {
+                listBuilder.add(value);
+            }
+        }
+
+        return listBuilder.build();
+    }
+
+    private Map<?, ?> ensureCorrectDataTypes(Map<?, ?> map) {
+        ImmutableMap.Builder<Object, Object> mapBuilder = ImmutableMap.builder();
+
+        map.forEach((key, value) -> {
+            if (value instanceof Map) {
+                mapBuilder.put(key, ensureCorrectDataTypes((Map) value));
+            } else if (value instanceof Document) {
+                mapBuilder.put(key, documentToDataWrapper((Document) value));
+            } else if (value instanceof Collection) {
+                mapBuilder.put(key, ensureCorrectDataTypes((Collection) value));
+            } else {
+                mapBuilder.put(key, value);
+            }
+        });
+
+        return mapBuilder.build();
     }
 
     private Document buildConditions(List<SearchCondition> conditions) {

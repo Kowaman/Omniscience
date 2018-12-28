@@ -1,18 +1,22 @@
 package net.lordofthecraft.omniscience.api.entry;
 
+import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.util.DataHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Banner;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
+import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Optional;
 
-import static net.lordofthecraft.omniscience.api.data.DataKeys.NEW_BLOCK;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.ORIGINAL_BLOCK;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
 public class BlockEntry extends DataEntryComplete implements Actionable {
 
@@ -33,17 +37,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
 
         location.getBlock().setBlockData(originalData);
 
-        //TODO if there is additional stored state data we need to pull that down and apply it
-
-        if (location.getBlock().getState() instanceof Sign) {
-            String[] signText = DataHelper.getSignTextFromWrapper(original)
-                    .orElseThrow(() -> skipped(SkipReason.INVALID));
-            Sign sign = (Sign) location.getBlock().getState();
-            for (int i = 0; i < 4; i++) {
-                sign.setLine(i, signText[i]);
-            }
-            sign.update(true);
-        }
+        handleTileEntity(location.getBlock().getState(), ORIGINAL_BLOCK);
 
         return ActionResult.success(new Transaction<>(beforeState, location.getBlock().getState()));
     }
@@ -65,18 +59,36 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
 
         location.getBlock().setBlockData(finalData);
 
-        //TODO if there is additional stored state data we need to pull that down and apply it
-
-        if (location.getBlock().getState() instanceof Sign) {
-            String[] signText = DataHelper.getSignTextFromWrapper(finalState)
-                    .orElseThrow(() -> skipped(SkipReason.INVALID));
-            Sign sign = (Sign) location.getBlock().getState();
-            for (int i = 0; i < 4; i++) {
-                sign.setLine(i, signText[i]);
-            }
-            sign.update(true);
-        }
+        handleTileEntity(location.getBlock().getState(), NEW_BLOCK);
 
         return ActionResult.success(new Transaction<>(beforeState, location.getBlock().getState()));
+    }
+
+    private void handleTileEntity(BlockState state, DataKey parent) {
+        if (state instanceof Container) {
+            Container container = (Container) state;
+
+            data.getWrapper(parent.then(INVENTORY)).ifPresent(wrapper -> wrapper.getKeys(false)
+                    .forEach(key -> wrapper.getConfigSerializable(key)
+                            .ifPresent(config -> {
+                                if (config instanceof ItemStack) {
+                                    container.getInventory().setItem(Integer.valueOf(key.toString()), (ItemStack) config);
+                                }
+                            })));
+        } else if (state instanceof Sign) {
+            Sign sign = (Sign) state;
+            data.getStringList(parent.then(SIGN_TEXT)).ifPresent(signText -> {
+                for (int i = 0; i < 4; i++) {
+                    if (signText.size() >= i + 1) {
+                        sign.setLine(i, signText.get(i));
+                    }
+                }
+                sign.update();
+            });
+        } else if (state instanceof Banner) {
+            Banner banner = (Banner) state;
+            data.getSerializableList(parent.then(BANNER_PATTERNS), Pattern.class).ifPresent(banner::setPatterns);
+            banner.update();
+        }
     }
 }
