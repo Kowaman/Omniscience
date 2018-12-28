@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.*;
 import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.*;
@@ -397,6 +398,10 @@ public final class OEntry {
 
             if (source instanceof JavaPlugin) {
                 return new EventBuilder(new SourceBuilder(source));
+            }
+
+            if (source instanceof CommandSender) {
+                return new EventBuilder(new SourceBuilder(((CommandSender) source).getName()));
             }
 
             return new EventBuilder(new SourceBuilder("Environment"));
