@@ -1,5 +1,6 @@
 package net.lordofthecraft.omniscience.api.query;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mongodb.lang.Nullable;
@@ -52,7 +53,7 @@ public class QueryBuilder {
                 } else {
                     Pair<String, String> pair = getParameterKeyValue(arg);
 
-                    listenable = parseParameterFromArgument(session, query, pair);
+                    listenable = parseParameterFromArgument(session, query, pair, ImmutableMap.copyOf(definedParameters));
 
                     definedParameters.put(pair.getKey(), pair.getValue());
                 }
@@ -143,7 +144,10 @@ public class QueryBuilder {
         return Pair.of(alias, value);
     }
 
-    private static Optional<CompletableFuture<?>> parseParameterFromArgument(QuerySession session, Query query, Pair<String, String> parameter) throws ParameterException {
+    private static Optional<CompletableFuture<?>> parseParameterFromArgument(QuerySession session,
+                                                                             Query query,
+                                                                             Pair<String, String> parameter,
+                                                                             Map<String, String> definedParameters) throws ParameterException {
         if (parameter.getKey().length() <= 0 || parameter.getValue().length() <= 0) {
             throw new ParameterException(String.format("Invalid empty value for parameter '%s'", parameter.getKey()));
         }
@@ -157,6 +161,16 @@ public class QueryBuilder {
 
         if (!handler.acceptsValue(parameter.getValue())) {
             throw new ParameterException(String.format("Invalid value '%s' for parameter '%s'", parameter.getKey(), parameter.getValue()));
+        }
+
+        Optional<ParameterException> oThrow = definedParameters.entrySet().stream()
+                .map(ent -> Pair.of(ent.getKey(), ent.getValue()))
+                .filter(pair -> handler.doesConflict(parameter, pair))
+                .map(pair -> new ParameterException(String.format("Parameter '%s:%s' conflicts with other parameter: '%s:%s'", parameter.getKey(), parameter.getValue(), pair.getKey(), pair.getValue())))
+                .findFirst();
+
+        if (oThrow.isPresent()) {
+            throw oThrow.get();
         }
 
         return handler.buildForQuery(session, parameter.getKey(), parameter.getValue(), query);

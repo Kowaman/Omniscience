@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
@@ -161,6 +162,11 @@ public final class DataHelper {
             builder.event(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/omnitele " + location.getWorld().getUID().toString() + " " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ()));
         }
         return builder.append(")").color(ChatColor.GRAY).create();
+    }
+
+    public static Pattern compileUserInput(String userInput) {
+        String result = ("(" + (userInput.replaceAll("[-.\\+*?\\[^\\]$(){}=!<>|:\\\\]", "\\\\$0")) + ")").replaceAll("\\*", ".*");
+        return Pattern.compile(result);
     }
 
     public static String writeLocationToString(Location location) {

@@ -29,4 +29,8 @@ public interface ParameterHandler {
     default Optional<List<String>> suggestTabCompletion(String partial) {
         return Optional.empty();
     }
+
+    default boolean doesConflict(Pair<String, String> parameterValue, Pair<String, String> otherParameter) {
+        return canHandle(otherParameter.getKey());
+    }
 }

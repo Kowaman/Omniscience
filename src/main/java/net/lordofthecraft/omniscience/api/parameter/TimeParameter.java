@@ -71,4 +71,13 @@ public class TimeParameter extends BaseParameterHandler {
 
         return Optional.empty();
     }
+
+    @Override
+    public boolean doesConflict(Pair<String, String> parameterValue, Pair<String, String> otherParameter) {
+        if (parameterValue.getKey().equalsIgnoreCase("t") || parameterValue.getKey().equalsIgnoreCase("since")) {
+            return otherParameter.getKey().equalsIgnoreCase("t") || otherParameter.getKey().equalsIgnoreCase("since");
+        } else {
+            return otherParameter.getKey().equalsIgnoreCase("before");
+        }
+    }
 }
