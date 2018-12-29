@@ -14,13 +14,13 @@ public final class SearchParameterHelper {
         List<String> results = Lists.newArrayList();
         if (partial != null && !partial.isEmpty() && (partial.startsWith("-") || partial.contains(":"))) {
             if (partial.startsWith("-")) {
-                if (partial.contains(":")) { //They've completed a flag, and are looking for suggestions on how to finish it
-                    String[] flagSplit = partial.substring(1).split(":");
+                if (partial.contains("=")) { //They've completed a flag, and are looking for suggestions on how to finish it
+                    String[] flagSplit = partial.substring(1).split("=");
                     Omniscience.getFlagHandler(flagSplit[0])
                             .ifPresent(
                                     flagHandler -> flagHandler.suggestCompletionOptions(flagSplit.length > 1 ? flagSplit[1] : null)
                                             .ifPresent(
-                                                    completionResults -> completionResults.forEach(res -> results.add("-" + flagSplit[0] + ":" + res))
+                                                    completionResults -> completionResults.forEach(res -> results.add("-" + flagSplit[0] + "=" + res))
                                             )
                             );
                 } else { //They're typing out a flag and are looking for options that match so far
@@ -29,7 +29,7 @@ public final class SearchParameterHelper {
                             .flatMap(flagHandler -> {
                                 boolean requiresArguments = flagHandler.requiresArguments();
                                 return flagHandler.getAliases().stream()
-                                        .map(flag -> "-" + flag + (requiresArguments ? ":" : ""));
+                                        .map(flag -> "-" + flag + (requiresArguments ? "=" : ""));
                             })
                             .filter(flag -> flag.substring(1).startsWith(partial.substring(1).toLowerCase()))
                             .forEach(results::add);
@@ -51,7 +51,7 @@ public final class SearchParameterHelper {
                     .flatMap(flagHandler -> {
                         boolean requiresArguments = flagHandler.requiresArguments();
                         return flagHandler.getAliases().stream()
-                                .map(flag -> "-" + flag + (requiresArguments ? ":" : ""));
+                                .map(flag -> "-" + flag + (requiresArguments ? "=" : ""));
                     });
             Stream<String> params = Omniscience.getParameters()
                     .stream()
