@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class FlagIgnoreDefault extends BaseFlagHandler {
 
@@ -19,7 +20,7 @@ public class FlagIgnoreDefault extends BaseFlagHandler {
 
     @Override
     public boolean acceptsSource(CommandSender sender) {
-        return false;
+        return true;
     }
 
     @Override
@@ -28,7 +29,21 @@ public class FlagIgnoreDefault extends BaseFlagHandler {
     }
 
     @Override
+    public boolean acceptsValue(String value) {
+        String[] split = value.contains(",") ? value.split(",") : new String[]{value};
+        for (String param : split) {
+            if (!Omniscience.getParameterHandler(param).isPresent()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public Optional<List<String>> suggestCompletionOptions(String partial) {
+        if (partial == null || partial.isEmpty()) {
+            return Optional.of(Omniscience.getParameters().stream().flatMap(pm -> pm.getAliases().stream()).collect(Collectors.toList()));
+        }
         String[] split = partial.split(",");
         String target = split[split.length - 1];
         List<String> suggestions = Lists.newArrayList();
@@ -46,19 +61,8 @@ public class FlagIgnoreDefault extends BaseFlagHandler {
     }
 
     @Override
-    public boolean acceptsValue(String value) {
-        String[] split = value.split(",");
-        for (String param : split) {
-            if (!Omniscience.getParameterHandler(param).isPresent()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public Optional<CompletableFuture<?>> process(QuerySession session, String flag, String value, Query query) {
-        String[] split = value.split(",");
+        String[] split = value.contains(",") ? value.split(",") : new String[]{value};
         for (String param : split) {
             Omniscience.getParameterHandler(param)
                     .ifPresent(session::addIgnoredDefault);
