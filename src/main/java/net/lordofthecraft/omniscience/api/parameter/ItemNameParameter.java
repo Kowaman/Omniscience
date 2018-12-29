@@ -1,6 +1,7 @@
 package net.lordofthecraft.omniscience.api.parameter;
 
 import com.google.common.collect.ImmutableList;
+import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.query.FieldCondition;
 import net.lordofthecraft.omniscience.api.query.MatchRule;
@@ -13,11 +14,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
-public class MessageParameter extends BaseParameterHandler {
+public class ItemNameParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w!,:-\\\\*]+");
 
-    public MessageParameter() {
-        super(ImmutableList.of("msg", "m", "text", "message"));
+    public ItemNameParameter() {
+        super(ImmutableList.of("name", "n"));
     }
 
     @Override
@@ -32,10 +33,11 @@ public class MessageParameter extends BaseParameterHandler {
 
     @Override
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
+        DataKey name = DataKeys.ITEMSTACK.then(DataKey.of("meta")).then(DataKey.of("display-name"));
         if (value.contains(",")) {
-            query.addCondition(FieldCondition.of(DataKeys.MESSAGE, MatchRule.EQUALS, compileMessageSearch(value.split(","))));
+            query.addCondition(FieldCondition.of(name, MatchRule.EQUALS, compileMessageSearch(value.split(","))));
         } else {
-            query.addCondition(FieldCondition.of(DataKeys.MESSAGE, MatchRule.EQUALS, DataHelper.compileUserInput(value)));
+            query.addCondition(FieldCondition.of(name, MatchRule.EQUALS, DataHelper.compileUserInput(value)));
         }
 
         return Optional.empty();

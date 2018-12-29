@@ -133,6 +133,11 @@ final class OmniCore implements IOmniscience {
         registerParameterHandler(new CauseParameter());
         registerParameterHandler(new BlockParameter());
         registerParameterHandler(new IpParameter());
+        registerParameterHandler(new EntityParameter());
+        registerParameterHandler(new ItemNameParameter());
+        registerParameterHandler(new ItemParameter());
+        registerParameterHandler(new ItemDescParameter());
+        registerParameterHandler(new CustomItemParameter());
     }
 
     private void registerFlags() {
