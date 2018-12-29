@@ -275,6 +275,9 @@ public class MongoRecordHandler implements RecordHandler {
                 if (field.getValue() instanceof List) {
                     matcher.append(field.getRule().equals(MatchRule.INCLUDES) ? "$in" : "$nin", field.getValue());
                     filter.put(field.getField().toString(), matcher);
+                } else if (field.getRule().equals(MatchRule.EXISTS)) {
+                    matcher.append("$exists", field.getValue());
+                    filter.put(field.getField().toString(), matcher);
                 } else if (field.getRule().equals(MatchRule.EQUALS)) {
                     filter.put(field.getField().toString(), field.getValue());
                 } else if (field.getRule().equals(MatchRule.GREATER_THAN_EQUAL)) {
