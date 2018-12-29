@@ -34,10 +34,13 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
                 .orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
 
         BlockState beforeState = location.getBlock().getState();
+        BlockState editState = location.getBlock().getState();
 
-        location.getBlock().setBlockData(originalData);
+        editState.setBlockData(originalData);
 
-        handleTileEntity(location.getBlock().getState(), ORIGINAL_BLOCK);
+        handleTileEntity(editState, ORIGINAL_BLOCK);
+
+        editState.update(true, false);
 
         return ActionResult.success(new Transaction<>(beforeState, location.getBlock().getState()));
     }
@@ -48,6 +51,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
                 .orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
         Optional<DataWrapper> oFinalState = data.getWrapper(NEW_BLOCK);
         BlockState beforeState = location.getBlock().getState();
+        BlockState editState = location.getBlock().getState();
         if (!oFinalState.isPresent()) {
             location.getBlock().setBlockData(Material.AIR.createBlockData());
             return ActionResult.success(new Transaction<>(beforeState, location.getBlock().getState()));
@@ -57,9 +61,11 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
         BlockData finalData = DataHelper.getBlockDataFromWrapper(finalState)
                 .orElseThrow(() -> skipped(SkipReason.INVALID));
 
-        location.getBlock().setBlockData(finalData);
+        editState.setBlockData(finalData);
 
-        handleTileEntity(location.getBlock().getState(), NEW_BLOCK);
+        handleTileEntity(editState, NEW_BLOCK);
+
+        editState.update(true, false);
 
         return ActionResult.success(new Transaction<>(beforeState, location.getBlock().getState()));
     }
@@ -83,12 +89,10 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
                         sign.setLine(i, signText.get(i));
                     }
                 }
-                sign.update();
             });
         } else if (state instanceof Banner) {
             Banner banner = (Banner) state;
             data.getSerializableList(parent.then(BANNER_PATTERNS), Pattern.class).ifPresent(banner::setPatterns);
-            banner.update();
         }
     }
 }
