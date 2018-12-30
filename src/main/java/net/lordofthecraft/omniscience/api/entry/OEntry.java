@@ -2,10 +2,7 @@ package net.lordofthecraft.omniscience.api.entry;
 
 import com.google.common.collect.Lists;
 import net.lordofthecraft.omniscience.OmniEventRegistrar;
-import net.lordofthecraft.omniscience.api.data.DataKey;
-import net.lordofthecraft.omniscience.api.data.DataWrapper;
-import net.lordofthecraft.omniscience.api.data.LocationTransaction;
-import net.lordofthecraft.omniscience.api.data.Transaction;
+import net.lordofthecraft.omniscience.api.data.*;
 import net.lordofthecraft.omniscience.util.DataHelper;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.bukkit.Location;
@@ -119,7 +116,7 @@ public final class OEntry {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(NEW_BLOCK, block);
             });
-            writeLocationData(blockTransaction.getLocation());
+            writeLocationData(blockTransaction.getVector());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -134,7 +131,7 @@ public final class OEntry {
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(NEW_BLOCK, block);
             });
-            writeLocationData(blockTransaction.getLocation());
+            writeLocationData(blockTransaction.getVector());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -149,7 +146,7 @@ public final class OEntry {
                 wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
                 writeExtraStateData(NEW_BLOCK, block);
             });
-            writeLocationData(blockTransaction.getLocation());
+            writeLocationData(blockTransaction.getVector());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -164,7 +161,7 @@ public final class OEntry {
                 wrapper.set(TARGET, block.getType().name());
                 writeExtraStateData(NEW_BLOCK, block);
             });
-            writeLocationData(blockTransaction.getLocation());
+            writeLocationData(blockTransaction.getVector());
             return new OEntry(sourceBuilder, this);
         }
 
@@ -345,9 +342,13 @@ public final class OEntry {
         }
 
         public OEntry customWithLocation(String eventName, DataWrapper wrapperData, Location location) {
+            return customWithLocation(eventName, wrapperData, new WorldVector(location));
+        }
+
+        public OEntry customWithLocation(String eventName, DataWrapper wrapperData, WorldVector location) {
             this.eventName = eventName;
             wrapperData.getKeys(false).forEach(key -> {
-                wrapper.set(key, wrapperData.get(key));
+                wrapper.set(key, wrapperData.get(key).orElse(null));
             });
             writeLocationData(location);
             return new OEntry(sourceBuilder, this);
@@ -368,10 +369,14 @@ public final class OEntry {
         }
 
         protected void writeLocationData(Location location) {
-            wrapper.set(LOCATION.then(X), location.getBlockX());
-            wrapper.set(LOCATION.then(Y), location.getBlockY());
-            wrapper.set(LOCATION.then(Z), location.getBlockZ());
-            wrapper.set(LOCATION.then(WORLD), location.getWorld().getUID().toString());
+            writeLocationData(new WorldVector(location));
+        }
+
+        protected void writeLocationData(WorldVector location) {
+            wrapper.set(LOCATION.then(X), location.getX());
+            wrapper.set(LOCATION.then(Y), location.getY());
+            wrapper.set(LOCATION.then(Z), location.getZ());
+            wrapper.set(LOCATION.then(WORLD), location.getWorld().toString());
         }
     }
 

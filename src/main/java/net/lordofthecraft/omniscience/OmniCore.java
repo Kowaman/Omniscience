@@ -19,6 +19,8 @@ import net.lordofthecraft.omniscience.io.StorageHandler;
 import net.lordofthecraft.omniscience.listener.CraftBookSignListener;
 import net.lordofthecraft.omniscience.listener.PluginInteractionListener;
 import net.lordofthecraft.omniscience.listener.WandInteractListener;
+import net.lordofthecraft.omniscience.worldedit.WorldEditEventRegistrar;
+import net.lordofthecraft.omniscience.worldedit.WorldEditRunner;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -77,6 +79,13 @@ final class OmniCore implements IOmniscience {
 
         }
 
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("WorldEdit")) {
+            scheduler.runTaskTimerAsynchronously(omniscience,
+                    new WorldEditRunner(),
+                    20,
+                    20);
+        }
+
         omniscience.getLogger().log(Level.INFO, "Omniscience is Awake. None can escape.");
     }
 
@@ -118,10 +127,14 @@ final class OmniCore implements IOmniscience {
         pm.registerEvents(new WandInteractListener(), plugin);
         pm.registerEvents(new PluginInteractionListener(), plugin);
         if (OmniConfig.INSTANCE.doCraftBookInteraction()
-                && Bukkit.getServer().getPluginManager().isPluginEnabled("CraftBook")) {
+                && pm.isPluginEnabled("CraftBook")) {
             pm.registerEvents(new CraftBookSignListener(), plugin);
         }
         OmniEventRegistrar.INSTANCE.enableEvents(pm, plugin);
+        if (OmniConfig.INSTANCE.doWorldEditInteraction()
+                && pm.isPluginEnabled("WorldEdit")) {
+            WorldEditEventRegistrar.registerWorldEditListener(pm.getPlugin("WorldEdit"));
+        }
     }
 
     private void registerParameters() {

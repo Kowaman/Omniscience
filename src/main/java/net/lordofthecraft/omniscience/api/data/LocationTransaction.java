@@ -9,14 +9,23 @@ import org.bukkit.Location;
  */
 public class LocationTransaction<T> extends Transaction<T> {
 
-    private final Location location;
+    private final WorldVector vector;
 
     public LocationTransaction(Location location, T originalState, T finalState) {
         super(originalState, finalState);
-        this.location = location;
+        this.vector = new WorldVector(location);
+    }
+
+    public LocationTransaction(WorldVector vector, T originalState, T finalState) {
+        super(originalState, finalState);
+        this.vector = vector;
     }
 
     public Location getLocation() {
-        return location;
+        return vector.asLocation();
+    }
+
+    public WorldVector getVector() {
+        return vector;
     }
 }
