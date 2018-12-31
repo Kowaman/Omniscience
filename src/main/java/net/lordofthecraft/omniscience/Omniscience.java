@@ -18,19 +18,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public final class Omniscience extends JavaPlugin {
-    /*
-    @TODO Implement events being turned on/off
-    @TODO work out rollback logic into greater detail
-    @TODO make sure tile entities and the like are restored properly when rollbacks happen
-    @TODO ItemFrame / Armor Stand logging
-    @TODO figure out why timestamp parameter isn't working
-    @TODO Save inventory related events
-    @TODO send message about what someone is searching when they use the tool
-
-    @TODO Implement DynamoDB
-
-    @TODO Implement /omni undo of custom rollbacks
-     */
 
     private static OmniCore INSTANCE;
     private static Omniscience PLUGIN_INSTANCE;
