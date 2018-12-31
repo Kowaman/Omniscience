@@ -33,7 +33,6 @@ public class EntityEntry extends DataEntryComplete implements Actionable {
                     return world.spawnEntity(loc, type);
                 }).orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
 
-        //TODO test this loading from entity method and make sure it isnt hot garbage
         //Now, complete the rollback by cloning our data into the entity.
         //This is an UNSAFE operation. Data can change from version to version.
         ReflectionHandler.loadEntityFromNBT(baseEntity, entityData);
