@@ -4,12 +4,10 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import net.lordofthecraft.omniscience.util.DataHelper;
-import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.entity.Entity;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -55,14 +53,6 @@ public final class DataWrapper {
         wrapper.set(MATERIAL_TYPE, block.getType().name());
         //TODO We'll need a way to parse this. Return later when we know wtf this looks like.
         wrapper.set(BLOCK_DATA, block.getBlockData().getAsString());
-        return wrapper;
-    }
-
-    public static DataWrapper ofEntity(Entity entity) {
-        DataWrapper wrapper = new DataWrapper();
-        //TODO flesh out
-        wrapper.set(ENTITY, ReflectionHandler.getEntityAsBytes(entity));
-        wrapper.set(ENTITY_TYPE, entity.getType().name());
         return wrapper;
     }
 
