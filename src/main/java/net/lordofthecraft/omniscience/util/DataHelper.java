@@ -1,18 +1,6 @@
 package net.lordofthecraft.omniscience.util;
 
-import static net.lordofthecraft.omniscience.api.data.DataKeys.BLOCK_DATA;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.CONFIG_CLASS;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.LOCATION;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.SIGN_TEXT;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.WORLD;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.X;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.Y;
-import static net.lordofthecraft.omniscience.api.data.DataKeys.Z;
-
 import com.google.common.collect.Maps;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -22,12 +10,16 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
 
 public final class DataHelper {
 
@@ -106,43 +98,10 @@ public final class DataHelper {
         }
     }
 
-    public static String convertConfigurationSerializable(ConfigurationSerializable configurationSerializable) {
-        YamlConfiguration configuration = new YamlConfiguration();
-        configuration.set("configdata", configurationSerializable);
-        return configuration.saveToString();
-    }
-
     public static String convertItemList(ItemStack[] items) {
         YamlConfiguration configuration = new YamlConfiguration();
         configuration.set("configdata", items);
         return configuration.saveToString();
-    }
-
-    public static Optional<ItemStack[]> convertConfigItems(String config) {
-        YamlConfiguration configuration = new YamlConfiguration();
-        try {
-            configuration.loadFromString(config);
-            return Optional.ofNullable((ItemStack[]) configuration.get("configdata"));
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
-        return Optional.empty();
-    }
-
-    public static Optional<ItemStack> loadFromString(String config) {
-        YamlConfiguration configuration = new YamlConfiguration();
-        try {
-            configuration.loadFromString(config);
-            return Optional.of(configuration.getSerializable("configdata", ItemStack.class));
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
-        return Optional.empty();
-    }
-
-    public static Optional<Entity> getEntityFromWrapper(DataWrapper wrapper) throws IllegalAccessException {
-        //TODO there's no way this can return a raw entity. Likely will need to do something special for this method.
-        throw new IllegalAccessException("this method is not yet implemented");
     }
 
     public static BaseComponent[] buildLocation(Location location, boolean clickable) {
