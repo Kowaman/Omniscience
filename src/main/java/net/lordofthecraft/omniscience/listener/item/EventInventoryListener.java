@@ -305,7 +305,6 @@ public class EventInventoryListener extends OmniListener {
                     //NO:OP
                     return;
                 case COLLECT_TO_CURSOR:
-                    //TODO doesn't fire at all when collecting items that are in the container
                     InventoryView view = e.getView();
                     ItemStack targetItem = e.getCurrentItem().clone();
                     int currentAmount = targetItem.getAmount();
@@ -357,7 +356,6 @@ public class EventInventoryListener extends OmniListener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryDrag(InventoryDragEvent e) {
-        //TODO new items are the items AFTER placement. May cause rollback issues.
         if (e.getInventory().getHolder() instanceof Container) {
             Container container = (Container) e.getInventory().getHolder();
             e.getNewItems().forEach((key, value) -> {
