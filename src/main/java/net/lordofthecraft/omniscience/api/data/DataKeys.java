@@ -33,9 +33,11 @@ public final class DataKeys {
     public static final DataKey INVENTORY = DataKey.of("Inventory");
     public static final DataKey ITEM_SLOT = DataKey.of("ItemSlot");
     public static final DataKey CONFIG_CLASS = DataKey.of("ClassName");
+    public static final DataKey BANNER_PATTERNS = DataKey.of("BannerPatterns");
     public static final DataKey NAME = DataKey.of("Name");
     public static final DataKey BEFORE = DataKey.of("Before");
     public static final DataKey AFTER = DataKey.of("After");
+    public static final DataKey RECORD = DataKey.of("Record");
 
     //META TAGS
     public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");

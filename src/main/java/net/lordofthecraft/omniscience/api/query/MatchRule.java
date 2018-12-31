@@ -6,5 +6,6 @@ public enum MatchRule {
     EQUALS,
     GREATER_THAN_EQUAL,
     LESS_THAN_EQUAL,
-    BETWEEN
+    BETWEEN,
+    EXISTS
 }

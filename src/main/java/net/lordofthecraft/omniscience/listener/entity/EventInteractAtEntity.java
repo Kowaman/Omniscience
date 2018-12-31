@@ -28,11 +28,11 @@ public class EventInteractAtEntity extends OmniListener {
 
         ItemStack item = e.getPlayer().getInventory().getItemInMainHand();
         if (item.getType() == Material.NAME_TAG
-            && item.hasItemMeta()
-            && item.getItemMeta().hasDisplayName()
-            && !hasSameName(entity, item)) {
+                && item.hasItemMeta()
+                && item.getItemMeta().hasDisplayName()
+                && !hasSameName(entity, item)) {
             OEntry.create().source(e.getPlayer())
-                  .named(entity, entity.getCustomName(), item.getItemMeta().getDisplayName()).save();
+                    .named(entity, entity.getCustomName(), item.getItemMeta().getDisplayName()).save();
         }
     }
 

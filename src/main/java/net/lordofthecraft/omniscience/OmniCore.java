@@ -109,8 +109,8 @@ final class OmniCore implements IOmniscience {
         registerEvent("grow", BlockEntry.class);
         registerEvent("form", BlockEntry.class);
         registerEvent("death", EntityEntry.class);
-        registerEvent("withdraw", ItemEntry.class);
-        registerEvent("deposit", ItemEntry.class);
+        registerEvent("withdraw", ContainerEntry.class);
+        registerEvent("deposit", ContainerEntry.class);
     }
 
     private void registerEventHandlers(Omniscience plugin) {
@@ -125,14 +125,19 @@ final class OmniCore implements IOmniscience {
     }
 
     private void registerParameters() {
-        parameterHandlerList.add(new EventParameter());
-        parameterHandlerList.add(new PlayerParameter());
-        parameterHandlerList.add(new MessageParameter());
-        parameterHandlerList.add(new RadiusParameter());
-        parameterHandlerList.add(new TimeParameter());
-        parameterHandlerList.add(new CauseParameter());
-        parameterHandlerList.add(new BlockParameter());
-        parameterHandlerList.add(new IpParameter());
+        registerParameterHandler(new EventParameter());
+        registerParameterHandler(new PlayerParameter());
+        registerParameterHandler(new MessageParameter());
+        registerParameterHandler(new RadiusParameter());
+        registerParameterHandler(new TimeParameter());
+        registerParameterHandler(new CauseParameter());
+        registerParameterHandler(new BlockParameter());
+        registerParameterHandler(new IpParameter());
+        registerParameterHandler(new EntityParameter());
+        registerParameterHandler(new ItemNameParameter());
+        registerParameterHandler(new ItemParameter());
+        registerParameterHandler(new ItemDescParameter());
+        registerParameterHandler(new CustomItemParameter());
     }
 
     private void registerFlags() {
@@ -229,6 +234,11 @@ final class OmniCore implements IOmniscience {
     }
 
     void registerParameterHandler(ParameterHandler handler) {
+        if (parameterHandlerList.stream()
+                .flatMap(fHandler -> fHandler.getAliases().stream())
+                .anyMatch(handler::canHandle)) {
+            throw new IllegalArgumentException("A handler was attempted to be registered that has conflicting flags with another handler! " + handler.getClass());
+        }
         parameterHandlerList.add(handler);
     }
 

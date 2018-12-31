@@ -1,16 +1,18 @@
 package net.lordofthecraft.omniscience.api.entry;
 
+import com.google.common.collect.Lists;
 import net.lordofthecraft.omniscience.OmniEventRegistrar;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.data.LocationTransaction;
+import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.util.DataHelper;
-import net.lordofthecraft.omniscience.util.SerializeHelper;
 import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.*;
 import org.bukkit.command.BlockCommandSender;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.*;
@@ -279,24 +281,34 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        //TODO we should really say /what/ they put the item into.
-        public OEntry deposited(Container container, ItemStack itemStack, int itemSlot) {
+        public OEntry deposited(Container container, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
             this.eventName = "deposit";
-            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(TARGET, itemStack.getType().name() + " into " + container.getBlock().getType().name());
             wrapper.set(ITEM_SLOT, itemSlot);
+            //Set the itemstack with the quantity that was actually deposited into the container
             wrapper.set(ITEMSTACK, itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
+            wrapper.set(QUANTITY, itemStack.getAmount());
+            //Store the itemstack that was in this slot before the item was deposited, if any
+            transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
+            //Store the itemstack that is now in this slot after items were deposited
+            transaction.getFinalState().ifPresent(is -> wrapper.set(AFTER.then(ITEMSTACK), is));
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
-        //TODO we should really say /what/ they took the item from
-        public OEntry withdrew(Container container, ItemStack itemStack, int itemSlot) {
+        public OEntry withdrew(Container container, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
             this.eventName = "withdraw";
-            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(TARGET, itemStack.getType().name() + " from " + container.getBlock().getType().name());
             wrapper.set(ITEM_SLOT, itemSlot);
+            //Set the itemstack with the quantity that was actually withdrawn from the container
             wrapper.set(ITEMSTACK, itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
+            wrapper.set(QUANTITY, itemStack.getAmount());
+            //Store the itemstack that was in this slot before the items were withdrawn
+            transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
+            //Store the itemstack that is now in this slot after the withdraw, if any
+            transaction.getFinalState().ifPresent(is -> wrapper.set(AFTER.then(ITEMSTACK), is));
             writeLocationData(container.getLocation());
             return new OEntry(sourceBuilder, this);
         }
@@ -311,14 +323,14 @@ public final class OEntry {
         public OEntry named(Entity entity, String originalName, String newName) {
             this.eventName = "named";
             wrapper.set(TARGET, (originalName == null
-                                ? entity.getType().name()
-                                : originalName + " (" + entity.getType().name() +  ")") + " to " + (newName== null ? "" : newName));
+                    ? entity.getType().name()
+                    : originalName + " (" + entity.getType().name() + ")") + " to " + (newName == null ? "" : newName));
             wrapper.set(ENTITY_TYPE, entity.getType().name());
             wrapper.set(ENTITY_ID, entity.getUniqueId());
             writeLocationData(entity.getLocation());
 
             if (originalName != null) wrapper.set(NAME.then(BEFORE), originalName);
-            wrapper.set(NAME.then(AFTER), newName== null ? "" : newName);
+            wrapper.set(NAME.then(AFTER), newName == null ? "" : newName);
 
             return new OEntry(sourceBuilder, this);
         }
@@ -343,11 +355,15 @@ public final class OEntry {
 
         protected void writeExtraStateData(DataKey keyToWrite, BlockState state) {
             if (state instanceof Sign) {
-                wrapper.set(keyToWrite.then(SIGN_TEXT), SerializeHelper.serializeStringArray(((Sign) state).getLines()));
+                wrapper.set(keyToWrite.then(SIGN_TEXT), Lists.newArrayList(((Sign) state).getLines()));
             } else if (state instanceof Container) {
-                wrapper.set(keyToWrite.then(INVENTORY), DataHelper.convertItemList(((Container) state).getInventory().getContents())); //TODO let's implement this inventory saving
+                wrapper.set(keyToWrite.then(INVENTORY), DataHelper.convertArrayToMap(((Container) state).getInventory().getContents()));
             } else if (state instanceof Banner) {
-                //TODO save banner data?
+                wrapper.set(keyToWrite.then(BANNER_PATTERNS), ((Banner) state).getPatterns());
+            } else if (state instanceof Jukebox) {
+                if (((Jukebox) state).getRecord() != null) {
+                    wrapper.set(keyToWrite.then(RECORD), ((Jukebox) state).getRecord());
+                }
             }
         }
 
@@ -376,8 +392,16 @@ public final class OEntry {
                 return new EventBuilder(new SourceBuilder(projectile.getShooter()));
             }
 
+            if (source instanceof Entity) {
+                return new EventBuilder(new SourceBuilder(source));
+            }
+
             if (source instanceof JavaPlugin) {
                 return new EventBuilder(new SourceBuilder(source));
+            }
+
+            if (source instanceof CommandSender) {
+                return new EventBuilder(new SourceBuilder(((CommandSender) source).getName()));
             }
 
             return new EventBuilder(new SourceBuilder("Environment"));
@@ -418,7 +442,7 @@ public final class OEntry {
             this.eventName = "useSign";
             wrapper.set(TARGET, sign.getType().name());
             wrapper.set(ORIGINAL_BLOCK, sign.getBlockData().getAsString());
-            wrapper.set(SIGN_TEXT, SerializeHelper.serializeStringArray(sign.getLines()));
+            wrapper.set(SIGN_TEXT, Lists.newArrayList(sign.getLines()));
             writeLocationData(location);
             return new OEntry(sourceBuilder, this);
         }

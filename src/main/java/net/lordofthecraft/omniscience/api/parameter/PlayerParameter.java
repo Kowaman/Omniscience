@@ -1,6 +1,7 @@
 package net.lordofthecraft.omniscience.api.parameter;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.query.FieldCondition;
 import net.lordofthecraft.omniscience.api.query.MatchRule;
@@ -9,14 +10,12 @@ import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class PlayerParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w,:-]+");
@@ -37,21 +36,42 @@ public class PlayerParameter extends BaseParameterHandler {
 
     @Override
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
-        OfflinePlayer player = Bukkit.getOfflinePlayer(value);
+        if (value.contains(",")) {
+            String[] split = value.split(",");
+            List<String> in = Lists.newArrayList();
+            List<String> nin = Lists.newArrayList();
+            for (String string : split) {
+                OfflinePlayer player = Bukkit.getOfflinePlayer(string.startsWith("!") ? string.substring(1) : string);
+                if (player != null) {
+                    if (string.startsWith("!")) {
+                        nin.add(player.getUniqueId().toString());
+                    } else {
+                        in.add(player.getUniqueId().toString());
+                    }
+                }
+            }
+            if (!in.isEmpty()) {
+                query.addCondition(FieldCondition.of(DataKeys.PLAYER_ID, MatchRule.INCLUDES, in));
+            }
+            if (!nin.isEmpty()) {
+                query.addCondition(FieldCondition.of(DataKeys.PLAYER_ID, MatchRule.EXCLUDES, nin));
 
-        if (player != null) {
-            query.addCondition(FieldCondition.of(DataKeys.PLAYER_ID, MatchRule.EQUALS, player.getUniqueId().toString()));
+            }
+        } else {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(value);
+
+            if (player != null) {
+                query.addCondition(FieldCondition.of(DataKeys.PLAYER_ID, MatchRule.EQUALS, player.getUniqueId().toString()));
+            }
         }
+
 
         return Optional.empty();
     }
 
     @Override
     public Optional<List<String>> suggestTabCompletion(String partial) {
-        Stream<? extends Player> playerStream = Bukkit.getOnlinePlayers().stream();
-        if (partial != null && !partial.isEmpty()) {
-            playerStream = playerStream.filter(player -> player.getName().toLowerCase().startsWith(partial.toLowerCase()));
-        }
-        return Optional.of(playerStream.map(Player::getName).collect(Collectors.toList()));
+        return Optional.of(generateDefaultsBasedOnPartial(Bukkit.getOnlinePlayers().stream()
+                .map(pl -> pl.getName().toLowerCase()).collect(Collectors.toList()), partial));
     }
 }
