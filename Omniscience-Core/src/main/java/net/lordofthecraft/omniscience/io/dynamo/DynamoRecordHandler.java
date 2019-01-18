@@ -9,8 +9,8 @@ import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
+import net.lordofthecraft.omniscience.api.util.DataHelper;
 import net.lordofthecraft.omniscience.io.RecordHandler;
-import net.lordofthecraft.omniscience.util.DataHelper;
 
 import java.util.List;
 import java.util.Optional;

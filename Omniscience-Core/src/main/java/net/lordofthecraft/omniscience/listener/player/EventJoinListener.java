@@ -19,7 +19,7 @@ public class EventJoinListener extends OmniListener {
         if (e.getResult() != PlayerLoginEvent.Result.ALLOWED) {
             return;
         }
-        OEntry.create().player((OfflinePlayer) e.getPlayer()).joined(e.getRealAddress().getHostAddress()).save();
+        OEntry.create().player((OfflinePlayer) e.getPlayer()).joined(e.getAddress().getHostAddress()).save();
 
     }
 }

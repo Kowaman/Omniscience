@@ -4,8 +4,8 @@ import net.lordofthecraft.omniscience.OmniConfig;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
+import net.lordofthecraft.omniscience.api.util.Formatter;
 import net.lordofthecraft.omniscience.command.async.AsyncCallback;
-import net.lordofthecraft.omniscience.util.Formatter;
 import org.bukkit.Bukkit;
 
 import java.util.List;

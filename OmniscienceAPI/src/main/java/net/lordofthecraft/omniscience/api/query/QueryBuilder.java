@@ -3,7 +3,6 @@ package net.lordofthecraft.omniscience.api.query;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.mongodb.lang.Nullable;
 import net.lordofthecraft.omniscience.api.OmniApi;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterException;
@@ -30,11 +29,11 @@ public class QueryBuilder {
         return new Query();
     }
 
-    public static CompletableFuture<Query> fromArguments(QuerySession session, @Nullable String arguments) throws ParameterException {
+    public static CompletableFuture<Query> fromArguments(QuerySession session, String arguments) throws ParameterException {
         return fromArguments(session, (arguments != null ? arguments.split(" ") : new String[]{}));
     }
 
-    public static CompletableFuture<Query> fromArguments(QuerySession session, @Nullable String[] arguments) throws ParameterException {
+    public static CompletableFuture<Query> fromArguments(QuerySession session, String[] arguments) throws ParameterException {
         checkNotNull(session);
 
         Query query = new Query();

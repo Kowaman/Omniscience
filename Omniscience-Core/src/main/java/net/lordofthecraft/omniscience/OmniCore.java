@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
+import net.lordofthecraft.omniscience.api.OmniApi;
 import net.lordofthecraft.omniscience.api.display.DisplayHandler;
 import net.lordofthecraft.omniscience.api.display.ItemDisplayHandler;
 import net.lordofthecraft.omniscience.api.display.MessageDisplayHandler;
@@ -40,6 +41,7 @@ final class OmniCore implements IOmniscience {
 
     private Set<UUID> activeWandList = Sets.newHashSet();
 
+    private WorldEditHandler worldEditHandler;
     private StorageHandler storageHandler;
 
     OmniCore() {
@@ -79,6 +81,18 @@ final class OmniCore implements IOmniscience {
 
         }
 
+        if (omniscience.getConfig().getBoolean("integration.worldEdit")
+                && Bukkit.getServer().getPluginManager().isPluginEnabled("WorldEdit")) {
+
+        }
+
+        try {
+            OmniApi.setCore(this);
+        } catch (IllegalAccessException e) {
+            omniscience.getLogger().log(Level.SEVERE, "Failed to register Omniscience with the Omniscience API! This is a critical failure, we're shutting down! Is the plugin already running?", e);
+            Bukkit.getPluginManager().disablePlugin(omniscience);
+            return;
+        }
         omniscience.getLogger().log(Level.INFO, "Omniscience is Awake. None can escape.");
     }
 
@@ -312,6 +326,6 @@ final class OmniCore implements IOmniscience {
 
     @Override
     public void registerWorldEditHandler(WorldEditHandler handler) {
-
+        this.worldEditHandler = handler;
     }
 }

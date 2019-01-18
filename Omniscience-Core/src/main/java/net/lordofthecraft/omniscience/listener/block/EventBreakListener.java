@@ -243,11 +243,11 @@ public class EventBreakListener extends OmniListener {
             case TUBE_CORAL:
             case BRAIN_CORAL:
             case BUBBLE_CORAL:
-            case DEAD_BRAIN_CORAL:
-            case DEAD_BUBBLE_CORAL:
-            case DEAD_FIRE_CORAL:
-            case DEAD_HORN_CORAL:
-            case DEAD_TUBE_CORAL:
+            case DEAD_BRAIN_CORAL_BLOCK:
+            case DEAD_BUBBLE_CORAL_BLOCK:
+            case DEAD_FIRE_CORAL_BLOCK:
+            case DEAD_HORN_CORAL_BLOCK:
+            case DEAD_TUBE_CORAL_BLOCK:
             case ACACIA_PRESSURE_PLATE:
             case BIRCH_PRESSURE_PLATE:
             case DARK_OAK_PRESSURE_PLATE:

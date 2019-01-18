@@ -77,6 +77,11 @@
             <version>1.0</version>
         </dependency>
         <dependency>
+            <groupId>net.lordofthecraft</groupId>
+            <artifactId>OmniWorldEdit</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>3.8.2</version>
