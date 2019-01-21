@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import net.lordofthecraft.omniscience.util.DataHelper;
+import net.lordofthecraft.omniscience.api.util.DataHelper;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.block.BlockState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;

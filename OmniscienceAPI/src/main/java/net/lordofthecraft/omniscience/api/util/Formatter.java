@@ -1,7 +1,5 @@
 package net.lordofthecraft.omniscience.api.util;
 
-import net.lordofthecraft.omniscience.OmniConfig;
-
 import static org.bukkit.ChatColor.*;
 
 public class Formatter {
@@ -39,10 +37,10 @@ public class Formatter {
     }
 
     private static String p() {
-        return OmniConfig.INSTANCE.getPrimary().toString();
+        return AQUA.toString();
     }
 
     private static String s() {
-        return OmniConfig.INSTANCE.getSecondary().toString();
+        return GREEN.toString();
     }
 }

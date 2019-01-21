@@ -328,4 +328,9 @@ final class OmniCore implements IOmniscience {
     public void registerWorldEditHandler(WorldEditHandler handler) {
         this.worldEditHandler = handler;
     }
+
+    @Override
+    public String getDateFormat() {
+        return OmniConfig.INSTANCE.getDateFormat();
+    }
 }

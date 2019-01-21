@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import net.lordofthecraft.omniscience.api.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.api.parameter.ParameterException;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.command.async.SearchCallback;
@@ -11,7 +12,6 @@ import net.lordofthecraft.omniscience.command.result.CommandResult;
 import net.lordofthecraft.omniscience.command.result.UseResult;
 import net.lordofthecraft.omniscience.command.util.Async;
 import net.lordofthecraft.omniscience.command.util.SearchParameterHelper;
-import net.lordofthecraft.omniscience.interfaces.IOmniscience;
 import org.bukkit.command.CommandSender;
 
 import java.util.List;

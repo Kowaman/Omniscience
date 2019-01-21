@@ -2,7 +2,7 @@ package net.lordofthecraft.omniscience.api.entry;
 
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.data.LocationTransaction;
-import net.lordofthecraft.omniscience.util.DataHelper;
+import net.lordofthecraft.omniscience.api.util.DataHelper;
 import org.bukkit.Location;
 import org.bukkit.block.Container;
 import org.bukkit.inventory.Inventory;

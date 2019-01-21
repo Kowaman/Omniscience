@@ -11,7 +11,7 @@ import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.regions.RegionSelector;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.query.*;
-import net.lordofthecraft.omniscience.util.Formatter;
+import net.lordofthecraft.omniscience.api.util.Formatter;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

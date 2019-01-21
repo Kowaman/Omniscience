@@ -40,4 +40,6 @@ public interface IOmniscience {
     String getSimpleDateFormat();
 
     void registerWorldEditHandler(WorldEditHandler handler);
+
+    String getDateFormat();
 }

@@ -3,7 +3,7 @@ package net.lordofthecraft.omniscience.api.entry;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.data.Transaction;
-import net.lordofthecraft.omniscience.util.DataHelper;
+import net.lordofthecraft.omniscience.api.util.DataHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Banner;

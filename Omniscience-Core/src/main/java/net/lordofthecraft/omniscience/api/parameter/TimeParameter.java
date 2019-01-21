@@ -7,7 +7,7 @@ import net.lordofthecraft.omniscience.api.query.FieldCondition;
 import net.lordofthecraft.omniscience.api.query.MatchRule;
 import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
-import net.lordofthecraft.omniscience.util.DateUtil;
+import net.lordofthecraft.omniscience.api.util.DateUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.command.CommandSender;
 

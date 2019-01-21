@@ -1,5 +1,6 @@
 package net.lordofthecraft.omniscience.api;
 
+import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.api.interfaces.WorldEditHandler;
@@ -92,5 +93,13 @@ public class OmniApi {
 
     public static void registerWorldEditHandler(WorldEditHandler handler) {
         omniscience.registerWorldEditHandler(handler);
+    }
+
+    public static Optional<Class<? extends DataEntry>> getEventClass(String event) {
+        return omniscience.getEventClass(event);
+    }
+
+    public static String getDateFormat() {
+        return omniscience.getDateFormat();
     }
 }

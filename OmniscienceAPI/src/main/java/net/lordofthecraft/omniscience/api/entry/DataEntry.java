@@ -1,6 +1,6 @@
 package net.lordofthecraft.omniscience.api.entry;
 
-import net.lordofthecraft.omniscience.Omniscience;
+import net.lordofthecraft.omniscience.api.OmniApi;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,7 +17,7 @@ public abstract class DataEntry {
         if (isAggregate) {
             entry = new DataAggregateEntry();
         } else {
-            entry = Omniscience.getDataEntryClass(eventName)
+            entry = OmniApi.getEventClass(eventName)
                     .orElse(DataEntryComplete.class).getConstructor().newInstance();
         }
 

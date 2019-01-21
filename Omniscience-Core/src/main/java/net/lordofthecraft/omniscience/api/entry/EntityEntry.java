@@ -2,8 +2,8 @@ package net.lordofthecraft.omniscience.api.entry;
 
 import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.data.Transaction;
-import net.lordofthecraft.omniscience.util.DataHelper;
-import net.lordofthecraft.omniscience.util.reflection.ReflectionHandler;
+import net.lordofthecraft.omniscience.api.util.DataHelper;
+import net.lordofthecraft.omniscience.api.util.reflection.ReflectionHandler;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
