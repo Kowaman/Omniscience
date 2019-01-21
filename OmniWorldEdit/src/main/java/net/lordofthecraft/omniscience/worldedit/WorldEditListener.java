@@ -9,7 +9,7 @@ public class WorldEditListener {
     @Subscribe
     public void onEditSessionChange(EditSessionEvent event) {
         if (event.getStage() == EditSession.Stage.BEFORE_CHANGE) {
-
+            event.setExtent(new OmniscienceExtent(event.getExtent()));
         }
     }
 }
