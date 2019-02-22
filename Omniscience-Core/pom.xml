@@ -55,6 +55,7 @@
                                 <includes>
                                     <include>org.mongodb:mongo-java-driver:**</include>
                                     <include>me.lucko:commodore</include>
+                                    <include>net.lordofthecraft:OmniscienceAPI</include>
                                 </includes>
                             </artifactSet>
                         </configuration>
