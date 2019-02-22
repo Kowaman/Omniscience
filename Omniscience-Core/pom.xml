@@ -78,11 +78,6 @@
             <version>1.0</version>
         </dependency>
         <dependency>
-            <groupId>net.lordofthecraft</groupId>
-            <artifactId>OmniWorldEdit</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
             <version>7.0.0-SNAPSHOT</version>
