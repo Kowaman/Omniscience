@@ -43,18 +43,19 @@ database:
 
 # Don't know what MongoDB is? Find out more information here: https://www.mongodb.com/what-is-mongodb
 mongodb:
+  user: username
+  password: password
+  usesauth: false
+  authenticationDatabase: users
   servers:
     - ServerA:
         address: 127.0.0.1
         port: 27017
-        usesauth: false
-        user: username
-        pass: password
 
 # Q: Where is MySQL/SQL?
 # A: MySQL and other SQL-based programs/languages are nice when it comes to the collection and storage of uniform data.
 # E.g. if I'm deciding I'm only ever going to store a list of when cobblestone blocks were broken by a player, MySQL would be a great go-to option.
-# But let's say that some cobblestone blocks are named. Suddenly, MySQL becomes /significantly/ worse and requires a series of "gross hacks" to store that data.
+# But let's say that some cobblestone blocks are named. Suddenly, MySQL becomes significantly worse and requires a series of "gross hacks" (aka denormalized data) to store that data.
 # MongoDB (aka NoSQL) handles this significantly better and can store that name for those cobblestone blocks just fine without breaking a sweat.
 # As such, MongoDB and other NoSQL solutions will be the only things Omniscience supports in order to keep a uniform data process.
 

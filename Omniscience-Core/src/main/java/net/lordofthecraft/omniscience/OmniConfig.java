@@ -20,6 +20,7 @@ public enum OmniConfig {
     INSTANCE;
 
     private String databaseName;
+    private String authenticationDatabaseName;
     private DatabaseType dbType;
 
     private boolean debugEnabled;
@@ -53,6 +54,7 @@ public enum OmniConfig {
         this.debugEnabled = configuration.getBoolean("debug");
 
         this.databaseName = configuration.getString("database.name");
+        this.authenticationDatabaseName = configuration.getString("mongodb.authenticationDatabase");
         this.tableName = configuration.getString("database.dataTableName");
         this.defaultsEnabled = configuration.getBoolean("defaults.enabled");
         this.defaultRadius = configuration.getInt("defaults.radius");
@@ -97,6 +99,13 @@ public enum OmniConfig {
      */
     public String getDatabaseName() {
         return databaseName;
+    }
+
+    /**
+     * @return The name of the database where the users are defined for login purposes
+     */
+    public String getAuthenticationDatabaseName() {
+        return authenticationDatabaseName;
     }
 
     /**

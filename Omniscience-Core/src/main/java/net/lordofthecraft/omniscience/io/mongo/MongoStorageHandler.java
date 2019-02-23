@@ -1,6 +1,6 @@
 package net.lordofthecraft.omniscience.io.mongo;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Lists;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -16,7 +16,7 @@ import net.lordofthecraft.omniscience.io.RecordHandler;
 import net.lordofthecraft.omniscience.io.StorageHandler;
 import org.bson.Document;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -42,23 +42,28 @@ public class MongoStorageHandler implements StorageHandler {
     @Override
     public boolean connect(Omniscience omniscience) {
         Map<?, ?> serverList = omniscience.getConfig().getMapList("mongodb.servers").get(0);
-        Map<ServerAddress, MongoCredential> addressMongoCredentialMap = Maps.newHashMap();
+        List<ServerAddress> addressMongoCredentialMap = Lists.newArrayList();
+        boolean usesAuth = omniscience.getConfig().getBoolean("mongodb.usesauth");
+        String username = omniscience.getConfig().getString("mongodb.user");
+        char[] password = omniscience.getConfig().getString("mongodb.password").toCharArray();
+        MongoCredential cred = MongoCredential.createCredential(username, OmniConfig.INSTANCE.getAuthenticationDatabaseName(), password);
         for (Map.Entry<?, ?> server : serverList.entrySet()) {
             String serverName = (String) server.getKey();
             Map<String, Object> serverProperties = (Map<String, Object>) server.getValue();
             String host = (String) serverProperties.get("address");
             int port = (int) serverProperties.get("port");
-            boolean auth = (boolean) serverProperties.get("usesauth");
-            String username = (String) serverProperties.get("user");
-            String password = (String) serverProperties.get("pass");
-            addressMongoCredentialMap.put(new ServerAddress(host, port), auth ? MongoCredential.createCredential(username, host, password.toCharArray()) : null);
+            addressMongoCredentialMap.add(new ServerAddress(host, port));
         }
 
         ClusterSettings clusterSettings = ClusterSettings
                 .builder()
-                .hosts(new ArrayList<>(addressMongoCredentialMap.keySet()))
+                .hosts(addressMongoCredentialMap)
                 .build();
-        MongoClientSettings settings = MongoClientSettings.builder()
+
+        MongoClientSettings settings = usesAuth ? MongoClientSettings.builder()
+                .applyToClusterSettings(builder -> builder.applySettings(clusterSettings))
+                .credential(cred)
+                .build() : MongoClientSettings.builder()
                 .applyToClusterSettings(builder -> builder.applySettings(clusterSettings))
                 .build();
         MongoClient client = MongoClients.create(settings);
