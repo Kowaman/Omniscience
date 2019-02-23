@@ -77,6 +77,7 @@
             <groupId>net.lordofthecraft</groupId>
             <artifactId>OmniscienceAPI</artifactId>
             <version>1.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
