@@ -1,0 +1,175 @@
+#          ______   .___  ___. .__   __.  __       _______.  ______  __   _______ .__   __.   ______  _______         #
+#         /  __  \  |   \/   | |  \ |  | |  |     /       | /      ||  | |   ____||  \ |  |  /      ||   ____|        #
+#        |  |  |  | |  \  /  | |   \|  | |  |    |   (----`|  ,----'|  | |  |__   |   \|  | |  ,----'|  |__           #
+#        |  |  |  | |  |\/|  | |  . `  | |  |     \   \    |  |     |  | |   __|  |  . `  | |  |     |   __|          #
+#        |  `--'  | |  |  |  | |  |\   | |  | .----)   |   |  `----.|  | |  |____ |  |\   | |  `----.|  |____         #
+#         \______/  |__|  |__| |__| \__| |__| |_______/     \______||__| |_______||__| \__|  \______||_______|        #
+#                                                                                                                     #
+
+#####           Become All Knowing           #####
+
+# P.S.: It's pronounced "om·nis·cience", not "Omni-science". The Science of Omni can go somewhere else.
+
+##################################################################
+###                          General                           ###
+##################################################################
+
+display:
+  format: d/M/yy hh:mm:ss
+  simpleFormat: d/M/yy
+
+# The material used for looking up records, must be a block
+wand:
+  material: redstone_lamp
+
+# Enables Debug messages
+debug: false
+
+##################################################################
+###                       Server Config                        ###
+##################################################################
+
+
+# We support two database types: mongodb or dynamodb.
+# DynamoDB is a database style used by Amazon Web Services. If you want to use this (it's pretty cool!) look it up to find out more.
+# DynamoDB is required by the web panel.
+database:
+  type: mongodb
+  name: Omniscience
+  dataTableName: DataEntry
+
+# The MongoDB server(s) to store information in.
+# You can specify more servers for scalability.
+
+# Don't know what MongoDB is? Find out more information here: https://www.mongodb.com/what-is-mongodb
+mongodb:
+  user: username
+  password: password
+  usesauth: false
+  authenticationDatabase: users
+  servers:
+    - ServerA:
+        address: 127.0.0.1
+        port: 27017
+
+# Q: Where is MySQL/SQL?
+# A: MySQL and other SQL-based programs/languages are nice when it comes to the collection and storage of uniform data.
+# E.g. if I'm deciding I'm only ever going to store a list of when cobblestone blocks were broken by a player, MySQL would be a great go-to option.
+# But let's say that some cobblestone blocks are named. Suddenly, MySQL becomes significantly worse and requires a series of "gross hacks" (aka denormalized data) to store that data.
+# MongoDB (aka NoSQL) handles this significantly better and can store that name for those cobblestone blocks just fine without breaking a sweat.
+# As such, MongoDB and other NoSQL solutions will be the only things Omniscience supports in order to keep a uniform data process.
+
+# Apologies for any inconvenience this might cause. - 501warhead
+
+# Q: Can I run this locally?
+# A: You'll need to have a mongodb instance installed on your local machine if you're testing locally.
+
+##################################################################
+###                          Storage                           ###
+##################################################################
+
+# Various rules for storing and pruning data
+storage:
+  # Set when records will be removed from storage. (1s = 1 second, 1m = 1 minute, 1h = 1 hour, 1d = 1 day, 1w = 1 week)
+  expireRecords: 4w
+  # The maximum pool size
+  maxPoolSize: 10
+  # The minimum pool size
+  minPoolSize: 2
+  # The amount of records to delete at once when deleting
+  purgeBatchLimit: 100000
+
+##################################################################
+###                     Search Arguments                       ###
+##################################################################
+
+# The defaults for searching. If these are enabled and no parameter is specified, it'll turn to these.
+# These aren't configured dynamically. The only acceptable values here are "radius" and "time".
+defaults:
+  # Whether or not defaults are enabled.
+  enabled: true
+  # The default radius to run searches in if no radius parameter is specified
+  radius: 5
+  # The default time to look back if no time parameter is specified (1s = 1 second, 1m = 1 minute, 1h = 1 hour, 1d = 1 day, 1w = 1 week)
+  time: 3d
+
+# The maximum a player can search for without omniscience.override.[node]
+limits:
+  # The max block radius a player can search in
+  radius: 250
+  # The maximum amount of records a player can pull
+  lookup.size: 1000
+  # The max amount of "actionable" things that can be performed on by the player at once. E.G., rollbacks/restores.
+  actionables: 10000
+
+##################################################################
+###                       Enabled Events                       ###
+##################################################################
+
+# Whether or not you want these actions to be recorded
+# TRUE: They're being recorded
+# FALSE: They're not being recorded
+events:
+  # Record when a block is broken
+  break: true
+  # Record when a block is placed
+  place: true
+  # Record when a block is decayed, (e.g. leaves)
+  decay: true
+  # Record when a block is grown
+  grow: true
+  # Record when a block is formed (e.g. ice)
+  form: true
+  # Record when a command is run
+  command: true
+  # Record when someone says something
+  say: true
+  # Record when an item is dropped
+  drop: true
+  # Record when an item is picked up
+  pickup: true
+  # Record when a player quits
+  quit: true
+  # Record when a player joins
+  join: true
+  # Record when an entity dies
+  death: true
+  # Record when an entity hits or is hit by a player
+  hit: true
+  # Record when an entity shoots or is shot by a player
+  shot: true
+  # Record when an entity is named with a name tag
+  named: true
+  # Record when a container is opened by a player
+  open: true
+  # Record when a container is closed by a player
+  close: true
+  # Record when a usable block is used by a player (door, lever, pressure plate, etc.)
+  use: true
+  # Record when a player deposits an item into a container
+  deposit: true
+  # Record when a player withdraws an item from a container
+  withdraw: true
+  # Record when a source ignites a block
+  ignite: true
+  # Record a unique event when a player clones items while in creative mode. Useful for crumb trails
+  clone: true
+  useSign: true
+  # Record when an entity has it's item taken out
+  entity-withdraw: true
+  # Record when an entity is used to store an item
+  entity-deposit: true
+
+##################################################################
+###                     Plugin Integration                     ###
+##################################################################
+
+# Whether to enable some plugin integration methods
+integration:
+  # Will track when a player rightclicks signs if CraftBook is enabled on the server.
+  craftbookSigns: true
+  # Will track block changes and updates if WorldEdit is on the server [NOT YET IMPLEMENTED]
+  worldEdit: true
+  # If FastAsyncWorldEdit is available we'll use the FAWE API to handle rollbacks and restores Async. This means much less lag!
+  fastAsyncWorldEdit: true
+

@@ -14,7 +14,7 @@ variables:
   MAVEN_CLI_OPTS: "-B -s settings.xml --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
 
-    
+
 build:
   stage: build
   script:
@@ -22,6 +22,8 @@ build:
   artifacts: 
     paths:
       - ./target/*.jar
+      - ./OmniscienceAPI/target/*.jar
+      - ./Omniscience-Core/target/*.jar
     name: "$CI_PROJECT_NAME-$CI_BUILD_REF_NAME-$CI_BUILD_REF"
     expire_in: 2 weeks
 deploy:
