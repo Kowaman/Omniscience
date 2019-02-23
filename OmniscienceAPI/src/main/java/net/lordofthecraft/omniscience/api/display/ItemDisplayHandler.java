@@ -20,7 +20,10 @@ public class ItemDisplayHandler extends SimpleDisplayHandler {
 
     @Override
     public Optional<String> buildTargetMessage(DataEntry entry, String target, QuerySession session) {
-        return Optional.empty();
+        Optional<String> entity = entry.data.getString(DataKeys.ENTITY_TYPE);
+        Optional<String> event = entry.data.getString(DataKeys.EVENT_NAME);
+        boolean withdraw = event.isPresent() && event.get().contains("withdraw");
+        return entity.map(s -> target + (withdraw ? " from " : " into ") + s);
     }
 
     @Override

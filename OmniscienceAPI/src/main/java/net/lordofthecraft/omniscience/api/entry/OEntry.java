@@ -243,37 +243,41 @@ public final class OEntry {
         }
 
         public OEntry removedFromItemFrame(ItemFrame frame, ItemStack itemStack) {
-            this.eventName = "frame-withdraw";
+            this.eventName = "entity-withdraw";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
             wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(ENTITY_TYPE, frame.getType().name());
             writeLocationData(frame.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry putIntoItemFrame(ItemFrame frame, ItemStack itemStack) {
-            this.eventName = "frame-deposit";
+            this.eventName = "entity-deposit";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
             wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(ENTITY_TYPE, frame.getType().name());
             writeLocationData(frame.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry putIntoArmorStand(ArmorStand stand, ItemStack itemStack) {
-            this.eventName = "armor-deposit";
+            this.eventName = "entity-deposit";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
             wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(ENTITY_TYPE, stand.getType().name());
             writeLocationData(stand.getLocation());
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry removedFromArmorStand(ArmorStand stand, ItemStack itemStack) {
-            this.eventName = "armor-withdraw";
+            this.eventName = "entity-withdraw";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
             wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(ENTITY_TYPE, stand.getType().name());
             writeLocationData(stand.getLocation());
             return new OEntry(sourceBuilder, this);
         }

@@ -18,7 +18,7 @@
     <url>https://lotc.co/</url>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>Omniscience</finalName>
         <defaultGoal>clean package install</defaultGoal>
         <plugins>
             <plugin>
