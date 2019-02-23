@@ -260,6 +260,24 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
+        public OEntry putIntoArmorStand(ArmorStand stand, ItemStack itemStack) {
+            this.eventName = "armor-deposit";
+            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(DISPLAY_METHOD, "item");
+            wrapper.set(ITEMSTACK, itemStack);
+            writeLocationData(stand.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry removedFromArmorStand(ArmorStand stand, ItemStack itemStack) {
+            this.eventName = "armor-withdraw";
+            wrapper.set(TARGET, itemStack.getType().name());
+            wrapper.set(DISPLAY_METHOD, "item");
+            wrapper.set(ITEMSTACK, itemStack);
+            writeLocationData(stand.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
         public OEntry opened(Container container) {
             this.eventName = "open";
             wrapper.set(TARGET, container.getType().name());

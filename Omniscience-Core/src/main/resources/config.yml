@@ -154,10 +154,14 @@ events:
   # Record a unique event when a player clones items while in creative mode. Useful for crumb trails
   clone: true
   useSign: true
-  # Record when an item frame is used to store an item
-  frame-withdraw: true
   # Record when an item frame has it's item taken out
+  frame-withdraw: true
+  # Record when an item frame is used to store an item
   frame-deposit: true
+  # Record when an armor stand has an item taken out
+  armor-withdraw: true
+  # Record when an armor stand has an item deposited
+  armor-deposit: true
 
 ##################################################################
 ###                     Plugin Integration                     ###
