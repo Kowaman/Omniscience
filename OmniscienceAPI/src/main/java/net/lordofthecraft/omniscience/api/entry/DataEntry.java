@@ -78,6 +78,10 @@ public abstract class DataEntry {
                 return "opened";
             case "close":
                 return "closed";
+            case "entity-withdraw":
+                return "withdrew";
+            case "entity-deposit":
+                return "deposited";
             default:
                 return word;
         }

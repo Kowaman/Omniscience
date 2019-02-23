@@ -47,9 +47,9 @@ public enum OmniEventRegistrar {
         //Item
         listeners.add(new EventContainerListener());
         listeners.add(new EventDropListener());
-        listeners.add(new EventFrameListener());
         listeners.add(new EventInventoryListener());
         listeners.add(new EventPickupListener());
+        listeners.add(new EventEntityItemListener());
 
         //Player
         listeners.add(new EventJoinListener());
