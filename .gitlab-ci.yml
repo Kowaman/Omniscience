@@ -12,14 +12,15 @@ variables:
   # when running from the command line.
   # `installAtEnd` and `deployAtEnd` are only effective with recent version of the corresponding plugins.
   MAVEN_CLI_OPTS: "-B -s settings.xml --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+  MAVEN_CHILD_CLI_OPTS: "-B -s ../settings.xml --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
 
-    
+
 build:
   stage: build
   script:
-    - cd ./OmniscienceAPI && mvn $MAVEN_CLI_OPTS clean package
-    - cd ./Omniscience-Core && mvn $MAVEN_CLI_OPTS clean package
+    - cd ./OmniscienceAPI && mvn $MAVEN_CHILD_CLI_OPTS clean package
+    - mvn $MAVEN_CLI_OPTS clean package
   artifacts: 
     paths:
       - ./target/*.jar
