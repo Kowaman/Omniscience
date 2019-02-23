@@ -9,7 +9,6 @@
     <version>1.0.1</version>
     <modules>
         <module>OmniscienceAPI</module>
-        <module>OmniWorldEdit</module>
         <module>Omniscience-Core</module>
     </modules>
     <packaging>pom</packaging>
