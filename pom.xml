@@ -8,8 +8,8 @@
     <artifactId>Omniscience</artifactId>
     <version>1.0.1</version>
     <modules>
-        <module>OmniWorldEdit</module>
         <module>OmniscienceAPI</module>
+        <module>OmniWorldEdit</module>
         <module>Omniscience-Core</module>
     </modules>
     <packaging>pom</packaging>
