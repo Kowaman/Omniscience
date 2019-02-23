@@ -18,7 +18,8 @@ variables:
 build:
   stage: build
   script:
-    - mvn $MAVEN_CLI_OPTS clean package
+    - cd ./OmniscienceAPI && mvn $MAVEN_CLI_OPTS clean package
+    - cd ./Omniscience-Core && mvn $MAVEN_CLI_OPTS clean package
   artifacts: 
     paths:
       - ./target/*.jar
