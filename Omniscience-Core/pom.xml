@@ -76,7 +76,7 @@
         <dependency>
             <groupId>net.lordofthecraft</groupId>
             <artifactId>OmniscienceAPI</artifactId>
-            <version>1.0</version>
+            <version>${parent.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
