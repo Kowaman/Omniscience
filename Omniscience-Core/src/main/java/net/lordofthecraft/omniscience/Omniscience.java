@@ -101,8 +101,8 @@ public final class Omniscience extends JavaPlugin {
      *
      * @param event The string name of the event
      */
-    public static void registerEvent(String event) {
-        INSTANCE.registerEvent(event);
+    public static void registerEvent(String event, String pastTense) {
+        INSTANCE.registerEvent(event, pastTense);
     }
 
     public static void registerDisplayHandler(DisplayHandler handler) {

@@ -75,7 +75,8 @@ public enum OmniConfig {
 
         ConfigurationSection section = configuration.getConfigurationSection("events");
         for (String key : section.getKeys(false)) {
-            OmniEventRegistrar.INSTANCE.addEvent(key, section.getBoolean(key));
+            ConfigurationSection innerSection = section.getConfigurationSection(key);
+            OmniEventRegistrar.INSTANCE.addEvent(key, innerSection.getString("past"), innerSection.getBoolean("enabled"));
         }
 
         String wandMaterialName = configuration.getString("wand.material");

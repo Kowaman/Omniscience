@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience.api.interfaces;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
+import net.lordofthecraft.omniscience.api.util.PastTenseWithEnabled;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ public interface IOmniscience {
 
     List<ParameterHandler> getParameters();
 
-    Map<String, Boolean> getEvents();
+    Map<String, PastTenseWithEnabled> getEvents();
 
     Optional<FlagHandler> getFlagHandler(String flag);
 

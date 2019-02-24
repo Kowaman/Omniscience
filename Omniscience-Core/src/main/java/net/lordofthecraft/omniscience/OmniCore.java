@@ -15,6 +15,7 @@ import net.lordofthecraft.omniscience.api.flag.*;
 import net.lordofthecraft.omniscience.api.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.api.interfaces.WorldEditHandler;
 import net.lordofthecraft.omniscience.api.parameter.*;
+import net.lordofthecraft.omniscience.api.util.PastTenseWithEnabled;
 import net.lordofthecraft.omniscience.command.OmniscienceCommand;
 import net.lordofthecraft.omniscience.command.OmniscienceTabCompleter;
 import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
@@ -235,11 +236,10 @@ final class OmniCore implements IOmniscience {
 
     void registerEvent(String event, Class<? extends DataEntry> clazz) {
         eventMap.put(event, clazz);
-        registerEvent(event);
     }
 
-    void registerEvent(String event) {
-        OmniEventRegistrar.INSTANCE.addEvent(event, true);
+    void registerEvent(String event, String pastTense) {
+        OmniEventRegistrar.INSTANCE.addEvent(event, pastTense, true);
     }
 
     void registerDisplayHandler(DisplayHandler handler) {
@@ -300,7 +300,7 @@ final class OmniCore implements IOmniscience {
     }
 
     @Override
-    public Map<String, Boolean> getEvents() {
+    public Map<String, PastTenseWithEnabled> getEvents() {
         return OmniEventRegistrar.INSTANCE.getEventMapping();
     }
 

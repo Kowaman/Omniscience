@@ -41,50 +41,7 @@ public abstract class DataEntry {
     }
 
     private String translateToPastTense(String word) {
-        switch (word) {
-            case "break":
-                return "broke";
-            case "decay":
-                return "decayed";
-            case "burn":
-                return "burned";
-            case "grow":
-                return "grown";
-            case "form":
-                return "formed";
-            case "place":
-                return "placed";
-            case "death":
-                return "killed";
-            case "drop":
-                return "dropped";
-            case "pickup":
-                return "picked up";
-            case "say":
-                return "said";
-            case "command":
-                return "ran command";
-            case "useSign":
-                return "used sign";
-            case "quit":
-                return "quit from";
-            case "join":
-                return "joined from";
-            case "withdraw":
-                return "withdrew";
-            case "deposit":
-                return "deposited";
-            case "open":
-                return "opened";
-            case "close":
-                return "closed";
-            case "entity-withdraw":
-                return "withdrew";
-            case "entity-deposit":
-                return "deposited";
-            default:
-                return word;
-        }
+        return OmniApi.getEventPastTense(word);
     }
 
     @Override

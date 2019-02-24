@@ -6,7 +6,7 @@
 
     <groupId>net.lordofthecraft</groupId>
     <artifactId>Omniscience</artifactId>
-    <version>${globalversion}</version>
+    <version>1.0.1</version>
     <modules>
         <module>OmniscienceAPI</module>
         <module>Omniscience-Core</module>
