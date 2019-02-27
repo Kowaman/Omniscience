@@ -238,7 +238,8 @@ final class OmniCore implements IOmniscience {
         eventMap.put(event, clazz);
     }
 
-    void registerEvent(String event, String pastTense) {
+    @Override
+    public void registerEvent(String event, String pastTense) {
         OmniEventRegistrar.INSTANCE.addEvent(event, pastTense, true);
     }
 
@@ -246,11 +247,13 @@ final class OmniCore implements IOmniscience {
         displayHandlerList.add(handler);
     }
 
-    void registerFlagHandler(FlagHandler handler) {
+    @Override
+    public void registerFlagHandler(FlagHandler handler) {
         flagHandlerList.add(handler);
     }
 
-    void registerParameterHandler(ParameterHandler handler) {
+    @Override
+    public void registerParameterHandler(ParameterHandler handler) {
         if (parameterHandlerList.stream()
                 .flatMap(fHandler -> fHandler.getAliases().stream())
                 .anyMatch(handler::canHandle)) {
