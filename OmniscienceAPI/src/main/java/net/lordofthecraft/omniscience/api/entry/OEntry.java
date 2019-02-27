@@ -361,7 +361,7 @@ public final class OEntry {
         public OEntry custom(String eventName, DataWrapper wrapperData) {
             this.eventName = eventName;
             wrapperData.getKeys(false).forEach(key -> {
-                wrapper.set(key, wrapperData.get(key));
+                wrapperData.get(key).ifPresent(data -> wrapper.set(key, data));
             });
             return new OEntry(sourceBuilder, this);
         }
@@ -369,7 +369,7 @@ public final class OEntry {
         public OEntry customWithLocation(String eventName, DataWrapper wrapperData, Location location) {
             this.eventName = eventName;
             wrapperData.getKeys(false).forEach(key -> {
-                wrapper.set(key, wrapperData.get(key));
+                wrapperData.get(key).ifPresent(data -> wrapper.set(key, data));
             });
             writeLocationData(location);
             return new OEntry(sourceBuilder, this);

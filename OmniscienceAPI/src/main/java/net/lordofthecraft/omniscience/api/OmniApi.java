@@ -88,6 +88,18 @@ public class OmniApi {
         return getEvents().containsKey(event);
     }
 
+    public static void registerEvent(String event, String pastTense) {
+        omniscience.registerEvent(event, pastTense);
+    }
+
+    public static void registerParameterHandler(ParameterHandler handler) {
+        omniscience.registerParameterHandler(handler);
+    }
+
+    public static void registerFlagHandler(FlagHandler handler) {
+        omniscience.registerFlagHandler(handler);
+    }
+
     public static String getEventPastTense(String event) {
         if (!getEvents().containsKey(event)) {
             return event;

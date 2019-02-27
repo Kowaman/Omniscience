@@ -28,9 +28,15 @@ public interface IOmniscience {
 
     Map<String, PastTenseWithEnabled> getEvents();
 
+    void registerEvent(String event, String pastTense);
+
     Optional<FlagHandler> getFlagHandler(String flag);
 
+    void registerFlagHandler(FlagHandler handler);
+
     Optional<ParameterHandler> getParameterHandler(String name);
+
+    void registerParameterHandler(ParameterHandler handler);
 
     String getDefaultTime();
 

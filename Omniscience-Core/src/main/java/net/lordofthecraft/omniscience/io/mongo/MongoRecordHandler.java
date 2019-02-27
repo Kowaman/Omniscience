@@ -12,6 +12,7 @@ import com.mongodb.client.model.InsertOneModel;
 import com.mongodb.client.model.WriteModel;
 import net.lordofthecraft.omniscience.OmniConfig;
 import net.lordofthecraft.omniscience.Omniscience;
+import net.lordofthecraft.omniscience.api.OmniApi;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.entry.DataAggregateEntry;
@@ -171,7 +172,8 @@ public class MongoRecordHandler implements RecordHandler {
                         } else if (object.getClass().isEnum()) {
                             convertedList.add(object.toString());
                         } else {
-                            Omniscience.getPluginInstance().getLogger().warning("Unsupported List Data Type: " + innerObject.getClass().getName());
+                            OmniApi.warning("Unsupported List Data Type: " + innerObject.getClass().getName());
+                            OmniApi.warning("DataWrapper: " + wrapper);
                         }
                     }
 
