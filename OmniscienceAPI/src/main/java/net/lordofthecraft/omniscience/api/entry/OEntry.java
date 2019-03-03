@@ -303,6 +303,13 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
+        public OEntry mount(boolean dismount, Entity entity) {
+            this.eventName = dismount ? "dismount" : "mount";
+            wrapper.set(TARGET, entity.getType().name());
+            writeLocationData(entity.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
         public OEntry deposited(Container container, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
             this.eventName = "deposit";
             wrapper.set(TARGET, itemStack.getType().name() + " into " + container.getBlock().getType().name());

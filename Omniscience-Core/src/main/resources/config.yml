@@ -209,6 +209,12 @@ events:
   entity-deposit:
     enabled: true
     past: deposited
+  mount:
+    enabled: true
+    past: mounted
+  dismount:
+    enabled: true
+    past: dismounted
 
 ##################################################################
 ###                     Plugin Integration                     ###
