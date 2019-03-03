@@ -153,6 +153,21 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
+        public OEntry grewBlock(LocationTransaction<BlockState> blockTransaction) {
+            this.eventName = "grow";
+            blockTransaction.getOriginalState().ifPresent(block -> {
+                wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
+                wrapper.set(TARGET, block.getType().name());
+                writeExtraStateData(ORIGINAL_BLOCK, block);
+            });
+            blockTransaction.getFinalState().ifPresent(block -> {
+                wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
+                writeExtraStateData(NEW_BLOCK, block);
+            });
+            writeLocationData(blockTransaction.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
         public OEntry formedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "form";
             blockTransaction.getOriginalState().ifPresent(block -> {

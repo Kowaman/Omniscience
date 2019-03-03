@@ -36,6 +36,7 @@ public enum OmniEventRegistrar {
         listeners.add(new EventIgniteListener());
         listeners.add(new EventPlaceListener());
         listeners.add(new EventUseListener());
+        listeners.add(new EventGrowListener());
 
         //Chat
         listeners.add(new EventCommandListener());
