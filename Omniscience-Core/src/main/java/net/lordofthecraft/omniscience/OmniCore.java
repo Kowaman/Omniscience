@@ -164,6 +164,7 @@ final class OmniCore implements IOmniscience {
         flagHandlerList.add(new FlagDrain());
         if (OmniConfig.INSTANCE.areDefaultsEnabled()) {
             flagHandlerList.add(new FlagIgnoreDefault());
+            flagHandlerList.add(new FlagGlobal());
         }
         if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
             onWorldEditStatusChange(true);
