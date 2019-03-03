@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience.listener.item;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import net.lordofthecraft.omniscience.Omniscience;
+import net.lordofthecraft.omniscience.api.OmniApi;
 import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
 import net.lordofthecraft.omniscience.listener.OmniListener;
@@ -291,6 +292,10 @@ public class EventInventoryListener extends OmniListener {
                 case HOTBAR_SWAP:
                     if (inInventory) {
                         int slot = e.getHotbarButton() - 1;
+                        if (slot < 0) {
+                            OmniApi.warning("Hotbar slot button of 0 was reached for the player " + e.getWhoClicked().getName() + " inside of the inventory of a " + e.getInventory().getHolder().toString());
+                            break;
+                        }
                         ItemStack item = e.getWhoClicked().getInventory().getItem(slot).clone();
                         ItemStack toSwap = e.getCurrentItem().clone();
                         if (w() && toSwap != null && !toSwap.getType().name().contains("AIR")) {
