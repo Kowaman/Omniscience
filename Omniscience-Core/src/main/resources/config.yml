@@ -209,9 +209,11 @@ events:
   entity-deposit:
     enabled: true
     past: deposited
+  # Record when an entity is mounted
   mount:
     enabled: true
     past: mounted
+  # Record when an entity is dismounted
   dismount:
     enabled: true
     past: dismounted
