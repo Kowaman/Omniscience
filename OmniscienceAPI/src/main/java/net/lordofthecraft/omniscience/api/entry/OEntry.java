@@ -437,6 +437,10 @@ public final class OEntry {
             return new PlayerEventBuilder(new SourceBuilder(player));
         }
 
+        public PlayerEventBuilder player(Player player) {
+            return new PlayerEventBuilder(new SourceBuilder(player));
+        }
+
         public EventBuilder entity(Entity entity) {
             return new EventBuilder(new SourceBuilder(entity));
         }
@@ -480,7 +484,7 @@ public final class OEntry {
 
         public OEntry quit() {
             this.eventName = "quit";
-            wrapper.set(TARGET, player().getAddress().getHostName());
+            wrapper.set(TARGET, player().getAddress().getHostString());
             writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
         }
