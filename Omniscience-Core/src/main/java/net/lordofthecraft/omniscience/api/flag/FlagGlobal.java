@@ -27,7 +27,7 @@ public class FlagGlobal extends BaseFlagHandler {
 
     @Override
     public Optional<CompletableFuture<?>> process(QuerySession session, String flag, String value, Query query) {
-        Omniscience.getParameterHandler("radius").ifPresent(session::addIgnoredDefault);
+        Omniscience.getParameterHandler("r").ifPresent(session::addIgnoredDefault);
         return Optional.empty();
     }
 }
