@@ -419,8 +419,7 @@ public final class OEntry {
             EntityDamageEvent lastDamageEvent = damaged.getLastDamageCause();
             if (lastDamageEvent != null) {
                 wrapper.set(DAMAGE_CAUSE, lastDamageEvent.getCause() != null ? lastDamageEvent.getCause().name() : "Unknown");
-                int damage = (int) lastDamageEvent.getFinalDamage();
-                wrapper.set(DAMAGE_AMOUNT, String.valueOf(damage));
+                wrapper.set(DAMAGE_AMOUNT, String.valueOf(lastDamageEvent.getDamage()));
             }
             wrapper.set(DISPLAY_METHOD, "damage");
         }
