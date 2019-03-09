@@ -14,6 +14,7 @@ import net.lordofthecraft.omniscience.OmniConfig;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.OmniApi;
 import net.lordofthecraft.omniscience.api.data.DataKey;
+import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
 import net.lordofthecraft.omniscience.api.entry.DataAggregateEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
@@ -61,6 +62,10 @@ public class MongoRecordHandler implements RecordHandler {
     public CompletableFuture<List<DataEntry>> query(QuerySession session) throws Exception {
         Query query = session.getQuery();
         checkNotNull(query);
+
+        if (session.hasFlag(Flag.NO_CHAT)) {
+            query.addCondition(FieldCondition.of(DataKeys.MESSAGE, MatchRule.EXISTS, false));
+        }
 
         List<DataEntry> entries = Lists.newArrayList();
         CompletableFuture<List<DataEntry>> future = new CompletableFuture<>();
