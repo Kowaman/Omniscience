@@ -167,7 +167,7 @@ public class SearchCallback implements AsyncCallback {
         } else {
             source = "c:" + entry.getSourceName();
         }
-        String target = "trg:" + entry.getTargetName();
+        String target = "trg:" + entry.getTargetName().replaceAll(" ", ",");
         StringBuilder command = new StringBuilder("/omniscience search ");
         command
                 .append(action)
