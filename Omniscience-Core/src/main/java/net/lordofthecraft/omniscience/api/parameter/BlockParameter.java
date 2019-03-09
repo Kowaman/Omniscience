@@ -21,7 +21,7 @@ public class BlockParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w,:-\\\\*]+");
 
     public BlockParameter() {
-        super(ImmutableList.of("b", "block"));
+        super(ImmutableList.of("b"));
     }
 
     @Override

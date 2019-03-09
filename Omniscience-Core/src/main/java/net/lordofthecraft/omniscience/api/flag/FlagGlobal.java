@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 public class FlagGlobal extends BaseFlagHandler {
 
     public FlagGlobal() {
-        super(ImmutableList.of("global", "g"));
+        super(ImmutableList.of("g"));
     }
 
     @Override

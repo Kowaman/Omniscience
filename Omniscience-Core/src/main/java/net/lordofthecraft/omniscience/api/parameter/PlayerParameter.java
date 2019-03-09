@@ -21,7 +21,7 @@ public class PlayerParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w,:-]+");
 
     public PlayerParameter() {
-        super(ImmutableList.of("p", "player"));
+        super(ImmutableList.of("p"));
     }
 
     @Override

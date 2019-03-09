@@ -20,7 +20,7 @@ public class TimeParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w,:-]+");
 
     public TimeParameter() {
-        super(ImmutableList.of("before", "since", "t"));
+        super(ImmutableList.of("since", "t"));
     }
 
     @Override

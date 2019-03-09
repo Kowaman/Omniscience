@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 public class FlagExtended extends BaseFlagHandler {
 
     public FlagExtended() {
-        super(ImmutableList.of("e", "ex", "extended"));
+        super(ImmutableList.of("ex"));
     }
 
     @Override

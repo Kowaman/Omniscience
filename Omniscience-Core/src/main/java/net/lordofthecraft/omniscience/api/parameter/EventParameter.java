@@ -21,7 +21,7 @@ public class EventParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[!]?[\\w,-\\\\*]+");
 
     public EventParameter() {
-        super(ImmutableList.of("a", "event", "action"));
+        super(ImmutableList.of("a"));
     }
 
     @Override

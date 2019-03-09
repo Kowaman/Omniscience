@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 public class FlagNoChat extends BaseFlagHandler {
 
     public FlagNoChat() {
-        super(ImmutableList.of("nochat", "nc"));
+        super(ImmutableList.of("nc"));
     }
 
     @Override

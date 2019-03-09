@@ -21,7 +21,7 @@ public class EntityParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w,:-\\\\*]+");
 
     public EntityParameter() {
-        super(ImmutableList.of("e", "ent", "entity"));
+        super(ImmutableList.of("e"));
     }
 
     @Override
