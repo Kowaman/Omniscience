@@ -23,7 +23,7 @@ public class DamageDisplayHandler extends SimpleDisplayHandler {
     public Optional<List<String>> buildAdditionalHoverData(DataEntry entry, QuerySession session) {
         List<String> hoverData = Lists.newArrayList();
         entry.data.getString(DataKeys.DAMAGE_CAUSE).ifPresent(data -> hoverData.add("Damage Cause: " + data));
-        entry.data.getString(DataKeys.DAMAGE_AMOUNT).ifPresent(data -> hoverData.add("Damage Amount: " + data));
+        entry.data.get(DataKeys.DAMAGE_AMOUNT).ifPresent(data -> hoverData.add("Damage Amount: " + data));
         return Optional.of(hoverData);
     }
 }
