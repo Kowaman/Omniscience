@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -227,21 +228,15 @@ public final class OEntry {
 
         public OEntry hit(Entity target) {
             this.eventName = "hit";
-            wrapper.set(TARGET, target.getType().name());
-            if (target instanceof Player) {
-                wrapper.set(TARGET, target.getName());
-            }
-            writeLocationData(target.getLocation());
+            writeGenericDamageData(target);
+            writeLastDamageData(target);
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry shot(Entity shot) {
             this.eventName = "shot";
-            wrapper.set(TARGET, shot.getType().name());
-            if (shot instanceof Player) {
-                wrapper.set(TARGET, shot.getName());
-            }
-            writeLocationData(shot.getLocation());
+            writeGenericDamageData(shot);
+            writeLastDamageData(shot);
             return new OEntry(sourceBuilder, this);
         }
 
@@ -253,6 +248,7 @@ public final class OEntry {
             }
             wrapper.set(ENTITY_TYPE, killed.getType().name());
             wrapper.set(ENTITY, ReflectionHandler.getEntityAsBytes(killed));
+            writeLastDamageData(killed);
             writeLocationData(killed.getLocation());
             return new OEntry(sourceBuilder, this);
         }
@@ -409,6 +405,23 @@ public final class OEntry {
                     wrapper.set(keyToWrite.then(RECORD), ((Jukebox) state).getRecord());
                 }
             }
+        }
+
+        protected void writeGenericDamageData(Entity entity) {
+            wrapper.set(TARGET, entity.getType().name());
+            if (entity instanceof Player) {
+                wrapper.set(TARGET, entity.getName());
+            }
+            writeLocationData(entity.getLocation());
+        }
+
+        protected void writeLastDamageData(Entity damaged) {
+            EntityDamageEvent lastDamageEvent = damaged.getLastDamageCause();
+            if (lastDamageEvent != null) {
+                wrapper.set(DAMAGE_CAUSE, lastDamageEvent.getCause() != null ? lastDamageEvent.getCause().name() : "Unknown");
+                wrapper.set(DAMAGE_AMOUNT, lastDamageEvent.getFinalDamage());
+            }
+            wrapper.set(DISPLAY_METHOD, "damage");
         }
 
         protected void writeLocationData(Location location) {

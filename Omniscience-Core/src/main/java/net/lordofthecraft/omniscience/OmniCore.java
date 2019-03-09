@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
 import net.lordofthecraft.omniscience.api.OmniApi;
+import net.lordofthecraft.omniscience.api.display.DamageDisplayHandler;
 import net.lordofthecraft.omniscience.api.display.DisplayHandler;
 import net.lordofthecraft.omniscience.api.display.ItemDisplayHandler;
 import net.lordofthecraft.omniscience.api.display.MessageDisplayHandler;
@@ -189,6 +190,7 @@ final class OmniCore implements IOmniscience {
     private void registerDisplayHandlers() {
         displayHandlerList.add(new MessageDisplayHandler());
         displayHandlerList.add(new ItemDisplayHandler());
+        displayHandlerList.add(new DamageDisplayHandler());
     }
 
     public StorageHandler getStorageHandler() {
