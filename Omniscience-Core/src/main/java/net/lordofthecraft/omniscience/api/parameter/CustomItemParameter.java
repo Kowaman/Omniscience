@@ -34,9 +34,9 @@ public class CustomItemParameter extends BaseParameterHandler {
     @Override
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
         if (value.toLowerCase().startsWith("y")) {
-            query.addCondition(FieldCondition.of(DataKeys.ITEMSTACK.then(DataKey.of("meta")), MatchRule.EXISTS, "true"));
+            query.addCondition(FieldCondition.of(DataKeys.ITEMSTACK.then(DataKey.of("meta")), MatchRule.EXISTS, true));
         } else if (value.toLowerCase().startsWith("n")) {
-            query.addCondition(FieldCondition.of(DataKeys.ITEMSTACK.then(DataKey.of("meta")), MatchRule.EXISTS, "false"));
+            query.addCondition(FieldCondition.of(DataKeys.ITEMSTACK.then(DataKey.of("meta")), MatchRule.EXISTS, false));
         }
         return Optional.empty();
     }
