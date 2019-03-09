@@ -21,7 +21,7 @@ public class ItemParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w,:-\\\\*]+");
 
     public ItemParameter() {
-        super(ImmutableList.of("i", "item"));
+        super(ImmutableList.of("i"));
     }
 
     @Override

@@ -5,6 +5,7 @@ import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.api.interfaces.WorldEditHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
+import net.lordofthecraft.omniscience.api.util.PastTenseWithEnabled;
 
 import java.util.List;
 import java.util.Map;
@@ -71,20 +72,39 @@ public class OmniApi {
         return omniscience.getMaxRadius();
     }
 
-    public static Map<String, Boolean> getEvents() {
+    public static Map<String, PastTenseWithEnabled> getEvents() {
         return omniscience.getEvents();
     }
 
     public static List<String> getEnabledEvents() {
-        return getEvents().entrySet().stream().filter(Map.Entry::getValue).map(Map.Entry::getKey).collect(Collectors.toList());
+        return getEvents().entrySet().stream().filter((ent) -> ent.getValue().isEnabled()).map(Map.Entry::getKey).collect(Collectors.toList());
     }
 
     public static boolean isEventEnabled(String event) {
-        return getEvents().containsKey(event) && getEvents().get(event);
+        return getEvents().containsKey(event) && getEvents().get(event).isEnabled();
     }
 
     public static boolean isEventRegistered(String event) {
         return getEvents().containsKey(event);
+    }
+
+    public static void registerEvent(String event, String pastTense) {
+        omniscience.registerEvent(event, pastTense);
+    }
+
+    public static void registerParameterHandler(ParameterHandler handler) {
+        omniscience.registerParameterHandler(handler);
+    }
+
+    public static void registerFlagHandler(FlagHandler handler) {
+        omniscience.registerFlagHandler(handler);
+    }
+
+    public static String getEventPastTense(String event) {
+        if (!getEvents().containsKey(event)) {
+            return event;
+        }
+        return getEvents().get(event).getPastTense();
     }
 
     public static String getSimpleDateFormat() {

@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.lordofthecraft.omniscience.api.util.PastTenseWithEnabled;
 import net.lordofthecraft.omniscience.listener.OmniListener;
 import net.lordofthecraft.omniscience.listener.block.*;
 import net.lordofthecraft.omniscience.listener.chat.EventCommandListener;
@@ -10,6 +11,7 @@ import net.lordofthecraft.omniscience.listener.chat.EventSayListener;
 import net.lordofthecraft.omniscience.listener.entity.EventDeathListener;
 import net.lordofthecraft.omniscience.listener.entity.EventHitListener;
 import net.lordofthecraft.omniscience.listener.entity.EventInteractAtEntity;
+import net.lordofthecraft.omniscience.listener.entity.EventMountListener;
 import net.lordofthecraft.omniscience.listener.item.*;
 import net.lordofthecraft.omniscience.listener.player.EventJoinListener;
 import net.lordofthecraft.omniscience.listener.player.EventQuitListener;
@@ -23,7 +25,7 @@ import java.util.Set;
 public enum OmniEventRegistrar {
     INSTANCE;
 
-    private final Map<String, Boolean> eventMapping = Maps.newHashMap();
+    private final Map<String, PastTenseWithEnabled> eventMapping = Maps.newHashMap();
     private List<OmniListener> listeners = Lists.newArrayList();
 
     OmniEventRegistrar() {
@@ -34,6 +36,7 @@ public enum OmniEventRegistrar {
         listeners.add(new EventIgniteListener());
         listeners.add(new EventPlaceListener());
         listeners.add(new EventUseListener());
+        listeners.add(new EventGrowListener());
 
         //Chat
         listeners.add(new EventCommandListener());
@@ -43,6 +46,7 @@ public enum OmniEventRegistrar {
         listeners.add(new EventDeathListener());
         listeners.add(new EventHitListener());
         listeners.add(new EventInteractAtEntity());
+        listeners.add(new EventMountListener());
 
         //Item
         listeners.add(new EventContainerListener());
@@ -65,21 +69,31 @@ public enum OmniEventRegistrar {
     }
 
     public boolean isEventEnabled(String event) {
-        return eventMapping.get(event);
+        if (!eventMapping.containsKey(event)) {
+            return false;
+        }
+        return eventMapping.get(event).isEnabled();
     }
 
-    public Map<String, Boolean> getEventMapping() {
+    public String getPastTense(String event) {
+        if (!eventMapping.containsKey(event)) {
+            return event;
+        }
+        return eventMapping.get(event).getPastTense();
+    }
+
+    public Map<String, PastTenseWithEnabled> getEventMapping() {
         return ImmutableMap.copyOf(eventMapping);
     }
 
-    void addEvent(String name, boolean enabled) {
-        eventMapping.put(name, enabled);
+    void addEvent(String name, String pastTense, boolean enabled) {
+        eventMapping.put(name, new PastTenseWithEnabled(enabled, pastTense));
     }
 
     void enableEvents(PluginManager manager, Omniscience omniscience) {
         eventMapping.forEach((key, value) -> {
             Optional<OmniListener> listener = listeners.stream().filter(l -> l.handles(key)).findFirst();
-            if (listener.isPresent() && value) {
+            if (listener.isPresent() && value.isEnabled()) {
                 OmniListener list = listener.get();
                 if (!list.isEnabled()) {
                     manager.registerEvents(list, omniscience);

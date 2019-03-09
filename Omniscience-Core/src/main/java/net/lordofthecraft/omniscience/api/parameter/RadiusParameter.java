@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 public class RadiusParameter extends BaseParameterHandler {
 
     public RadiusParameter() {
-        super(ImmutableList.of("r", "radius"));
+        super(ImmutableList.of("r"));
     }
 
     @Override

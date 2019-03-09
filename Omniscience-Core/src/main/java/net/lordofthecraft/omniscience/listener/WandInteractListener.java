@@ -10,6 +10,7 @@ import net.lordofthecraft.omniscience.command.async.SearchCallback;
 import net.lordofthecraft.omniscience.command.util.Async;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -46,6 +47,7 @@ public final class WandInteractListener implements Listener {
 
         QuerySession session = new QuerySession(event.getPlayer());
         session.addFlag(Flag.NO_GROUP);
+        session.addFlag(Flag.NO_CHAT);
         session.newQuery().addCondition(SearchConditionGroup.from(event.getClickedBlock().getLocation()));
         Block b = event.getClickedBlock();
 
@@ -67,8 +69,9 @@ public final class WandInteractListener implements Listener {
 
         QuerySession session = new QuerySession(event.getPlayer());
         session.addFlag(Flag.NO_GROUP);
+        session.addFlag(Flag.NO_CHAT);
         session.newQuery().addCondition(SearchConditionGroup.from(event.getBlockPlaced().getLocation()));
-        Block b = event.getBlock();
+        BlockState b = event.getBlockReplacedState();
 
         event.getPlayer().sendMessage(Formatter.prefix() + ChatColor.GREEN + "--- "
                 + ChatColor.AQUA + b.getType().name()

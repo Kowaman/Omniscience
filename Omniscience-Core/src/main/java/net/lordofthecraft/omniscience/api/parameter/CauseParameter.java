@@ -17,7 +17,7 @@ public class CauseParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w,:-\\\\*]+");
 
     public CauseParameter() {
-        super(ImmutableList.of("c", "cause"));
+        super(ImmutableList.of("c"));
     }
 
     @Override

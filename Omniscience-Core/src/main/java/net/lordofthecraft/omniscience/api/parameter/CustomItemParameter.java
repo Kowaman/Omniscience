@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class CustomItemParameter extends BaseParameterHandler {
 
     public CustomItemParameter() {
-        super(ImmutableList.of("cu", "custom"));
+        super(ImmutableList.of("cu"));
     }
 
     @Override

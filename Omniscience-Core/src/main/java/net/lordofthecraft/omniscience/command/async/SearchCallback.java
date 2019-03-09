@@ -7,15 +7,13 @@ import net.lordofthecraft.omniscience.api.entry.DataAggregateEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.entry.DataEntryComplete;
 import net.lordofthecraft.omniscience.api.flag.Flag;
+import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.api.util.DataHelper;
 import net.lordofthecraft.omniscience.api.util.Formatter;
 import net.lordofthecraft.omniscience.command.commands.PageCommand;
 import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -136,24 +134,56 @@ public class SearchCallback implements AsyncCallback {
         } else {
             TextComponent main = new TextComponent();
             HoverEvent infoHover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hoverMessage.toString()).create());
+            ClickEvent clickEvent = new ClickEvent(ClickEvent.Action.RUN_COMMAND, buildDetailCommand(entry));
             if (entry instanceof DataAggregateEntry) {
                 main.addExtra(startOfMessage.insert(0, ChatColor.GRAY + "= (" + ((DataAggregateEntry) entry).getDate() + ") ").toString());
             } else {
                 main.addExtra(startOfMessage.insert(0, ChatColor.GRAY + "= ").toString());
             }
             main.setHoverEvent(infoHover);
+            main.setClickEvent(clickEvent);
             if (targetHover.isPresent()) {
                 main.addExtra(targetHover.get());
                 main.addExtra(" ");
             } else {
                 main.addExtra(Formatter.formatPrimaryMessage(target + " "));
                 main.setHoverEvent(infoHover);
+                main.setClickEvent(clickEvent);
             }
             main.addExtra(endOfMessage.toString());
             main.setHoverEvent(infoHover);
+            main.setClickEvent(clickEvent);
             resultBuilder.append(main);
         }
 
         return resultBuilder.create();
+    }
+
+    private String buildDetailCommand(DataEntry entry) {
+        String action = "a:" + entry.getEventName();
+        final String source;
+        if (entry.data.get(DataKeys.PLAYER_ID).isPresent()) {
+            source = "p:" + entry.getSourceName();
+        } else {
+            source = "c:" + entry.getSourceName();
+        }
+        String target = "trg:" + entry.getTargetName().replaceAll(" ", ",");
+        StringBuilder command = new StringBuilder("/omniscience search ");
+        command
+                .append(action)
+                .append(" ")
+                .append(source)
+                .append(" ")
+                .append(target)
+                .append(" ");
+        Optional<ParameterHandler> radius = Omniscience.getParameterHandler("r");
+        if (radius.isPresent() && session.isIgnoredDefault(radius.get())) {
+            command.append("-g").append(" ");
+        } else {
+            command.append("r:").append(session.getRadius()).append(" ");
+        }
+        command.append("-ng");
+        Omniscience.logDebug("Click Command: " + command.toString());
+        return command.toString();
     }
 }

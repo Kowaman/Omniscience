@@ -38,6 +38,8 @@ public final class DataKeys {
     public static final DataKey BEFORE = DataKey.of("Before");
     public static final DataKey AFTER = DataKey.of("After");
     public static final DataKey RECORD = DataKey.of("Record");
+    public static final DataKey DAMAGE_CAUSE = DataKey.of("DamageCause");
+    public static final DataKey DAMAGE_AMOUNT = DataKey.of("DamageAmount");
 
     //META TAGS
     public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");

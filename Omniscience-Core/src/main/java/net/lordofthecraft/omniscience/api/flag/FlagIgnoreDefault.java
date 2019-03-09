@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class FlagIgnoreDefault extends BaseFlagHandler {
 
     public FlagIgnoreDefault() {
-        super(ImmutableList.of("nod", "igd", "ignoredefaults"));
+        super(ImmutableList.of("nod"));
     }
 
     @Override

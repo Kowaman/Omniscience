@@ -111,54 +111,112 @@ limits:
 # FALSE: They're not being recorded
 events:
   # Record when a block is broken
-  break: true
+  break:
+    enabled: true
+    past: broke
   # Record when a block is placed
-  place: true
+  place:
+    enabled: true
+    past: placed
   # Record when a block is decayed, (e.g. leaves)
-  decay: true
+  decay:
+    enabled: true
+    past: decayed
   # Record when a block is grown
-  grow: true
+  grow:
+    enabled: true
+    past: grew
   # Record when a block is formed (e.g. ice)
-  form: true
+  form:
+    enabled: true
+    past: formed
   # Record when a command is run
-  command: true
+  command:
+    enabled: true
+    past: ran command
   # Record when someone says something
-  say: true
+  say:
+    enabled: true
+    past: said
   # Record when an item is dropped
-  drop: true
+  drop:
+    enabled: true
+    past: dropped
   # Record when an item is picked up
-  pickup: true
+  pickup:
+    enabled: true
+    past: picked up
   # Record when a player quits
-  quit: true
+  quit:
+    enabled: true
+    past: quit
   # Record when a player joins
-  join: true
+  join:
+    enabled: true
+    past: joined
   # Record when an entity dies
-  death: true
+  death:
+    enabled: true
+    past: killed
   # Record when an entity hits or is hit by a player
-  hit: true
+  hit:
+    enabled: true
+    past: hit
   # Record when an entity shoots or is shot by a player
-  shot: true
+  shot:
+    enabled: true
+    past: shot
   # Record when an entity is named with a name tag
-  named: true
+  named:
+    enabled: true
+    past: named
   # Record when a container is opened by a player
-  open: true
+  open:
+    enabled: true
+    past: opened
   # Record when a container is closed by a player
-  close: true
+  close:
+    enabled: true
+    past: closed
   # Record when a usable block is used by a player (door, lever, pressure plate, etc.)
-  use: true
+  use:
+    enabled: true
+    past: used
   # Record when a player deposits an item into a container
-  deposit: true
+  deposit:
+    enabled: true
+    past: deposited
   # Record when a player withdraws an item from a container
-  withdraw: true
+  withdraw:
+    enabled: true
+    past: withdrew
   # Record when a source ignites a block
-  ignite: true
+  ignite:
+    enabled: true
+    past: ignited
   # Record a unique event when a player clones items while in creative mode. Useful for crumb trails
-  clone: true
-  useSign: true
+  clone:
+    enabled: true
+    past: cloned
+  useSign:
+    enabled: true
+    past: used
   # Record when an entity has it's item taken out
-  entity-withdraw: true
+  entity-withdraw:
+    enabled: true
+    past: withdrew
   # Record when an entity is used to store an item
-  entity-deposit: true
+  entity-deposit:
+    enabled: true
+    past: deposited
+  # Record when an entity is mounted
+  mount:
+    enabled: true
+    past: mounted
+  # Record when an entity is dismounted
+  dismount:
+    enabled: true
+    past: dismounted
 
 ##################################################################
 ###                     Plugin Integration                     ###

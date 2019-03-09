@@ -45,8 +45,13 @@ public class ToolCommand extends SimpleCommand {
             Player pl = (Player) sender;
 
             if (Omniscience.hasActiveWand(pl)) {
-                Omniscience.wandDeactivateFor(pl);
-                pl.sendMessage(GREEN + "Successfully deactivated the Omniscience Data Tool");
+                if (!pl.getInventory().contains(OmniConfig.INSTANCE.getWandMaterial())) {
+                    pl.getInventory().addItem(new ItemStack(OmniConfig.INSTANCE.getWandMaterial()));
+                    pl.sendMessage(GREEN + "Added the Omniscience data tool to your inventory. Happy Searching.");
+                } else {
+                    Omniscience.wandDeactivateFor(pl);
+                    pl.sendMessage(GREEN + "Successfully deactivated the Omniscience Data Tool");
+                }
             } else {
                 Omniscience.wandActivateFor(pl);
                 if (!pl.getInventory().contains(OmniConfig.INSTANCE.getWandMaterial())) {

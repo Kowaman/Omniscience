@@ -16,7 +16,7 @@ public class FlagOrder extends BaseFlagHandler {
     private final ImmutableList<String> argumentOptions;
 
     public FlagOrder() {
-        super(ImmutableList.of("ord", "order"));
+        super(ImmutableList.of("ord"));
         this.argumentOptions = ImmutableList.of("new", "newest", "desc", "old", "oldest", "asc");
     }
 

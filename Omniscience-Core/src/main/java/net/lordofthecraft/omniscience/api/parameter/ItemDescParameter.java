@@ -19,7 +19,7 @@ public class ItemDescParameter extends BaseParameterHandler {
     private final Pattern pattern = Pattern.compile("[\\w!,:-\\\\*]+");
 
     public ItemDescParameter() {
-        super(ImmutableList.of("desc", "d"));
+        super(ImmutableList.of("d"));
     }
 
     @Override

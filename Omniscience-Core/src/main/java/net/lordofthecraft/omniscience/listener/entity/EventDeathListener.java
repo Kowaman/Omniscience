@@ -3,6 +3,7 @@ package net.lordofthecraft.omniscience.listener.entity;
 import com.google.common.collect.ImmutableList;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
 import net.lordofthecraft.omniscience.listener.OmniListener;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -15,7 +16,7 @@ public class EventDeathListener extends OmniListener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent e) {
-        if (e.getEntity().getKiller() != null) {
+        if (e.getEntity().getKiller() != null || e.getEntity() instanceof Player) {
             OEntry.create().source(e.getEntity().getKiller()).kill(e.getEntity()).save();
         }
     }

@@ -16,6 +16,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -153,6 +154,21 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
+        public OEntry grewBlock(LocationTransaction<BlockState> blockTransaction) {
+            this.eventName = "grow";
+            blockTransaction.getOriginalState().ifPresent(block -> {
+                wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
+                wrapper.set(TARGET, block.getType().name());
+                writeExtraStateData(ORIGINAL_BLOCK, block);
+            });
+            blockTransaction.getFinalState().ifPresent(block -> {
+                wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
+                writeExtraStateData(NEW_BLOCK, block);
+            });
+            writeLocationData(blockTransaction.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
         public OEntry formedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "form";
             blockTransaction.getOriginalState().ifPresent(block -> {
@@ -212,21 +228,15 @@ public final class OEntry {
 
         public OEntry hit(Entity target) {
             this.eventName = "hit";
-            wrapper.set(TARGET, target.getType().name());
-            if (target instanceof Player) {
-                wrapper.set(TARGET, target.getName());
-            }
-            writeLocationData(target.getLocation());
+            writeGenericDamageData(target);
+            writeLastDamageData(target);
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry shot(Entity shot) {
             this.eventName = "shot";
-            wrapper.set(TARGET, shot.getType().name());
-            if (shot instanceof Player) {
-                wrapper.set(TARGET, shot.getName());
-            }
-            writeLocationData(shot.getLocation());
+            writeGenericDamageData(shot);
+            writeLastDamageData(shot);
             return new OEntry(sourceBuilder, this);
         }
 
@@ -238,6 +248,7 @@ public final class OEntry {
             }
             wrapper.set(ENTITY_TYPE, killed.getType().name());
             wrapper.set(ENTITY, ReflectionHandler.getEntityAsBytes(killed));
+            writeLastDamageData(killed);
             writeLocationData(killed.getLocation());
             return new OEntry(sourceBuilder, this);
         }
@@ -303,6 +314,13 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
+        public OEntry mount(boolean dismount, Entity entity) {
+            this.eventName = dismount ? "dismount" : "mount";
+            wrapper.set(TARGET, entity.getType().name());
+            writeLocationData(entity.getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
         public OEntry deposited(Container container, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
             this.eventName = "deposit";
             wrapper.set(TARGET, itemStack.getType().name() + " into " + container.getBlock().getType().name());
@@ -361,7 +379,7 @@ public final class OEntry {
         public OEntry custom(String eventName, DataWrapper wrapperData) {
             this.eventName = eventName;
             wrapperData.getKeys(false).forEach(key -> {
-                wrapper.set(key, wrapperData.get(key));
+                wrapperData.get(key).ifPresent(data -> wrapper.set(key, data));
             });
             return new OEntry(sourceBuilder, this);
         }
@@ -369,7 +387,7 @@ public final class OEntry {
         public OEntry customWithLocation(String eventName, DataWrapper wrapperData, Location location) {
             this.eventName = eventName;
             wrapperData.getKeys(false).forEach(key -> {
-                wrapper.set(key, wrapperData.get(key));
+                wrapperData.get(key).ifPresent(data -> wrapper.set(key, data));
             });
             writeLocationData(location);
             return new OEntry(sourceBuilder, this);
@@ -387,6 +405,23 @@ public final class OEntry {
                     wrapper.set(keyToWrite.then(RECORD), ((Jukebox) state).getRecord());
                 }
             }
+        }
+
+        protected void writeGenericDamageData(Entity entity) {
+            wrapper.set(TARGET, entity.getType().name());
+            if (entity instanceof Player) {
+                wrapper.set(TARGET, entity.getName());
+            }
+            writeLocationData(entity.getLocation());
+        }
+
+        protected void writeLastDamageData(Entity damaged) {
+            EntityDamageEvent lastDamageEvent = damaged.getLastDamageCause();
+            if (lastDamageEvent != null) {
+                wrapper.set(DAMAGE_CAUSE, lastDamageEvent.getCause() != null ? lastDamageEvent.getCause().name() : "Unknown");
+                wrapper.set(DAMAGE_AMOUNT, lastDamageEvent.getFinalDamage());
+            }
+            wrapper.set(DISPLAY_METHOD, "damage");
         }
 
         protected void writeLocationData(Location location) {
@@ -437,6 +472,10 @@ public final class OEntry {
             return new PlayerEventBuilder(new SourceBuilder(player));
         }
 
+        public PlayerEventBuilder player(Player player) {
+            return new PlayerEventBuilder(new SourceBuilder(player));
+        }
+
         public EventBuilder entity(Entity entity) {
             return new EventBuilder(new SourceBuilder(entity));
         }
@@ -480,7 +519,7 @@ public final class OEntry {
 
         public OEntry quit() {
             this.eventName = "quit";
-            wrapper.set(TARGET, player().getAddress().getHostName());
+            wrapper.set(TARGET, player().getAddress().getHostString());
             writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
         }

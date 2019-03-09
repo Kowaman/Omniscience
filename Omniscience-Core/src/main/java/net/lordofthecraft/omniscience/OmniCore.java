@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
 import net.lordofthecraft.omniscience.api.OmniApi;
+import net.lordofthecraft.omniscience.api.display.DamageDisplayHandler;
 import net.lordofthecraft.omniscience.api.display.DisplayHandler;
 import net.lordofthecraft.omniscience.api.display.ItemDisplayHandler;
 import net.lordofthecraft.omniscience.api.display.MessageDisplayHandler;
@@ -15,6 +16,7 @@ import net.lordofthecraft.omniscience.api.flag.*;
 import net.lordofthecraft.omniscience.api.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.api.interfaces.WorldEditHandler;
 import net.lordofthecraft.omniscience.api.parameter.*;
+import net.lordofthecraft.omniscience.api.util.PastTenseWithEnabled;
 import net.lordofthecraft.omniscience.command.OmniscienceCommand;
 import net.lordofthecraft.omniscience.command.OmniscienceTabCompleter;
 import net.lordofthecraft.omniscience.command.util.OmniTeleCommand;
@@ -154,6 +156,7 @@ final class OmniCore implements IOmniscience {
         registerParameterHandler(new ItemParameter());
         registerParameterHandler(new ItemDescParameter());
         registerParameterHandler(new CustomItemParameter());
+        registerParameterHandler(new TargetParameter());
     }
 
     private void registerFlags() {
@@ -161,8 +164,10 @@ final class OmniCore implements IOmniscience {
         flagHandlerList.add(new FlagNoGroup());
         flagHandlerList.add(new FlagOrder());
         flagHandlerList.add(new FlagDrain());
+        flagHandlerList.add(new FlagNoChat());
         if (OmniConfig.INSTANCE.areDefaultsEnabled()) {
             flagHandlerList.add(new FlagIgnoreDefault());
+            flagHandlerList.add(new FlagGlobal());
         }
         if (Bukkit.getPluginManager().isPluginEnabled("WorldEdit")) {
             onWorldEditStatusChange(true);
@@ -186,6 +191,7 @@ final class OmniCore implements IOmniscience {
     private void registerDisplayHandlers() {
         displayHandlerList.add(new MessageDisplayHandler());
         displayHandlerList.add(new ItemDisplayHandler());
+        displayHandlerList.add(new DamageDisplayHandler());
     }
 
     public StorageHandler getStorageHandler() {
@@ -235,22 +241,24 @@ final class OmniCore implements IOmniscience {
 
     void registerEvent(String event, Class<? extends DataEntry> clazz) {
         eventMap.put(event, clazz);
-        registerEvent(event);
     }
 
-    void registerEvent(String event) {
-        OmniEventRegistrar.INSTANCE.addEvent(event, true);
+    @Override
+    public void registerEvent(String event, String pastTense) {
+        OmniEventRegistrar.INSTANCE.addEvent(event, pastTense, true);
     }
 
     void registerDisplayHandler(DisplayHandler handler) {
         displayHandlerList.add(handler);
     }
 
-    void registerFlagHandler(FlagHandler handler) {
+    @Override
+    public void registerFlagHandler(FlagHandler handler) {
         flagHandlerList.add(handler);
     }
 
-    void registerParameterHandler(ParameterHandler handler) {
+    @Override
+    public void registerParameterHandler(ParameterHandler handler) {
         if (parameterHandlerList.stream()
                 .flatMap(fHandler -> fHandler.getAliases().stream())
                 .anyMatch(handler::canHandle)) {
@@ -300,7 +308,7 @@ final class OmniCore implements IOmniscience {
     }
 
     @Override
-    public Map<String, Boolean> getEvents() {
+    public Map<String, PastTenseWithEnabled> getEvents() {
         return OmniEventRegistrar.INSTANCE.getEventMapping();
     }
 

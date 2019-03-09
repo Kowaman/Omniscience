@@ -1,6 +1,7 @@
 package net.lordofthecraft.omniscience.api.flag;
 
 import com.google.common.collect.ImmutableList;
+import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import org.bukkit.command.CommandSender;
@@ -8,10 +9,10 @@ import org.bukkit.command.CommandSender;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-public class FlagExtended extends BaseFlagHandler {
+public class FlagGlobal extends BaseFlagHandler {
 
-    public FlagExtended() {
-        super(ImmutableList.of("ex"));
+    public FlagGlobal() {
+        super(ImmutableList.of("g"));
     }
 
     @Override
@@ -26,7 +27,7 @@ public class FlagExtended extends BaseFlagHandler {
 
     @Override
     public Optional<CompletableFuture<?>> process(QuerySession session, String flag, String value, Query query) {
-        session.addFlag(Flag.EXTENDED);
+        Omniscience.getParameterHandler("r").ifPresent(session::addIgnoredDefault);
         return Optional.empty();
     }
 }

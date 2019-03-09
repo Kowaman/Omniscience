@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 public class FlagNoGroup extends BaseFlagHandler {
 
     public FlagNoGroup() {
-        super(ImmutableList.of("ng", "no-group"));
+        super(ImmutableList.of("ng"));
     }
 
     @Override
