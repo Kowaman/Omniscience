@@ -111,6 +111,7 @@ public class SearchCallback implements AsyncCallback {
 
             TextComponent start = new TextComponent(startOfMessage.insert(0, ChatColor.GRAY + "= ").toString());
             TextComponent targetComponent = targetHover.orElse(new TextComponent(target));
+            targetComponent.setColor(ChatColor.AQUA);
             TextComponent end = new TextComponent(endOfMessage.toString());
 
             ComponentBuilder holdingBuilder = new ComponentBuilder("");
