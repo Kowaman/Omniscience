@@ -162,6 +162,7 @@ final class OmniCore implements IOmniscience {
         flagHandlerList.add(new FlagNoGroup());
         flagHandlerList.add(new FlagOrder());
         flagHandlerList.add(new FlagDrain());
+        flagHandlerList.add(new FlagNoChat());
         if (OmniConfig.INSTANCE.areDefaultsEnabled()) {
             flagHandlerList.add(new FlagIgnoreDefault());
             flagHandlerList.add(new FlagGlobal());

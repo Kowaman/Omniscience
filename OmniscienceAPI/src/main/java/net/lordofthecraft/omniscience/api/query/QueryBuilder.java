@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.lordofthecraft.omniscience.api.OmniApi;
+import net.lordofthecraft.omniscience.api.data.DataKeys;
+import net.lordofthecraft.omniscience.api.flag.Flag;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterException;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
@@ -37,6 +39,10 @@ public class QueryBuilder {
         checkNotNull(session);
 
         Query query = new Query();
+        if (session.hasFlag(Flag.NO_CHAT)) {
+            query.addCondition(FieldCondition.of(DataKeys.EVENT_NAME, MatchRule.EXCLUDES, "say"));
+            query.addCondition(FieldCondition.of(DataKeys.EVENT_NAME, MatchRule.EXCLUDES, "command"));
+        }
         CompletableFuture<Query> future = new CompletableFuture<>();
 
         Map<String, String> definedParameters = Maps.newHashMap();
@@ -68,6 +74,7 @@ public class QueryBuilder {
         } else {
             future.complete(query);
         }
+
 
         if (OmniApi.areDefaultsEnabled()) {
             StringBuilder usedDefaults = new StringBuilder();

@@ -47,6 +47,7 @@ public final class WandInteractListener implements Listener {
 
         QuerySession session = new QuerySession(event.getPlayer());
         session.addFlag(Flag.NO_GROUP);
+        session.addFlag(Flag.NO_CHAT);
         session.newQuery().addCondition(SearchConditionGroup.from(event.getClickedBlock().getLocation()));
         Block b = event.getClickedBlock();
 
@@ -68,6 +69,7 @@ public final class WandInteractListener implements Listener {
 
         QuerySession session = new QuerySession(event.getPlayer());
         session.addFlag(Flag.NO_GROUP);
+        session.addFlag(Flag.NO_CHAT);
         session.newQuery().addCondition(SearchConditionGroup.from(event.getBlockPlaced().getLocation()));
         BlockState b = event.getBlockReplacedState();
 
