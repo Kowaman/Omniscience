@@ -2,8 +2,9 @@ package net.lordofthecraft.omniscience.listener.item;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import java.util.Map;
+import java.util.Objects;
 import net.lordofthecraft.omniscience.Omniscience;
-import net.lordofthecraft.omniscience.api.OmniApi;
 import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
 import net.lordofthecraft.omniscience.listener.OmniListener;
@@ -16,9 +17,6 @@ import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Map;
-import java.util.Objects;
 
 public class EventInventoryListener extends OmniListener {
 
@@ -263,7 +261,7 @@ public class EventInventoryListener extends OmniListener {
                     break;
                 case HOTBAR_MOVE_AND_READD:
                     if (inInventory) {
-                        int slot = e.getHotbarButton() - 1;
+                        int slot = e.getHotbarButton();
                         ItemStack item = e.getWhoClicked().getInventory().getItem(slot).clone();
                         ItemStack current = e.getCurrentItem().clone();
                         if (d()
@@ -291,11 +289,8 @@ public class EventInventoryListener extends OmniListener {
                     break;
                 case HOTBAR_SWAP:
                     if (inInventory) {
-                        int slot = e.getHotbarButton() - 1;
-                        if (slot < 0) {
-                            OmniApi.warning("Hotbar slot button of 0 was reached for the player " + e.getWhoClicked().getName() + " inside of the inventory of a " + e.getInventory().getHolder().toString());
-                            break;
-                        }
+                        int slot = e.getHotbarButton();
+
                         ItemStack item = e.getWhoClicked().getInventory().getItem(slot).clone();
                         ItemStack toSwap = e.getCurrentItem().clone();
                         if (w() && toSwap != null && !toSwap.getType().name().contains("AIR")) {
