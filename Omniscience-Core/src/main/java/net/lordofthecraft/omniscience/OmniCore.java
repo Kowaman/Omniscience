@@ -88,17 +88,16 @@ final class OmniCore implements IOmniscience {
 
         }
 
+        omniscience.getLogger().log(Level.INFO, "Omniscience is Awake. None can escape.");
+    }
+
+    void onLoad(Omniscience omniscience) {
         try {
             OmniApi.setCore(this);
         } catch (IllegalAccessException e) {
             omniscience.getLogger().log(Level.SEVERE, "Failed to register Omniscience with the Omniscience API! This is a critical failure, we're shutting down! Is the plugin already running?", e);
             Bukkit.getPluginManager().disablePlugin(omniscience);
-            return;
         }
-        omniscience.getLogger().log(Level.INFO, "Omniscience is Awake. None can escape.");
-    }
-
-    void onLoad(Omniscience omniscience) {
     }
 
     void onDisable(Omniscience omniscience) {
