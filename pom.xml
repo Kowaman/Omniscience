@@ -6,7 +6,7 @@
 
     <groupId>net.lordofthecraft</groupId>
     <artifactId>Omniscience</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <modules>
         <module>OmniscienceAPI</module>
         <module>Omniscience-Core</module>
@@ -18,7 +18,6 @@
     <description>The Spigot solution to block logging and rollbacks for 1.13.2+</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <globalversion>1.0.1</globalversion>
     </properties>
     <url>https://lotc.co/</url>
 
