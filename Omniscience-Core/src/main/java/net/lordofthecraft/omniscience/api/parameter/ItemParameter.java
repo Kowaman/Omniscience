@@ -31,7 +31,7 @@ public class ItemParameter extends BaseParameterHandler {
 
     @Override
     public boolean acceptsValue(String value) {
-        return pattern.matcher(value).matches();
+        return pattern.matcher(value).matches() && isItemValue(value);
     }
 
     @Override
@@ -50,5 +50,14 @@ public class ItemParameter extends BaseParameterHandler {
         return Optional.of(generateDefaultsBasedOnPartial(Lists.newArrayList(Material.values()).stream().filter(Material::isItem)
                 .map(mat -> mat.name().toLowerCase())
                 .collect(Collectors.toList()), partial != null ? partial.toLowerCase() : partial));
+    }
+
+    private boolean isItemValue(String value) {
+        for (String s : getInputAsList(value)) {
+            if (Material.getMaterial(s) == null || Material.getMaterial(s).isItem()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

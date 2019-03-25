@@ -31,7 +31,7 @@ public class BlockParameter extends BaseParameterHandler {
 
     @Override
     public boolean acceptsValue(String value) {
-        return pattern.matcher(value).matches();
+        return pattern.matcher(value).matches() && areBlockValues(value);
     }
 
     @Override
@@ -49,5 +49,14 @@ public class BlockParameter extends BaseParameterHandler {
     public Optional<List<String>> suggestTabCompletion(String partial) {
         return Optional.of(generateDefaultsBasedOnPartial(Lists.newArrayList(Material.values())
                 .stream().filter(Material::isBlock).map(mat -> mat.name().toLowerCase()).collect(Collectors.toList()), partial != null ? partial.toLowerCase() : partial));
+    }
+
+    private boolean areBlockValues(String value) {
+        for (String s : getInputAsList(value)) {
+            if (Material.getMaterial(s) == null || Material.getMaterial(s).isBlock()) {
+                return false;
+            }
+        }
+        return true;
     }
 }
