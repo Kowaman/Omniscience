@@ -63,7 +63,6 @@ public class SearchCallback implements AsyncCallback {
         startOfMessage.append(Formatter.formatSecondaryMessage(entry.getSourceName())).append(" ");
         startOfMessage.append(ChatColor.WHITE).append(entry.getVerbPastTense()).append(" ");
 
-        //this would be FUCKING AWESOME to show the item (if there is one)!
         hoverMessage.append(ChatColor.DARK_GRAY).append("Source: ").append(ChatColor.WHITE).append(entry.getSourceName());
         hoverMessage.append("\n").append(ChatColor.DARK_GRAY).append("Event: ").append(ChatColor.WHITE).append(entry.getEventName());
 

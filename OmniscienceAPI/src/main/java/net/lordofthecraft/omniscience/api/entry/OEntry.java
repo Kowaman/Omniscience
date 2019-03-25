@@ -185,12 +185,16 @@ public final class OEntry {
         }
 
         public OEntry dropped(Item item) {
+            return droppedItem(item.getItemStack(), item.getLocation());
+        }
+
+        public OEntry droppedItem(ItemStack item, Location location) {
             this.eventName = "drop";
-            wrapper.set(ITEMSTACK, item.getItemStack());
-            wrapper.set(QUANTITY, item.getItemStack().getAmount());
-            wrapper.set(TARGET, item.getItemStack().getType().name());
+            wrapper.set(ITEMSTACK, item);
+            wrapper.set(QUANTITY, item.getAmount());
+            wrapper.set(TARGET, item.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
-            writeLocationData(item.getLocation());
+            writeLocationData(location);
             return new OEntry(sourceBuilder, this);
         }
 
@@ -459,6 +463,10 @@ public final class OEntry {
 
             if (source instanceof CommandSender) {
                 return new EventBuilder(new SourceBuilder(((CommandSender) source).getName()));
+            }
+
+            if (source instanceof Block) {
+                return new EventBuilder(new SourceBuilder(((Block) source).getType().name()));
             }
 
             return new EventBuilder(new SourceBuilder("Environment"));

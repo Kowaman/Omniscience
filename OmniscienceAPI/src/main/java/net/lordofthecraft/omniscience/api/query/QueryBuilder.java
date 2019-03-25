@@ -158,7 +158,7 @@ public class QueryBuilder {
         }
 
         if (!handler.acceptsValue(parameter.getValue())) {
-            throw new ParameterException(String.format("Invalid value '%s' for parameter '%s'", parameter.getKey(), parameter.getValue()));
+            throw new ParameterException(String.format("Invalid value '%s' for parameter '%s'", parameter.getValue(), parameter.getKey()));
         }
 
         Optional<ParameterException> oThrow = definedParameters.entrySet().stream()

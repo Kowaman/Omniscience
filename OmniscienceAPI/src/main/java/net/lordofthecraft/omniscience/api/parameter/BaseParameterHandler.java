@@ -8,6 +8,7 @@ import net.lordofthecraft.omniscience.api.query.MatchRule;
 import net.lordofthecraft.omniscience.api.query.Query;
 import net.lordofthecraft.omniscience.api.util.DataHelper;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -114,9 +115,21 @@ public abstract class BaseParameterHandler implements ParameterHandler {
         exclusionBuilder.append("))");
         searchBuilder.append(")+.*$");
         if (excluded) {
-            return Pattern.compile(exclusionBuilder.toString() + searchBuilder.toString());
+            return Pattern.compile("/" + exclusionBuilder.toString() + searchBuilder.toString() + "/i");
         } else {
             return Pattern.compile(searchBuilder.toString());
         }
+    }
+
+    protected List<String> getInputAsList(String value) {
+        List<String> list = Lists.newArrayList();
+        value = value.replace("!", "");
+        if (value.contains(",")) {
+            String[] split = value.split(",");
+            list.addAll(Arrays.asList(split));
+        } else {
+            list.add(value);
+        }
+        return list;
     }
 }

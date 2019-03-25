@@ -8,8 +8,7 @@ import net.lordofthecraft.omniscience.listener.OmniListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
+import org.bukkit.block.*;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Bed;
@@ -21,6 +20,8 @@ import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityBreakDoorEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 
 import java.util.List;
@@ -37,6 +38,7 @@ public class EventBreakListener extends OmniListener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event) {
         OEntry.create().source(event.getPlayer()).brokeBlock(new LocationTransaction<>(event.getBlock().getLocation(), event.getBlock().getState(), null)).save();
+        saveContainerDrops(event.getPlayer(), event.getBlock());
         //For rollbacks and restores dependents should be saved after the parent
         saveMultiBreak(event.getPlayer(), event.getBlock());
     }
@@ -46,12 +48,16 @@ public class EventBreakListener extends OmniListener {
         if (event.getBlock().hasMetadata("player-source")) {
             List<MetadataValue> metadataValues = event.getBlock().getMetadata("player-source");
             for (MetadataValue value : metadataValues) {
-                if (writeBlockBreakForMetaData(value, event.blockList())) {
+                if (writeBlockBreakForMetaData(value, event.blockList(), event.getBlock())) {
                     return;
                 }
             }
         } else {
-            event.blockList().forEach(block -> OEntry.create().source(event.getBlock().getType().name()).brokeBlock(new LocationTransaction<>(block.getLocation(), block.getState(), null)).save());
+            event.blockList().forEach(block -> {
+                OEntry.create().source(event.getBlock().getType().name()).brokeBlock(new LocationTransaction<>(block.getLocation(), block.getState(), null)).save();
+                saveContainerDrops(event.getBlock(), block);
+                saveMultiBreak(event.getBlock(), block);
+            });
         }
     }
 
@@ -75,7 +81,7 @@ public class EventBreakListener extends OmniListener {
         if (event.getEntity().hasMetadata("player-source")) {
             List<MetadataValue> metadataValues = event.getEntity().getMetadata("player-source");
             for (MetadataValue value : metadataValues) {
-                if (writeBlockBreakForMetaData(value, event.blockList())) {
+                if (writeBlockBreakForMetaData(value, event.blockList(), event.getEntity())) {
                     return;
                 }
             }
@@ -83,11 +89,21 @@ public class EventBreakListener extends OmniListener {
             event.blockList()
                     .stream()
                     .filter(block -> block.getType() == Material.CAVE_AIR)
-                    .forEach(block -> OEntry.create().source(event.getEntity()).brokeBlock(new LocationTransaction<>(block.getLocation(), block.getState(), null)).save());
+                    .forEach(block -> {
+                        OEntry.create().source(event.getEntity()).brokeBlock(new LocationTransaction<>(block.getLocation(), block.getState(), null)).save();
+                        saveContainerDrops(event.getEntity(), block);
+                        //For rollbacks and restores dependents should be saved after the parent
+                        saveMultiBreak(event.getEntity(), block);
+                    });
             event.blockList()
                     .stream()
                     .filter(block -> block.getType() != Material.CAVE_AIR)
-                    .forEach(block -> OEntry.create().source(event.getEntity()).brokeBlock(new LocationTransaction<>(block.getLocation(), block.getState(), null)).save());
+                    .forEach(block -> {
+                        OEntry.create().source(event.getEntity()).brokeBlock(new LocationTransaction<>(block.getLocation(), block.getState(), null)).save();
+                        saveContainerDrops(event.getEntity(), block);
+                        //For rollbacks and restores dependents should be saved after the parent
+                        saveMultiBreak(event.getEntity(), block);
+                    });
         }
     }
 
@@ -97,13 +113,18 @@ public class EventBreakListener extends OmniListener {
         saveDependantBreaks(null, event.getBlock());
     }
 
-    private boolean writeBlockBreakForMetaData(MetadataValue value, List<Block> blocks) {
+    private boolean writeBlockBreakForMetaData(MetadataValue value, List<Block> blocks, Object source) {
         if (value.getOwningPlugin() instanceof Omniscience) {
             OfflinePlayer player = Bukkit.getOfflinePlayer(UUID.fromString(value.asString()));
             if (player != null) {
                 blocks.stream()
                         .filter(block -> block.getType() != Material.CAVE_AIR)
-                        .forEach(block -> OEntry.create().source(player).brokeBlock(new LocationTransaction<>(block.getLocation(), block.getState(), null)).save());
+                        .forEach(block -> {
+                            OEntry.create().source(player).brokeBlock(new LocationTransaction<>(block.getLocation(), block.getState(), null)).save();
+                            saveContainerDrops(source, block);
+                            //For rollbacks and restores dependents should be saved after the parent
+                            saveMultiBreak(source, block);
+                        });
             }
             return true;
         }
@@ -138,6 +159,32 @@ public class EventBreakListener extends OmniListener {
             }
         }
         saveDependantBreaks(source, broken);
+    }
+
+    private void saveContainerDrops(Object source, Block container) {
+        if (container.getState() instanceof Container) {
+            Container cont = (Container) container.getState();
+            Inventory inventory = cont.getInventory();
+            if (inventory.getHolder() instanceof DoubleChest) {
+                DoubleChest chest = (DoubleChest) inventory.getHolder();
+                Chest left = (Chest) chest.getLeftSide();
+                Chest right = (Chest) chest.getRightSide();
+                if (sameLocations(left.getBlock(), container)) {
+                    inventory = left.getBlockInventory();
+                } else if (sameLocations(right.getBlock(), container)) {
+                    inventory = right.getBlockInventory();
+                }
+            }
+            for (ItemStack content : inventory) {
+                if (content != null && content.getType() != Material.AIR) {
+                    OEntry.create().source(source).droppedItem(content, container.getLocation()).save();
+                }
+            }
+        }
+    }
+
+    private boolean sameLocations(Block a, Block b) {
+        return a.getX() == b.getX() && a.getY() == b.getY() && a.getZ() == b.getZ();
     }
 
     private void saveDependantBreaks(Object source, Block broken) {
