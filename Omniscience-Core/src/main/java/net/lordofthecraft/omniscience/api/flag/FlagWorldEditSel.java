@@ -77,13 +77,13 @@ public class FlagWorldEditSel extends BaseFlagHandler {
         BlockVector3 maxPoint = selection.getMaximumPoint();
         BlockVector3 minPoint = selection.getMinimumPoint();
 
-        Range<Integer> xRange = Range.open(maxPoint.getBlockX(), minPoint.getBlockX());
+        Range<Integer> xRange = Range.open(minPoint.getBlockX(), maxPoint.getBlockX());
         group.add(FieldCondition.of(LOCATION.then(X), xRange));
 
-        Range<Integer> yRange = Range.open(maxPoint.getBlockY(), minPoint.getBlockY());
+        Range<Integer> yRange = Range.open(minPoint.getBlockY(), maxPoint.getBlockY());
         group.add(FieldCondition.of(LOCATION.then(Y), yRange));
 
-        Range<Integer> zRange = Range.open(maxPoint.getBlockZ(), minPoint.getBlockZ());
+        Range<Integer> zRange = Range.open(minPoint.getBlockZ(), maxPoint.getBlockZ());
         group.add(FieldCondition.of(LOCATION.then(Z), zRange));
 
         group.add(FieldCondition.of(LOCATION.then(WORLD), MatchRule.EQUALS, world.getUID().toString()));
