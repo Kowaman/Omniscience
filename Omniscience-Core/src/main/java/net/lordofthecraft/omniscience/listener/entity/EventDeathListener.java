@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class EventDeathListener extends OmniListener {
 
@@ -18,6 +19,9 @@ public class EventDeathListener extends OmniListener {
     public void onEntityDeath(EntityDeathEvent e) {
         if (e.getEntity().getKiller() != null || e.getEntity() instanceof Player) {
             OEntry.create().source(e.getEntity().getKiller()).kill(e.getEntity()).save();
+            for (ItemStack drop : e.getDrops()) {
+                OEntry.create().source(e.getEntity()).droppedItem(drop, e.getEntity().getLocation()).save();
+            }
         }
     }
 }
