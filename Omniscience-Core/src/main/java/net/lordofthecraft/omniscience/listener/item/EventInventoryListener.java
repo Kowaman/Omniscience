@@ -2,21 +2,24 @@ package net.lordofthecraft.omniscience.listener.item;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import java.util.Map;
-import java.util.Objects;
 import net.lordofthecraft.omniscience.Omniscience;
 import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
 import net.lordofthecraft.omniscience.listener.OmniListener;
 import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Map;
+import java.util.Objects;
 
 public class EventInventoryListener extends OmniListener {
 
@@ -41,8 +44,8 @@ public class EventInventoryListener extends OmniListener {
             OEntry.create().player(e.getWhoClicked()).cloned(cloned).save();
             return;
         }
-        if (e.getInventory().getHolder() instanceof Container && (w() || d())) {
-            Container container = (Container) e.getInventory().getHolder();
+        if ((e.getInventory().getHolder() instanceof Container || e.getInventory().getHolder() instanceof DoubleChest) && (w() || d())) {
+            InventoryHolder holder = e.getInventory().getHolder();
             boolean inInventory = e.getRawSlot() < e.getInventory().getSize();
             switch (e.getAction()) {
                 case NOTHING:
@@ -51,7 +54,7 @@ public class EventInventoryListener extends OmniListener {
                     if (inInventory && w()) {
                         ItemStack is = e.getCurrentItem().clone();
                         int clicked = e.getSlot();
-                        OEntry.create().player(e.getWhoClicked()).withdrew(container, is, clicked, new Transaction<>(is, null)).save();
+                        OEntry.create().player(e.getWhoClicked()).withdrew(holder, is, clicked, new Transaction<>(is, null)).save();
                     }
                     break;
                 case PICKUP_SOME:
@@ -67,9 +70,9 @@ public class EventInventoryListener extends OmniListener {
                             newIs.setAmount(withdrew);
                             if (is.getAmount() - withdrew > 0) {
                                 leftOver.setAmount(is.getAmount() - withdrew);
-                                OEntry.create().player(e.getWhoClicked()).withdrew(container, newIs, clicked, new Transaction<>(is, leftOver)).save();
+                                OEntry.create().player(e.getWhoClicked()).withdrew(holder, newIs, clicked, new Transaction<>(is, leftOver)).save();
                             } else {
-                                OEntry.create().player(e.getWhoClicked()).withdrew(container, newIs, clicked, new Transaction<>(is, null)).save();
+                                OEntry.create().player(e.getWhoClicked()).withdrew(holder, newIs, clicked, new Transaction<>(is, null)).save();
                             }
                         }
                     }
@@ -95,9 +98,9 @@ public class EventInventoryListener extends OmniListener {
                             if (is.getAmount() - amount > 0) {
                                 ItemStack leftOver = is.clone();
                                 leftOver.setAmount(is.getAmount() - amount);
-                                OEntry.create().player(e.getWhoClicked()).withdrew(container, newIs, clicked, new Transaction<>(is, leftOver)).save();
+                                OEntry.create().player(e.getWhoClicked()).withdrew(holder, newIs, clicked, new Transaction<>(is, leftOver)).save();
                             } else {
-                                OEntry.create().player(e.getWhoClicked()).withdrew(container, newIs, clicked, new Transaction<>(is, null)).save();
+                                OEntry.create().player(e.getWhoClicked()).withdrew(holder, newIs, clicked, new Transaction<>(is, null)).save();
                             }
 
                         }
@@ -115,9 +118,9 @@ public class EventInventoryListener extends OmniListener {
                             if (is.getAmount() - 1 > 0) {
                                 ItemStack leftOver = is.clone();
                                 leftOver.setAmount(is.getAmount() - 1);
-                                OEntry.create().player(e.getWhoClicked()).withdrew(container, newIs, clicked, new Transaction<>(is, leftOver)).save();
+                                OEntry.create().player(e.getWhoClicked()).withdrew(holder, newIs, clicked, new Transaction<>(is, leftOver)).save();
                             } else {
-                                OEntry.create().player(e.getWhoClicked()).withdrew(container, newIs, clicked, new Transaction<>(is, null)).save();
+                                OEntry.create().player(e.getWhoClicked()).withdrew(holder, newIs, clicked, new Transaction<>(is, null)).save();
                             }
 
                         }
@@ -135,7 +138,7 @@ public class EventInventoryListener extends OmniListener {
                             newCursor.setAmount(deposited);
                             ItemStack afterDeposit = is.clone();
                             afterDeposit.setAmount(is.getAmount() + deposited);
-                            OEntry.create().player(e.getWhoClicked()).deposited(container, newCursor, clicked, new Transaction<>(is, afterDeposit)).save();
+                            OEntry.create().player(e.getWhoClicked()).deposited(holder, newCursor, clicked, new Transaction<>(is, afterDeposit)).save();
                         }
                     }
                     break;
@@ -143,7 +146,7 @@ public class EventInventoryListener extends OmniListener {
                     if (inInventory && d()) {
                         ItemStack is = e.getCursor();
                         int clicked = e.getSlot();
-                        OEntry.create().player(e.getWhoClicked()).deposited(container, is, clicked, new Transaction<>(null, is)).save();
+                        OEntry.create().player(e.getWhoClicked()).deposited(holder, is, clicked, new Transaction<>(null, is)).save();
                     }
                     break;
                 case PLACE_ONE:
@@ -158,13 +161,13 @@ public class EventInventoryListener extends OmniListener {
                                     newCursor.setAmount(1);
                                     ItemStack afterDeposit = is.clone();
                                     afterDeposit.setAmount(is.getAmount() + 1);
-                                    OEntry.create().source(e.getWhoClicked()).deposited(container, newCursor, clicked, new Transaction<>(is, afterDeposit)).save();
+                                    OEntry.create().source(e.getWhoClicked()).deposited(holder, newCursor, clicked, new Transaction<>(is, afterDeposit)).save();
                                     return;
                                 }
                             } else {
                                 ItemStack newCursor = cursor.clone();
                                 newCursor.setAmount(1);
-                                OEntry.create().player(e.getWhoClicked()).deposited(container, newCursor, clicked, new Transaction<>(null, newCursor)).save();
+                                OEntry.create().player(e.getWhoClicked()).deposited(holder, newCursor, clicked, new Transaction<>(null, newCursor)).save();
                             }
                         }
                     }
@@ -175,10 +178,10 @@ public class EventInventoryListener extends OmniListener {
                         ItemStack toSwap = e.getCurrentItem();
                         int clicked = e.getSlot();
                         if (d()) {
-                            OEntry.create().player(e.getWhoClicked()).deposited(container, cursor, clicked, new Transaction<>(toSwap, cursor)).save();
+                            OEntry.create().player(e.getWhoClicked()).deposited(holder, cursor, clicked, new Transaction<>(toSwap, cursor)).save();
                         }
                         if (w()) {
-                            OEntry.create().player(e.getWhoClicked()).withdrew(container, toSwap, clicked, new Transaction<>(toSwap, cursor)).save();
+                            OEntry.create().player(e.getWhoClicked()).withdrew(holder, toSwap, clicked, new Transaction<>(toSwap, cursor)).save();
                         }
                     }
                     break;
@@ -189,7 +192,7 @@ public class EventInventoryListener extends OmniListener {
                 case DROP_ALL_SLOT:
                     if (inInventory && w()) {
                         ItemStack item = e.getCurrentItem().clone();
-                        OEntry.create().player(e.getWhoClicked()).withdrew(container, item, e.getSlot(), new Transaction<>(item, null)).save();
+                        OEntry.create().player(e.getWhoClicked()).withdrew(holder, item, e.getSlot(), new Transaction<>(item, null)).save();
                     }
                     break;
                 case DROP_ONE_SLOT:
@@ -200,10 +203,10 @@ public class EventInventoryListener extends OmniListener {
                             ItemStack leftOver = item.clone();
                             leftOver.setAmount(item.getAmount() - 1);
                             item.setAmount(1);
-                            OEntry.create().player(e.getWhoClicked()).withdrew(container, item, e.getSlot(), new Transaction<>(e.getCurrentItem().clone(), leftOver)).save();
+                            OEntry.create().player(e.getWhoClicked()).withdrew(holder, item, e.getSlot(), new Transaction<>(e.getCurrentItem().clone(), leftOver)).save();
                         } else {
                             item.setAmount(1);
-                            OEntry.create().player(e.getWhoClicked()).withdrew(container, item, e.getSlot(), new Transaction<>(e.getCurrentItem().clone(), null)).save();
+                            OEntry.create().player(e.getWhoClicked()).withdrew(holder, item, e.getSlot(), new Transaction<>(e.getCurrentItem().clone(), null)).save();
                         }
                     }
                     break;
@@ -245,17 +248,17 @@ public class EventInventoryListener extends OmniListener {
                             }
                         }
                         if (inInventory && w()) {
-                            changedItems.forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).withdrew(container, value.getChangedItem(), key, value.getItemTransaction()).save());
+                            changedItems.forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).withdrew(holder, value.getChangedItem(), key, value.getItemTransaction()).save());
                         } else if (!inInventory && d()) {
-                            changedItems.forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).deposited(container, value.getChangedItem(), key, value.getItemTransaction()).save());
+                            changedItems.forEach((key, value) -> OEntry.create().player(e.getWhoClicked()).deposited(holder, value.getChangedItem(), key, value.getItemTransaction()).save());
                         }
                     }
                     if (tar.firstEmpty() != -1 && leftOver > 0) {
                         is.setAmount(leftOver > is.getMaxStackSize() ? is.getMaxStackSize() : leftOver);
                         if (inInventory && w()) {
-                            OEntry.create().player(e.getWhoClicked()).withdrew(container, is, e.getSlot(), new Transaction<>(is, null)).save();
+                            OEntry.create().player(e.getWhoClicked()).withdrew(holder, is, e.getSlot(), new Transaction<>(is, null)).save();
                         } else if (!inInventory && d()) {
-                            OEntry.create().player(e.getWhoClicked()).deposited(container, is, tar.firstEmpty(), new Transaction<>(null, is)).save();
+                            OEntry.create().player(e.getWhoClicked()).deposited(holder, is, tar.firstEmpty(), new Transaction<>(null, is)).save();
                         }
                     }
                     break;
@@ -274,15 +277,15 @@ public class EventInventoryListener extends OmniListener {
                             }
                             ItemStack afterDeposit = item.clone();
                             afterDeposit.setAmount(item.getAmount() + toCap);
-                            OEntry.create().player(e.getWhoClicked()).deposited(container, newStack, e.getSlot(), new Transaction<>(item, afterDeposit)).save();
+                            OEntry.create().player(e.getWhoClicked()).deposited(holder, newStack, e.getSlot(), new Transaction<>(item, afterDeposit)).save();
                         } else if (d() && (current == null || current.getType().name().contains("AIR"))) {
-                            OEntry.create().player(e.getWhoClicked()).deposited(container, item, e.getSlot(), new Transaction<>(null, item)).save();
+                            OEntry.create().player(e.getWhoClicked()).deposited(holder, item, e.getSlot(), new Transaction<>(null, item)).save();
                         } else if (!current.isSimilar(item)) {
                             if (w()) {
-                                OEntry.create().player(e.getWhoClicked()).withdrew(container, current, e.getSlot(), new Transaction<>(current, item)).save();
+                                OEntry.create().player(e.getWhoClicked()).withdrew(holder, current, e.getSlot(), new Transaction<>(current, item)).save();
                             }
                             if (d() && item != null && !item.getType().name().contains("AIR")) {
-                                OEntry.create().player(e.getWhoClicked()).deposited(container, item, e.getSlot(), new Transaction<>(current, item)).save();
+                                OEntry.create().player(e.getWhoClicked()).deposited(holder, item, e.getSlot(), new Transaction<>(current, item)).save();
                             }
                         }
                     }
@@ -294,10 +297,10 @@ public class EventInventoryListener extends OmniListener {
                         ItemStack item = e.getWhoClicked().getInventory().getItem(slot).clone();
                         ItemStack toSwap = e.getCurrentItem().clone();
                         if (w() && toSwap != null && !toSwap.getType().name().contains("AIR")) {
-                            OEntry.create().player(e.getWhoClicked()).withdrew(container, toSwap, e.getSlot(), new Transaction<>(toSwap, item)).save();
+                            OEntry.create().player(e.getWhoClicked()).withdrew(holder, toSwap, e.getSlot(), new Transaction<>(toSwap, item)).save();
                         }
                         if (d() && item != null && !item.getType().name().contains("AIR")) {
-                            OEntry.create().player(e.getWhoClicked()).deposited(container, item, e.getSlot(), new Transaction<>(toSwap, item)).save();
+                            OEntry.create().player(e.getWhoClicked()).deposited(holder, item, e.getSlot(), new Transaction<>(toSwap, item)).save();
                         }
                     }
                     break;
@@ -309,7 +312,7 @@ public class EventInventoryListener extends OmniListener {
                     ItemStack targetItem = e.getCurrentItem().clone();
                     int currentAmount = targetItem.getAmount();
                     int spaceLeft = targetItem.getMaxStackSize() - currentAmount;
-                    Map<Integer, ? extends ItemStack> containerInventory = container.getInventory().all(targetItem);
+                    Map<Integer, ? extends ItemStack> containerInventory = holder.getInventory().all(targetItem);
                     Map<Integer, ? extends ItemStack> playerInventory = e.getWhoClicked().getInventory().all(targetItem);
                     Map<ItemWrapper, ItemTransaction> changedItems = Maps.newHashMap();
                     for (Map.Entry<Integer, ? extends ItemStack> entry : containerInventory.entrySet()) {
@@ -344,7 +347,7 @@ public class EventInventoryListener extends OmniListener {
                     }
                     for (Map.Entry<ItemWrapper, ItemTransaction> item : changedItems.entrySet()) {
                         if (item.getKey().top && w()) {
-                            OEntry.create().player(e.getWhoClicked()).withdrew(container, item.getValue().getChangedItem(), item.getKey().slot, item.getValue().getItemTransaction()).save();
+                            OEntry.create().player(e.getWhoClicked()).withdrew(holder, item.getValue().getChangedItem(), item.getKey().slot, item.getValue().getItemTransaction()).save();
                         }
                     }
                     break;

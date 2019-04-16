@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import net.lordofthecraft.omniscience.api.entry.OEntry;
 import net.lordofthecraft.omniscience.listener.OmniListener;
 import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -18,16 +19,16 @@ public class EventContainerListener extends OmniListener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryOpen(InventoryOpenEvent event) {
         if (isEnabled("open")
-                && event.getInventory().getHolder() instanceof Container) {
-            OEntry.create().source(event.getPlayer()).opened((Container) event.getInventory().getHolder()).save();
+                && (event.getInventory().getHolder() instanceof Container || event.getInventory().getHolder() instanceof DoubleChest)) {
+            OEntry.create().source(event.getPlayer()).opened(event.getInventory().getHolder()).save();
         }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryClose(InventoryCloseEvent event) {
         if (isEnabled("close")
-                && event.getInventory().getHolder() instanceof Container) {
-            OEntry.create().source(event.getPlayer()).closed((Container) event.getInventory().getHolder()).save();
+                && (event.getInventory().getHolder() instanceof Container || event.getInventory().getHolder() instanceof DoubleChest)) {
+            OEntry.create().source(event.getPlayer()).closed(event.getInventory().getHolder()).save();
         }
     }
 }
