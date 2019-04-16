@@ -50,6 +50,12 @@ final class OmniCore implements IOmniscience {
     }
 
     void onEnable(Omniscience omniscience, BukkitScheduler scheduler) {
+        try {
+            OmniApi.setCore(this);
+        } catch (IllegalAccessException e) {
+            omniscience.getLogger().log(Level.SEVERE, "Failed to register Omniscience with the Omniscience API! This is a critical failure, we're shutting down! Is the plugin already running?", e);
+            Bukkit.getPluginManager().disablePlugin(omniscience);
+        }
         omniscience.saveDefaultConfig();
         OmniConfig.INSTANCE.setup(omniscience.getConfig());
         try {
@@ -92,12 +98,6 @@ final class OmniCore implements IOmniscience {
     }
 
     void onLoad(Omniscience omniscience) {
-        try {
-            OmniApi.setCore(this);
-        } catch (IllegalAccessException e) {
-            omniscience.getLogger().log(Level.SEVERE, "Failed to register Omniscience with the Omniscience API! This is a critical failure, we're shutting down! Is the plugin already running?", e);
-            Bukkit.getPluginManager().disablePlugin(omniscience);
-        }
     }
 
     void onDisable(Omniscience omniscience) {
