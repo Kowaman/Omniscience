@@ -294,12 +294,14 @@ public class EventInventoryListener extends OmniListener {
                     if (inInventory) {
                         int slot = e.getHotbarButton();
 
-                        ItemStack item = e.getWhoClicked().getInventory().getItem(slot).clone();
-                        ItemStack toSwap = e.getCurrentItem().clone();
+                        ItemStack item = e.getWhoClicked().getInventory().getItem(slot);
+                        ItemStack toSwap = e.getCurrentItem();
                         if (w() && toSwap != null && !toSwap.getType().name().contains("AIR")) {
+                            toSwap = toSwap.clone();
                             OEntry.create().player(e.getWhoClicked()).withdrew(holder, toSwap, e.getSlot(), new Transaction<>(toSwap, item)).save();
                         }
                         if (d() && item != null && !item.getType().name().contains("AIR")) {
+                            item = item.clone();
                             OEntry.create().player(e.getWhoClicked()).deposited(holder, item, e.getSlot(), new Transaction<>(toSwap, item)).save();
                         }
                     }
