@@ -219,7 +219,7 @@ public class EventBreakListener extends OmniListener {
         }
         if (getStyle(down.getType()) == DependantStyle.ALL) {
             if (down.getBlockData() instanceof Directional) {
-                Directional direct = (Directional) down;
+                Directional direct = (Directional) down.getBlockData();
                 if (direct.getFacing().getOppositeFace() == BlockFace.DOWN) {
                     OEntry.create().source(source).brokeBlock(new LocationTransaction<>(down.getLocation(), down.getState(), null)).save();
                 }
