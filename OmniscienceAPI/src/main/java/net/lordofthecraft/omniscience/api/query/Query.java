@@ -7,7 +7,7 @@ import java.util.List;
 public class Query {
 
     private List<SearchCondition> searchCriteria;
-    private int searchLimit = 1000;
+    private int searchLimit = 2500;
 
     public Query() {
         this.searchCriteria = Lists.newArrayList();
