@@ -17,6 +17,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -561,6 +562,16 @@ public final class OEntry {
             this.eventName = "join";
             wrapper.set(TARGET, host);
             writeLocationData(player().getLocation());
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry teleported(Location from, Location to, PlayerTeleportEvent.TeleportCause cause) {
+            this.eventName = "teleport";
+            wrapper.set(TARGET, "x: " + to.getBlockX() + " y: " + to.getBlockY() + " z: " + to.getBlockZ() + " world: " + to.getWorld().getName());
+            wrapper.set(TELEPORT_CAUSE, cause.name());
+            wrapper.set(DISPLAY_METHOD, "teleport");
+            writeLocationData(from);
+
             return new OEntry(sourceBuilder, this);
         }
     }

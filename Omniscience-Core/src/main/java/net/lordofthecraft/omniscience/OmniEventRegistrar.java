@@ -15,6 +15,7 @@ import net.lordofthecraft.omniscience.listener.entity.EventMountListener;
 import net.lordofthecraft.omniscience.listener.item.*;
 import net.lordofthecraft.omniscience.listener.player.EventJoinListener;
 import net.lordofthecraft.omniscience.listener.player.EventQuitListener;
+import net.lordofthecraft.omniscience.listener.player.EventTeleportListener;
 import org.bukkit.plugin.PluginManager;
 
 import java.util.List;
@@ -58,6 +59,7 @@ public enum OmniEventRegistrar {
         //Player
         listeners.add(new EventJoinListener());
         listeners.add(new EventQuitListener());
+        listeners.add(new EventTeleportListener());
     }
 
     public Set<String> getEventNames() {

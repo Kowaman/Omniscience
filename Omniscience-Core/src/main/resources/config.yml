@@ -217,7 +217,10 @@ events:
   dismount:
     enabled: true
     past: dismounted
-
+  # Record when a player is teleported
+  teleport:
+    enabled: true
+    past: teleported to
 ##################################################################
 ###                     Plugin Integration                     ###
 ##################################################################

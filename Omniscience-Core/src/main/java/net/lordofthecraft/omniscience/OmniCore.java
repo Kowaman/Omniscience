@@ -7,10 +7,7 @@ import com.google.common.collect.Sets;
 import me.lucko.commodore.Commodore;
 import me.lucko.commodore.CommodoreProvider;
 import net.lordofthecraft.omniscience.api.OmniApi;
-import net.lordofthecraft.omniscience.api.display.DamageDisplayHandler;
-import net.lordofthecraft.omniscience.api.display.DisplayHandler;
-import net.lordofthecraft.omniscience.api.display.ItemDisplayHandler;
-import net.lordofthecraft.omniscience.api.display.MessageDisplayHandler;
+import net.lordofthecraft.omniscience.api.display.*;
 import net.lordofthecraft.omniscience.api.entry.*;
 import net.lordofthecraft.omniscience.api.flag.*;
 import net.lordofthecraft.omniscience.api.interfaces.IOmniscience;
@@ -191,6 +188,7 @@ final class OmniCore implements IOmniscience {
         displayHandlerList.add(new MessageDisplayHandler());
         displayHandlerList.add(new ItemDisplayHandler());
         displayHandlerList.add(new DamageDisplayHandler());
+        displayHandlerList.add(new TeleportDisplayHandler());
     }
 
     public StorageHandler getStorageHandler() {
