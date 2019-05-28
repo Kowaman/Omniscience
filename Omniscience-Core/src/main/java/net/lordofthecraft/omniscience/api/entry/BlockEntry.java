@@ -34,13 +34,15 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
                 .orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
 
         BlockState beforeState = location.getBlock().getState();
-        BlockState editState = location.getBlock().getState();
 
+        location.getBlock().setType(originalData.getMaterial());
+
+        BlockState editState = location.getBlock().getState();
         editState.setBlockData(originalData);
 
         handleTileEntity(editState, ORIGINAL_BLOCK);
 
-        editState.update(true, false);
+        editState.update(false, false);
 
         return ActionResult.success(new Transaction<>(beforeState, location.getBlock().getState()));
     }
