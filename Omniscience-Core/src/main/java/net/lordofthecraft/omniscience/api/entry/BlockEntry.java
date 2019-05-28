@@ -6,10 +6,7 @@ import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.api.util.DataHelper;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Banner;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Container;
-import org.bukkit.block.Sign;
+import org.bukkit.block.*;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
@@ -95,6 +92,13 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
         } else if (state instanceof Banner) {
             Banner banner = (Banner) state;
             data.getSerializableList(parent.then(BANNER_PATTERNS), Pattern.class).ifPresent(banner::setPatterns);
+        } else if (state instanceof Jukebox) {
+            Jukebox jukebox = (Jukebox) state;
+            data.getConfigSerializable(parent.then(RECORD)).ifPresent(config ->  {
+                if (config instanceof ItemStack) {
+                    jukebox.setRecord((ItemStack) config);
+                }
+            });
         }
     }
 }
