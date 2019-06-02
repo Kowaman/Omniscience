@@ -7,12 +7,11 @@ import net.lordofthecraft.omniscience.listener.OmniListener;
 import org.bukkit.block.Block;
 import org.bukkit.block.DaylightDetector;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Openable;
 import org.bukkit.block.data.type.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.material.Cake;
-import org.bukkit.material.Openable;
 
 public class EventUseListener extends OmniListener {
 
