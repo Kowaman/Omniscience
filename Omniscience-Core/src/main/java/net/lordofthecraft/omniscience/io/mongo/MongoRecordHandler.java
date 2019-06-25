@@ -133,7 +133,7 @@ public class MongoRecordHandler implements RecordHandler {
                     Calendar calendar = GregorianCalendar.getInstance();
                     calendar.set(Calendar.YEAR, document.getInteger("year"));
                     calendar.set(Calendar.MONTH, document.getInteger("month") - 1); //Subtract 1 because it's 0 through 11 for the months
-                    calendar.set(Calendar.DAY_OF_MONTH, document.getInteger("dayOfMonth") - 1); //Subtract 1 because the first day of the month is 0.
+                    calendar.set(Calendar.DAY_OF_MONTH, document.getInteger("dayOfMonth"));
                     calendar.set(Calendar.SECOND, 0);
                     calendar.set(Calendar.MINUTE, 0);
                     calendar.set(Calendar.HOUR, 0);
