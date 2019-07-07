@@ -325,7 +325,6 @@ public class EventBreakListener extends OmniListener {
             case FIRE_CORAL_WALL_FAN:
             case HORN_CORAL_WALL_FAN:
             case TUBE_CORAL_WALL_FAN:
-            case WALL_SIGN:
             case WHITE_WALL_BANNER:
             case BLACK_WALL_BANNER:
             case BLUE_WALL_BANNER:
