@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import net.lordofthecraft.omniscience.api.OmniApi;
 import net.lordofthecraft.omniscience.api.data.DataKey;
 import net.lordofthecraft.omniscience.api.data.DataWrapper;
+import net.lordofthecraft.omniscience.api.data.InventoryTransaction;
 import net.lordofthecraft.omniscience.api.data.LocationTransaction;
-import net.lordofthecraft.omniscience.api.data.Transaction;
 import net.lordofthecraft.omniscience.api.util.DataHelper;
 import net.lordofthecraft.omniscience.api.util.reflection.ReflectionHandler;
 import org.bukkit.Location;
@@ -337,22 +337,27 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry deposited(InventoryHolder holder, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
+        public OEntry deposited(InventoryTransaction<ItemStack> transaction, Location location, String containerName) {
             this.eventName = "deposit";
+            ItemStack diff = transaction.getDiff();
+            InventoryHolder holder = transaction.getHolder();
 
-            if (holder instanceof Container) {
-                wrapper.set(TARGET, itemStack.getType().name() + " in " + ((Container) holder).getBlock().getType().name());
-                writeLocationData(((Container) holder).getLocation());
+            if (containerName != null) {
+                wrapper.set(TARGET, diff.getType().name() + " in " + containerName);
+            } else if (holder instanceof Container) {
+                wrapper.set(TARGET, diff.getType().name() + " in " + ((Container) holder).getBlock().getType().name());
             } else if (holder instanceof DoubleChest) {
-                wrapper.set(TARGET, itemStack.getType().name() + " in CHEST");
-                writeLocationData(((DoubleChest) holder).getLocation());
+                wrapper.set(TARGET, diff.getType().name() + " in CHEST");
+            } else {
+                wrapper.set(TARGET, diff.getType().name() + " in UNKNOWN");
             }
+            writeLocationData(location);
 
-            wrapper.set(ITEM_SLOT, itemSlot);
+            wrapper.set(ITEM_SLOT, transaction.getSlot());
             //Set the itemstack with the quantity that was actually deposited into the container
-            wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(ITEMSTACK, diff);
             wrapper.set(DISPLAY_METHOD, "item");
-            wrapper.set(QUANTITY, itemStack.getAmount());
+            wrapper.set(QUANTITY, diff.getAmount());
             //Store the itemstack that was in this slot before the item was deposited, if any
             transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
             //Store the itemstack that is now in this slot after items were deposited
@@ -360,22 +365,27 @@ public final class OEntry {
             return new OEntry(sourceBuilder, this);
         }
 
-        public OEntry withdrew(InventoryHolder holder, ItemStack itemStack, int itemSlot, Transaction<ItemStack> transaction) {
+        public OEntry withdrew(InventoryTransaction<ItemStack> transaction, Location location, String containerName) {
             this.eventName = "withdraw";
+            ItemStack diff = transaction.getDiff();
+            InventoryHolder holder = transaction.getHolder();
 
-            if (holder instanceof Container) {
-                wrapper.set(TARGET, itemStack.getType().name() + " from " + ((Container) holder).getBlock().getType().name());
-                writeLocationData(((Container) holder).getLocation());
+            if (containerName != null) {
+                wrapper.set(TARGET, diff.getType().name() + " from " + containerName);
+            } else if (holder instanceof Container) {
+                wrapper.set(TARGET, diff.getType().name() + " from " + ((Container) holder).getBlock().getType().name());
             } else if (holder instanceof DoubleChest) {
-                wrapper.set(TARGET, itemStack.getType().name() + " from CHEST");
-                writeLocationData(((DoubleChest) holder).getLocation());
+                wrapper.set(TARGET, diff.getType().name() + " from CHEST");
+            } else {
+                wrapper.set(TARGET, diff.getType().name() + " from UNKNOWN");
             }
+            writeLocationData(location);
 
-            wrapper.set(ITEM_SLOT, itemSlot);
+            wrapper.set(ITEM_SLOT, transaction.getSlot());
             //Set the itemstack with the quantity that was actually withdrawn from the container
-            wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(ITEMSTACK, diff);
             wrapper.set(DISPLAY_METHOD, "item");
-            wrapper.set(QUANTITY, itemStack.getAmount());
+            wrapper.set(QUANTITY, diff.getAmount());
             //Store the itemstack that was in this slot before the items were withdrawn
             transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
             //Store the itemstack that is now in this slot after the withdraw, if any
