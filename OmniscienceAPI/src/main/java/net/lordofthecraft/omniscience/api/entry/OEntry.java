@@ -302,24 +302,34 @@ public final class OEntry {
         public OEntry opened(InventoryHolder holder) {
             this.eventName = "open";
             if (holder instanceof Container) {
-                wrapper.set(TARGET, ((Container) holder).getType().name());
-                writeLocationData(((Container) holder).getLocation());
+                return opened(((Container) holder).getLocation(), ((Container) holder).getType().name());
             } else if (holder instanceof DoubleChest) {
-                wrapper.set(TARGET, "CHEST");
-                writeLocationData(((DoubleChest)holder).getLocation());
+                return opened(((DoubleChest) holder).getLocation(), "CHEST");
             }
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry opened(Location location, String name) {
+            this.eventName = "open";
+            writeLocationData(location);
+            wrapper.set(TARGET, name);
             return new OEntry(sourceBuilder, this);
         }
 
         public OEntry closed(InventoryHolder holder) {
             this.eventName = "close";
             if (holder instanceof Container) {
-                wrapper.set(TARGET, ((Container) holder).getType().name());
-                writeLocationData(((Container) holder).getLocation());
+                return opened(((Container) holder).getLocation(), ((Container) holder).getType().name());
             } else if (holder instanceof DoubleChest) {
-                wrapper.set(TARGET, "CHEST");
-                writeLocationData(((DoubleChest)holder).getLocation());
+                return opened(((DoubleChest) holder).getLocation(), "CHEST");
             }
+            return new OEntry(sourceBuilder, this);
+        }
+
+        public OEntry closed(Location location, String name) {
+            this.eventName = "close";
+            writeLocationData(location);
+            wrapper.set(TARGET, name);
             return new OEntry(sourceBuilder, this);
         }
 
