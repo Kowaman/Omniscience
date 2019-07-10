@@ -8,12 +8,15 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
+import static net.lordofthecraft.omniscience.api.data.DataKeys.DATA;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.ENTITY;
+
 public class EntityEntry extends DataEntryComplete implements Actionable {
 
     @Override
     public ActionResult rollback() throws Exception {
         //Get the nbt data that was stored for this entry
-        String entityData = data.getString(DataKeys.ENTITY)
+        String entityData = data.getString(DATA.then(ENTITY))
                 .orElseThrow(() -> skipped(SkipReason.INVALID));
         //Get the entity type string that was stored for this entry
         String entityType = data.getString(DataKeys.ENTITY_TYPE)

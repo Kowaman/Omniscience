@@ -3,7 +3,6 @@ package net.lordofthecraft.omniscience.api.parameter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.lordofthecraft.omniscience.api.data.DataKey;
-import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.query.FieldCondition;
 import net.lordofthecraft.omniscience.api.query.MatchRule;
 import net.lordofthecraft.omniscience.api.query.Query;
@@ -14,6 +13,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static net.lordofthecraft.omniscience.api.data.DataKeys.DATA;
+import static net.lordofthecraft.omniscience.api.data.DataKeys.ITEMSTACK;
 
 public class CustomItemParameter extends BaseParameterHandler {
 
@@ -34,9 +36,9 @@ public class CustomItemParameter extends BaseParameterHandler {
     @Override
     public Optional<CompletableFuture<?>> buildForQuery(QuerySession session, String parameter, String value, Query query) {
         if (value.toLowerCase().startsWith("y")) {
-            query.addCondition(FieldCondition.of(DataKeys.ITEMSTACK.then(DataKey.of("meta")), MatchRule.EXISTS, true));
+            query.addCondition(FieldCondition.of(DATA.then(ITEMSTACK).then(DataKey.of("meta")), MatchRule.EXISTS, true));
         } else if (value.toLowerCase().startsWith("n")) {
-            query.addCondition(FieldCondition.of(DataKeys.ITEMSTACK.then(DataKey.of("meta")), MatchRule.EXISTS, false));
+            query.addCondition(FieldCondition.of(DATA.then(ITEMSTACK).then(DataKey.of("meta")), MatchRule.EXISTS, false));
         }
         return Optional.empty();
     }

@@ -52,7 +52,6 @@ public enum OmniConfig {
             dbType = DatabaseType.valueOf(configuration.getString("database.type").toUpperCase());
         }
         this.debugEnabled = configuration.getBoolean("debug");
-
         this.databaseName = configuration.getString("database.name");
         this.authenticationDatabaseName = configuration.getString("mongodb.authenticationDatabase");
         this.tableName = configuration.getString("database.dataTableName");

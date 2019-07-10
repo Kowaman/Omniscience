@@ -11,6 +11,7 @@ public final class DataKeys {
     public static final DataKey X = DataKey.of("X");
     public static final DataKey Y = DataKey.of("Y");
     public static final DataKey Z = DataKey.of("Z");
+    public static final DataKey DATA = DataKey.of("Data");
     public static final DataKey EVENT_NAME = DataKey.of("Event");
     public static final DataKey PLAYER_ID = DataKey.of("Player");
     public static final DataKey CAUSE = DataKey.of("Cause");

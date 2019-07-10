@@ -1,6 +1,5 @@
 package net.lordofthecraft.omniscience.api.display;
 
-import net.lordofthecraft.omniscience.api.data.DataKeys;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
 import net.lordofthecraft.omniscience.api.query.QuerySession;
 import net.lordofthecraft.omniscience.api.util.reflection.ReflectionHandler;
@@ -12,6 +11,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Optional;
 
+import static net.lordofthecraft.omniscience.api.data.DataKeys.*;
+
 public class ItemDisplayHandler extends SimpleDisplayHandler {
 
     public ItemDisplayHandler() {
@@ -20,8 +21,8 @@ public class ItemDisplayHandler extends SimpleDisplayHandler {
 
     @Override
     public Optional<String> buildTargetMessage(DataEntry entry, String target, QuerySession session) {
-        Optional<String> entity = entry.data.getString(DataKeys.ENTITY_TYPE);
-        Optional<String> event = entry.data.getString(DataKeys.EVENT_NAME);
+        Optional<String> entity = entry.data.getString(ENTITY_TYPE);
+        Optional<String> event = entry.data.getString(EVENT_NAME);
         boolean withdraw = event.isPresent() && event.get().contains("withdraw");
         return entity.map(s -> target + (withdraw ? " from " : " into ") + s);
     }
@@ -33,7 +34,7 @@ public class ItemDisplayHandler extends SimpleDisplayHandler {
 
     @Override
     public Optional<TextComponent> buildTargetSpecificHoverData(DataEntry entry, String target, QuerySession session) {
-        Optional<ItemStack> oItemStack = entry.data.getConfigSerializable(DataKeys.ITEMSTACK);
+        Optional<ItemStack> oItemStack = entry.data.getConfigSerializable(DATA.then(ITEMSTACK));
         if (oItemStack.isPresent()) {
             ItemStack is = oItemStack.get();
             TextComponent component = new TextComponent(target);

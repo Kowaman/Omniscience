@@ -114,13 +114,13 @@ public final class OEntry {
         public OEntry brokeBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "break";
             blockTransaction.getOriginalState().ifPresent(block -> {
-                wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
+                wrapper.set(DATA.then(ORIGINAL_BLOCK), DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
-                writeExtraStateData(ORIGINAL_BLOCK, block);
+                writeExtraStateData(DATA.then(DATA.then(ORIGINAL_BLOCK)), block);
             });
             blockTransaction.getFinalState().ifPresent(block -> {
-                wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
-                writeExtraStateData(NEW_BLOCK, block);
+                wrapper.set(DATA.then(NEW_BLOCK), DataWrapper.ofBlock(block));
+                writeExtraStateData(DATA.then(NEW_BLOCK), block);
             });
             writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -129,13 +129,13 @@ public final class OEntry {
         public OEntry placedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "place";
             blockTransaction.getOriginalState().ifPresent(block -> {
-                wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
-                writeExtraStateData(ORIGINAL_BLOCK, block);
+                wrapper.set(DATA.then(ORIGINAL_BLOCK), DataWrapper.ofBlock(block));
+                writeExtraStateData(DATA.then(ORIGINAL_BLOCK), block);
             });
             blockTransaction.getFinalState().ifPresent(block -> {
-                wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
+                wrapper.set(DATA.then(NEW_BLOCK), DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
-                writeExtraStateData(NEW_BLOCK, block);
+                writeExtraStateData(DATA.then(NEW_BLOCK), block);
             });
             writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -144,13 +144,13 @@ public final class OEntry {
         public OEntry decayedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "decay";
             blockTransaction.getOriginalState().ifPresent(block -> {
-                wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
+                wrapper.set(DATA.then(ORIGINAL_BLOCK), DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
-                writeExtraStateData(ORIGINAL_BLOCK, block);
+                writeExtraStateData(DATA.then(ORIGINAL_BLOCK), block);
             });
             blockTransaction.getFinalState().ifPresent(block -> {
-                wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
-                writeExtraStateData(NEW_BLOCK, block);
+                wrapper.set(DATA.then(NEW_BLOCK), DataWrapper.ofBlock(block));
+                writeExtraStateData(DATA.then(NEW_BLOCK), block);
             });
             writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -159,13 +159,13 @@ public final class OEntry {
         public OEntry grewBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "grow";
             blockTransaction.getOriginalState().ifPresent(block -> {
-                wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
+                wrapper.set(DATA.then(ORIGINAL_BLOCK), DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
-                writeExtraStateData(ORIGINAL_BLOCK, block);
+                writeExtraStateData(DATA.then(ORIGINAL_BLOCK), block);
             });
             blockTransaction.getFinalState().ifPresent(block -> {
-                wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
-                writeExtraStateData(NEW_BLOCK, block);
+                wrapper.set(DATA.then(NEW_BLOCK), DataWrapper.ofBlock(block));
+                writeExtraStateData(DATA.then(NEW_BLOCK), block);
             });
             writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -174,13 +174,13 @@ public final class OEntry {
         public OEntry formedBlock(LocationTransaction<BlockState> blockTransaction) {
             this.eventName = "form";
             blockTransaction.getOriginalState().ifPresent(block -> {
-                wrapper.set(ORIGINAL_BLOCK, DataWrapper.ofBlock(block));
-                writeExtraStateData(ORIGINAL_BLOCK, block);
+                wrapper.set(DATA.then(ORIGINAL_BLOCK), DataWrapper.ofBlock(block));
+                writeExtraStateData(DATA.then(ORIGINAL_BLOCK), block);
             });
             blockTransaction.getFinalState().ifPresent(block -> {
-                wrapper.set(NEW_BLOCK, DataWrapper.ofBlock(block));
+                wrapper.set(DATA.then(NEW_BLOCK), DataWrapper.ofBlock(block));
                 wrapper.set(TARGET, block.getType().name());
-                writeExtraStateData(NEW_BLOCK, block);
+                writeExtraStateData(DATA.then(NEW_BLOCK), block);
             });
             writeLocationData(blockTransaction.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -192,7 +192,7 @@ public final class OEntry {
 
         public OEntry droppedItem(ItemStack item, Location location) {
             this.eventName = "drop";
-            wrapper.set(ITEMSTACK, item);
+            wrapper.set(DATA.then(ITEMSTACK), item);
             wrapper.set(QUANTITY, item.getAmount());
             wrapper.set(TARGET, item.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
@@ -202,7 +202,7 @@ public final class OEntry {
 
         public OEntry pickup(Item item) {
             this.eventName = "pickup";
-            wrapper.set(ITEMSTACK, item.getItemStack());
+            wrapper.set(DATA.then(ITEMSTACK), item.getItemStack());
             wrapper.set(QUANTITY, item.getItemStack().getAmount());
             wrapper.set(TARGET, item.getItemStack().getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
@@ -214,7 +214,7 @@ public final class OEntry {
             this.eventName = "say";
             wrapper.set(TARGET, "something to Everyone");
             wrapper.set(DISPLAY_METHOD, "message");
-            wrapper.set(MESSAGE, message);
+            wrapper.set(DATA.then(MESSAGE), message);
             if (sourceBuilder.getSource() instanceof Entity) {
                 writeLocationData(((Entity) sourceBuilder.getSource()).getLocation());
             }
@@ -225,7 +225,7 @@ public final class OEntry {
             this.eventName = "command";
             wrapper.set(TARGET, command.split(" ")[0]);
             wrapper.set(DISPLAY_METHOD, "message");
-            wrapper.set(MESSAGE, command);
+            wrapper.set(DATA.then(MESSAGE), command);
             if (sourceBuilder.getSource() instanceof Entity) {
                 writeLocationData(((Entity) sourceBuilder.getSource()).getLocation());
             }
@@ -253,7 +253,7 @@ public final class OEntry {
                 wrapper.set(TARGET, killed.getName());
             }
             wrapper.set(ENTITY_TYPE, killed.getType().name());
-            wrapper.set(ENTITY, ReflectionHandler.getEntityAsBytes(killed));
+            wrapper.set(DATA.then(ENTITY), ReflectionHandler.getEntityAsBytes(killed));
             writeLastDamageData(killed);
             writeLocationData(killed.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -263,7 +263,7 @@ public final class OEntry {
             this.eventName = "entity-withdraw";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
-            wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(DATA.then(ITEMSTACK), itemStack);
             wrapper.set(ENTITY_TYPE, frame.getType().name());
             writeLocationData(frame.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -273,7 +273,7 @@ public final class OEntry {
             this.eventName = "entity-deposit";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
-            wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(DATA.then(ITEMSTACK), itemStack);
             wrapper.set(ENTITY_TYPE, frame.getType().name());
             writeLocationData(frame.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -283,7 +283,7 @@ public final class OEntry {
             this.eventName = "entity-deposit";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
-            wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(DATA.then(ITEMSTACK), itemStack);
             wrapper.set(ENTITY_TYPE, stand.getType().name());
             writeLocationData(stand.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -293,7 +293,7 @@ public final class OEntry {
             this.eventName = "entity-withdraw";
             wrapper.set(TARGET, itemStack.getType().name());
             wrapper.set(DISPLAY_METHOD, "item");
-            wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(DATA.then(ITEMSTACK), itemStack);
             wrapper.set(ENTITY_TYPE, stand.getType().name());
             writeLocationData(stand.getLocation());
             return new OEntry(sourceBuilder, this);
@@ -363,15 +363,15 @@ public final class OEntry {
             }
             writeLocationData(location);
 
-            wrapper.set(ITEM_SLOT, transaction.getSlot());
+            wrapper.set(DATA.then(ITEM_SLOT), transaction.getSlot());
             //Set the itemstack with the quantity that was actually deposited into the container
-            wrapper.set(ITEMSTACK, diff);
+            wrapper.set(DATA.then(ITEMSTACK), diff);
             wrapper.set(DISPLAY_METHOD, "item");
             wrapper.set(QUANTITY, diff.getAmount());
             //Store the itemstack that was in this slot before the item was deposited, if any
-            transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
+            transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(DATA.then(ITEMSTACK)), is));
             //Store the itemstack that is now in this slot after items were deposited
-            transaction.getFinalState().ifPresent(is -> wrapper.set(AFTER.then(ITEMSTACK), is));
+            transaction.getFinalState().ifPresent(is -> wrapper.set(AFTER.then(DATA.then(ITEMSTACK)), is));
             return new OEntry(sourceBuilder, this);
         }
 
@@ -391,15 +391,15 @@ public final class OEntry {
             }
             writeLocationData(location);
 
-            wrapper.set(ITEM_SLOT, transaction.getSlot());
+            wrapper.set(DATA.then(ITEM_SLOT), transaction.getSlot());
             //Set the itemstack with the quantity that was actually withdrawn from the container
-            wrapper.set(ITEMSTACK, diff);
+            wrapper.set(DATA.then(ITEMSTACK), diff);
             wrapper.set(DISPLAY_METHOD, "item");
             wrapper.set(QUANTITY, diff.getAmount());
             //Store the itemstack that was in this slot before the items were withdrawn
-            transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(ITEMSTACK), is));
+            transaction.getOriginalState().ifPresent(is -> wrapper.set(BEFORE.then(DATA.then(ITEMSTACK)), is));
             //Store the itemstack that is now in this slot after the withdraw, if any
-            transaction.getFinalState().ifPresent(is -> wrapper.set(AFTER.then(ITEMSTACK), is));
+            transaction.getFinalState().ifPresent(is -> wrapper.set(AFTER.then(DATA.then(ITEMSTACK)), is));
             return new OEntry(sourceBuilder, this);
         }
 
@@ -416,7 +416,7 @@ public final class OEntry {
                     ? entity.getType().name()
                     : originalName + " (" + entity.getType().name() + ")") + " to " + (newName == null ? "" : newName));
             wrapper.set(ENTITY_TYPE, entity.getType().name());
-            wrapper.set(ENTITY_ID, entity.getUniqueId());
+            wrapper.set(DATA.then(ENTITY_ID), entity.getUniqueId());
             writeLocationData(entity.getLocation());
 
             if (originalName != null) wrapper.set(NAME.then(BEFORE), originalName);
@@ -468,8 +468,8 @@ public final class OEntry {
         protected void writeLastDamageData(Entity damaged) {
             EntityDamageEvent lastDamageEvent = damaged.getLastDamageCause();
             if (lastDamageEvent != null) {
-                wrapper.set(DAMAGE_CAUSE, lastDamageEvent.getCause() != null ? lastDamageEvent.getCause().name() : "Unknown");
-                wrapper.set(DAMAGE_AMOUNT, String.valueOf(lastDamageEvent.getDamage()));
+                wrapper.set(DATA.then(DAMAGE_CAUSE), lastDamageEvent.getCause() != null ? lastDamageEvent.getCause().name() : "Unknown");
+                wrapper.set(DATA.then(DAMAGE_AMOUNT), String.valueOf(lastDamageEvent.getDamage()));
             }
             wrapper.set(DISPLAY_METHOD, "damage");
         }
@@ -556,8 +556,8 @@ public final class OEntry {
         public OEntry signInteract(Location location, Sign sign) {
             this.eventName = "useSign";
             wrapper.set(TARGET, sign.getType().name());
-            wrapper.set(ORIGINAL_BLOCK, sign.getBlockData().getAsString());
-            wrapper.set(SIGN_TEXT, Lists.newArrayList(sign.getLines()));
+            wrapper.set(DATA.then(ORIGINAL_BLOCK), sign.getBlockData().getAsString());
+            wrapper.set(DATA.then(SIGN_TEXT), Lists.newArrayList(sign.getLines()));
             writeLocationData(location);
             return new OEntry(sourceBuilder, this);
         }
@@ -565,7 +565,7 @@ public final class OEntry {
         public OEntry cloned(ItemStack itemStack) {
             this.eventName = "clone";
             wrapper.set(TARGET, itemStack.getType().name());
-            wrapper.set(ITEMSTACK, itemStack);
+            wrapper.set(DATA.then(ITEMSTACK), itemStack);
             wrapper.set(DISPLAY_METHOD, "item");
             writeLocationData(player().getLocation());
             return new OEntry(sourceBuilder, this);
@@ -588,7 +588,7 @@ public final class OEntry {
         public OEntry teleported(Location from, Location to, PlayerTeleportEvent.TeleportCause cause) {
             this.eventName = "teleport";
             wrapper.set(TARGET, "x: " + to.getBlockX() + " y: " + to.getBlockY() + " z: " + to.getBlockZ() + " world: " + to.getWorld().getName());
-            wrapper.set(TELEPORT_CAUSE, cause.name());
+            wrapper.set(DATA.then(TELEPORT_CAUSE), cause.name());
             wrapper.set(DISPLAY_METHOD, "teleport");
             writeLocationData(from);
 

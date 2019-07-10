@@ -22,7 +22,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
 
     @Override
     public ActionResult rollback() throws Exception {
-        DataWrapper original = data.getWrapper(ORIGINAL_BLOCK)
+        DataWrapper original = data.getWrapper(DATA.then(DATA.then(ORIGINAL_BLOCK)))
                 .orElseThrow(() -> skipped(SkipReason.INVALID));
 
         BlockData originalData = DataHelper.getBlockDataFromWrapper(original)
@@ -37,7 +37,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
         BlockState editState = location.getBlock().getState();
         editState.setBlockData(originalData);
 
-        handleTileEntity(editState, ORIGINAL_BLOCK);
+        handleTileEntity(editState, DATA.then(ORIGINAL_BLOCK));
 
         editState.update(false, false);
 
@@ -48,7 +48,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
     public ActionResult restore() throws Exception {
         Location location = DataHelper.getLocationFromDataWrapper(data)
                 .orElseThrow(() -> skipped(SkipReason.INVALID_LOCATION));
-        Optional<DataWrapper> oFinalState = data.getWrapper(NEW_BLOCK);
+        Optional<DataWrapper> oFinalState = data.getWrapper(DATA.then(NEW_BLOCK));
         BlockState beforeState = location.getBlock().getState();
         BlockState editState = location.getBlock().getState();
         if (!oFinalState.isPresent()) {
@@ -62,7 +62,7 @@ public class BlockEntry extends DataEntryComplete implements Actionable {
 
         editState.setBlockData(finalData);
 
-        handleTileEntity(editState, NEW_BLOCK);
+        handleTileEntity(editState, DATA.then(NEW_BLOCK));
 
         editState.update(true, false);
 
