@@ -67,7 +67,7 @@ public class MongoRecordHandler implements RecordHandler {
             query.addCondition(FieldCondition.of(DataKeys.MESSAGE, MatchRule.EXISTS, false));
         }
 
-        List<DataEntry> entries = Lists.newArrayList();
+        List<DataEntry> entries = Lists.newLinkedList();
         CompletableFuture<List<DataEntry>> future = new CompletableFuture<>();
 
         MongoCollection<Document> collection = MongoStorageHandler.getCollection(OmniConfig.INSTANCE.getTableName());

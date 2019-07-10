@@ -15,6 +15,7 @@ import net.lordofthecraft.omniscience.command.commands.PageCommand;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -30,7 +31,7 @@ public class SearchCallback implements AsyncCallback {
 
     @Override
     public void success(List<DataEntry> results) {
-        List<BaseComponent[]> components = results.stream().map(this::buildComponent).collect(Collectors.toList());
+        List<BaseComponent[]> components = results.stream().map(this::buildComponent).collect(Collectors.toCollection(LinkedList::new));
         PageCommand.setSearchResults(session.getSender(), components);
     }
 
