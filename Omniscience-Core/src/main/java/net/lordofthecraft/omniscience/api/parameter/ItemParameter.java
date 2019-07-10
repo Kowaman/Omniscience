@@ -54,7 +54,7 @@ public class ItemParameter extends BaseParameterHandler {
 
     private boolean isItemValue(String value) {
         for (String s : getInputAsList(value)) {
-            if (Material.getMaterial(s) == null || Material.getMaterial(s).isItem()) {
+            if (Material.getMaterial(s) == null || !Material.getMaterial(s).isItem()) {
                 return false;
             }
         }
