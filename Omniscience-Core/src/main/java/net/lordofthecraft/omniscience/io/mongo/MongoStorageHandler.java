@@ -70,14 +70,20 @@ public class MongoStorageHandler implements StorageHandler {
         database = client.getDatabase(OmniConfig.INSTANCE.getDatabaseName());
         this.recordHandler = new MongoRecordHandler(this);
         try {
-            getCollection(collectionName).createIndex(
-                    new Document("Location.X", 1).append("Location.Z", 1).append("Location.Y", 1).append("Created", -1)
-            );
-            getCollection(collectionName).createIndex(new Document("Created", -1).append("EventName", 1));
+            MongoCollection<Document> collection = getCollection(collectionName);
+            if (collection != null) {
+                collection.createIndex(
+                        new Document("Location.X", 1).append("Location.Z", 1).append("Location.Y", 1).append("Created", -1)
+                );
+                collection.createIndex(new Document("Created", -1).append("Event", 1));
+                collection.createIndex(new Document("Created", -1).append("Player", 1));
 
-            IndexOptions options = new IndexOptions().expireAfter(0L, TimeUnit.SECONDS);
-            getCollection(collectionName).createIndex(new Document("Expires", 1), options);
-            return true;
+                IndexOptions options = new IndexOptions().expireAfter(0L, TimeUnit.SECONDS);
+                collection.createIndex(new Document("Expires", 1), options);
+                return true;
+            } else {
+                return false;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;
