@@ -11,6 +11,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,11 +78,11 @@ public final class DataWrapper {
 
     private static Optional<String> asString(Object obj) {
         if (obj instanceof String) {
-            return Optional.of((String) obj);
+            return Optional.of(sanitiseString((String) obj));
         } else if (obj == null) {
             return Optional.empty();
         } else {
-            return Optional.of(obj.toString());
+            return Optional.of(sanitiseString(obj.toString()));
         }
     }
 
@@ -118,6 +119,10 @@ public final class DataWrapper {
         }
 
         return string.replace(",", "").split(" ")[0];
+    }
+
+    private static String sanitiseString(String string) {
+        return new String(string.trim().replaceAll("\u00A7", "&").getBytes(StandardCharsets.UTF_8));
     }
 
     private static boolean listBracketsMatch(Matcher candidate) {
@@ -421,6 +426,8 @@ public final class DataWrapper {
             } else {
                 this.data.put(key, ArrayUtils.clone((Object[]) value));
             }
+        } else if (value instanceof String) {
+            this.data.put(key, sanitiseString((String) value));
         } else {
             this.data.put(key, value);
         }
