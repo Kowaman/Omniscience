@@ -1,6 +1,8 @@
 package net.lordofthecraft.omniscience.api.interfaces;
 
+import net.lordofthecraft.omniscience.api.agnostic.Actor;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
+import net.lordofthecraft.omniscience.api.entry.entrybuilder.EventBuilder;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.parameter.ParameterHandler;
 import net.lordofthecraft.omniscience.api.util.PastTenseWithEnabled;
@@ -8,6 +10,7 @@ import net.lordofthecraft.omniscience.api.util.PastTenseWithEnabled;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public interface IOmniscience {
@@ -49,4 +52,8 @@ public interface IOmniscience {
     void registerWorldEditHandler(WorldEditHandler handler);
 
     String getDateFormat();
+
+    EventBuilder createLogBuilder(Object source);
+
+    Actor wrapActor(UUID actorId);
 }

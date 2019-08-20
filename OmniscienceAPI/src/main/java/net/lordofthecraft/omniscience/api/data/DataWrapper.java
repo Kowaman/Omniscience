@@ -5,6 +5,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.lordofthecraft.omniscience.api.data.json.DataWrapperDeserializer;
 import net.lordofthecraft.omniscience.api.util.DataHelper;
 import org.apache.commons.lang.ArrayUtils;
 import org.bukkit.block.BlockState;
@@ -30,6 +33,9 @@ public final class DataWrapper {
 
     private static final String[] listPairings = {"([{", ")]}"};
     private static final Pattern listPattern = Pattern.compile("^([\\(\\[\\{]?)(.+?)([\\)\\]\\}]?)$");
+    private static final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(DataWrapper.class, new DataWrapperDeserializer())
+            .create();
 
     private final Map<String, Object> data = Maps.newLinkedHashMap();
     private final DataKey key;
@@ -56,6 +62,10 @@ public final class DataWrapper {
         //TODO We'll need a way to parse this. Return later when we know wtf this looks like.
         wrapper.set(BLOCK_DATA, block.getBlockData().getAsString());
         return wrapper;
+    }
+
+    public static DataWrapper ofJson(String json) {
+        return gson.fromJson(json, DataWrapper.class);
     }
 
     private static Optional<Byte> asByte(Object obj) {

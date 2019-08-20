@@ -140,7 +140,7 @@ public final class ReflectionHandler {
     public static void loadEntityFromNBT(Entity entity, String nbt) {
         try {
             ByteArrayInputStream stream = new ByteArrayInputStream(Base64.decode(nbt));
-            Object compound = streamToolsLoadCompoundFromInput.invoke(null, (InputStream) stream);
+            Object compound = streamToolsLoadCompoundFromInput.invoke(null, stream);
             stream.close();
             if (entity instanceof LivingEntity) {
                 setCompoundFloat.invoke(compound, "Health", (float) ((LivingEntity) entity).getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());

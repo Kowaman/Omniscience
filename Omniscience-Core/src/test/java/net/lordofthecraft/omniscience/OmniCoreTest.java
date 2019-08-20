@@ -2,7 +2,9 @@ package net.lordofthecraft.omniscience;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.lordofthecraft.omniscience.io.StorageHandler;
+import net.lordofthecraft.omniscience.core.OmniCore;
+import net.lordofthecraft.omniscience.core.Omniscience;
+import net.lordofthecraft.omniscience.core.io.StorageHandler;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.command.PluginCommand;

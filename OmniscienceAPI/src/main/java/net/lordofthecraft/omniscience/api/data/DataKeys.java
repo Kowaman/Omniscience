@@ -1,5 +1,13 @@
 package net.lordofthecraft.omniscience.api.data;
 
+import com.google.common.collect.Maps;
+import net.lordofthecraft.omniscience.api.data.datatype.ClassType;
+import net.lordofthecraft.omniscience.api.data.datatype.DataType;
+import net.lordofthecraft.omniscience.api.data.datatype.KeyType;
+import org.bukkit.World;
+
+import java.util.Map;
+
 /**
  * A collection of easily accessed keys that are used by this plugin
  *
@@ -44,6 +52,17 @@ public final class DataKeys {
 
     //META TAGS
     public static final DataKey DISPLAY_METHOD = DataKey.of("DisplayMethod");
+
+    public static Map<DataKey, DataType> keyTypes = Maps.newLinkedHashMap();
+
+    static {
+        keyTypes.put(WORLD, new ClassType(World.class));
+        keyTypes.put(X, new ClassType(Integer.class));
+        keyTypes.put(Y, new ClassType(Integer.class));
+        keyTypes.put(Z, new ClassType(Integer.class));
+        keyTypes.put(LOCATION, new KeyType(WORLD, X, Y, Z));
+
+    }
 
     private DataKeys() {
     }

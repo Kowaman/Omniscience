@@ -1,6 +1,8 @@
 package net.lordofthecraft.omniscience.api;
 
+import net.lordofthecraft.omniscience.api.agnostic.Actor;
 import net.lordofthecraft.omniscience.api.entry.DataEntry;
+import net.lordofthecraft.omniscience.api.entry.entrybuilder.EventBuilder;
 import net.lordofthecraft.omniscience.api.flag.FlagHandler;
 import net.lordofthecraft.omniscience.api.interfaces.IOmniscience;
 import net.lordofthecraft.omniscience.api.interfaces.WorldEditHandler;
@@ -10,70 +12,78 @@ import net.lordofthecraft.omniscience.api.util.PastTenseWithEnabled;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class OmniApi {
+public final class OmniApi {
 
-    private static IOmniscience omniscience;
-
-    public static void setCore(IOmniscience omni) throws IllegalAccessException {
-        if (omniscience != null) {
-            throw new IllegalAccessException("Omniscience's instance cannot be replaced.");
-        }
-        omniscience = omni;
+    private OmniApi() {
+        throw new UnsupportedOperationException();
     }
 
-    public static IOmniscience getOmniscience() {
-        return omniscience;
+    public static IOmniscience get() {
+        return OmniscienceProvider.INSTANCE;
+    }
+
+    public static EventBuilder logBuilder(Object source) {
+        return get().createLogBuilder(source);
+    }
+
+    public static EventBuilder logBuilder(Actor actor) {
+        return get().createLogBuilder(actor);
+    }
+
+    public static Actor wrapActor(UUID actorId) {
+        return get().wrapActor(actorId);
     }
 
     public static void info(String info) {
-        omniscience.info(info);
+        get().info(info);
     }
 
     public static void warning(String warning) {
-        omniscience.warning(warning);
+        get().warning(warning);
     }
 
     public static void severe(String error) {
-        omniscience.severe(error);
+        get().severe(error);
     }
 
     public static void log(Level level, String msg, Throwable ex) {
-        omniscience.log(level, msg, ex);
+        get().log(level, msg, ex);
     }
 
     public static boolean areDefaultsEnabled() {
-        return omniscience.areDefaultsEnabled();
+        return get().areDefaultsEnabled();
     }
 
     public static List<ParameterHandler> getParameters() {
-        return omniscience.getParameters();
+        return get().getParameters();
     }
 
     public static Optional<FlagHandler> getFlagHandler(String flag) {
-        return omniscience.getFlagHandler(flag);
+        return get().getFlagHandler(flag);
     }
 
     public static Optional<ParameterHandler> getParameterHandler(String parameter) {
-        return omniscience.getParameterHandler(parameter);
+        return get().getParameterHandler(parameter);
     }
 
     public static String getDefaultTime() {
-        return omniscience.getDefaultTime();
+        return get().getDefaultTime();
     }
 
     public static int getDefaultRadius() {
-        return omniscience.getDefaultRadius();
+        return get().getDefaultRadius();
     }
 
     public static int getRadiusLimit() {
-        return omniscience.getMaxRadius();
+        return get().getMaxRadius();
     }
 
     public static Map<String, PastTenseWithEnabled> getEvents() {
-        return omniscience.getEvents();
+        return get().getEvents();
     }
 
     public static List<String> getEnabledEvents() {
@@ -89,15 +99,15 @@ public class OmniApi {
     }
 
     public static void registerEvent(String event, String pastTense) {
-        omniscience.registerEvent(event, pastTense);
+        get().registerEvent(event, pastTense);
     }
 
     public static void registerParameterHandler(ParameterHandler handler) {
-        omniscience.registerParameterHandler(handler);
+        get().registerParameterHandler(handler);
     }
 
     public static void registerFlagHandler(FlagHandler handler) {
-        omniscience.registerFlagHandler(handler);
+        get().registerFlagHandler(handler);
     }
 
     public static String getEventPastTense(String event) {
@@ -108,18 +118,18 @@ public class OmniApi {
     }
 
     public static String getSimpleDateFormat() {
-        return omniscience.getSimpleDateFormat();
+        return get().getSimpleDateFormat();
     }
 
     public static void registerWorldEditHandler(WorldEditHandler handler) {
-        omniscience.registerWorldEditHandler(handler);
+        get().registerWorldEditHandler(handler);
     }
 
     public static Optional<Class<? extends DataEntry>> getEventClass(String event) {
-        return omniscience.getEventClass(event);
+        return get().getEventClass(event);
     }
 
     public static String getDateFormat() {
-        return omniscience.getDateFormat();
+        return get().getDateFormat();
     }
 }
