@@ -1,6 +1,8 @@
 # Omniscience
 Lord of the Craft's Minecraft Logging System
 
+**WARNING: This repository is currently volatile and a public release has not been had yet. Use at your own caution.**
+
 ## About
 
 ### Preface
