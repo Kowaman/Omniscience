@@ -21,10 +21,11 @@
     </properties>
     <url>https://lotc.co/</url>
 
-	<distributionManagement>
+    <distributionManagement>
         <repository>
-            <id>lotc-release</id>
-            <url>https://repo.lordofthecraft.net/artifactory/lotc-releases/</url>
+            <id>github</id>
+            <name>GitHub Lord of the Craft Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/Lord-of-the-Craft/Omniscience</url>
         </repository>
     </distributionManagement>
 	
